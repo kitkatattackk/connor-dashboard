@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connor Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Core navy palette */
+  --navy-900: #060b18;
+  --navy-800: #0a1628;
+  --navy-700: #0f2044;
+  --navy-600: #152a5a;
+  --navy-500: #1d3a7a;
+
+  /* Glass surfaces */
+  --glass-01: rgba(255,255,255,0.03);
+  --glass-02: rgba(255,255,255,0.055);
+  --glass-03: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-bright: rgba(100,180,255,0.18);
+
+  /* Glow accents */
+  --blue: #4d9fff;
+  --blue-bright: #7ab8ff;
+  --blue-dim: #1a4a8a;
+  --blue-glow: rgba(77,159,255,0.25);
+  --cyan: #00d4ff;
+  --cyan-glow: rgba(0,212,255,0.2);
+  --green: #00e5a0;
+  --green-dim: #003d2b;
+  --green-glow: rgba(0,229,160,0.2);
+  --amber: #ffb347;
+  --amber-glow: rgba(255,179,71,0.2);
+  --red: #ff6b6b;
+  --red-dim: #3d1515;
+  --purple: #a78bfa;
+  --purple-glow: rgba(167,139,250,0.2);
+
+  /* Text */
+  --text-primary: #e8f0ff;
+  --text-secondary: rgba(180,200,255,0.7);
+  --text-tertiary: rgba(120,150,210,0.5);
+  --text-muted: rgba(80,110,170,0.4);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Legacy aliases for JS compatibility */
+  --bg-primary: var(--navy-800);
+  --bg-secondary: var(--navy-900);
+  --bg-tertiary: var(--navy-700);
+  --border: var(--glass-border);
+  --border-hover: var(--glass-border-bright);
+  --blue-light: rgba(77,159,255,0.12);
+  --blue-mid: var(--blue);
+  --green-light: rgba(0,229,160,0.1);
+  --red-light: rgba(255,107,107,0.1);
+  --amber-light: rgba(255,179,71,0.1);
+  --purple-light: rgba(167,139,250,0.1);
+  --gray-light: rgba(255,255,255,0.06);
+  --gray: rgba(180,200,255,0.5);
+  --font: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--navy-900);
+  color: var(--text-primary);
+  min-height: 100vh;
+  /* Ambient mesh background */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(29,58,122,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,100,180,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(10,22,40,0.8) 0%, transparent 100%);
+}
+
+/* ── Titlebar ──────────────────────────────────────────────────────────── */
+.titlebar {
+  height: 28px;
+  background: rgba(6,11,24,0.9);
+  -webkit-app-region: drag;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center;
+  padding: 0 80px 0 16px;
+  backdrop-filter: blur(20px);
+}
+.titlebar-title { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.08em; -webkit-app-region: no-drag; }
+
+/* ── Layout ────────────────────────────────────────────────────────────── */
+.layout { display: flex; height: calc(100vh - 28px); overflow: hidden; }
+
+/* ── Sidebar ───────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  background: rgba(6,11,24,0.7);
+  border-right: 1px solid var(--glass-border);
+  display: flex; flex-direction: column;
+  padding: 16px 0;
+  overflow-y: auto;
+  backdrop-filter: blur(24px);
+}
+.sidebar-logo {
+  padding: 4px 20px 18px;
+  font-size: 16px; font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.02em;
+}
+.sidebar-logo span { color: var(--blue); filter: drop-shadow(0 0 6px var(--blue-glow)); }
+.nav-section {
+  padding: 6px 20px 4px;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px;
+  font-size: 13px; font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer; user-select: none;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  margin: 1px 0;
+}
+.nav-item:hover { background: var(--glass-02); color: var(--text-primary); }
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(77,159,255,0.12), transparent);
+  color: var(--blue-bright);
+  border-left-color: var(--blue);
+  font-weight: 500;
+}
+.nav-icon { font-size: 14px; width: 18px; text-align: center; opacity: 0.85; }
+
+/* ── Main content ──────────────────────────────────────────────────────── */
+.main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 4px; }
+
+.greeting { font-size: 24px; font-weight: 600; margin-bottom: 2px; letter-spacing: -0.02em; }
+.dateline { font-size: 12px; color: var(--text-tertiary); margin-bottom: 22px; letter-spacing: 0.02em; }
+.pane { display: none; } .pane.active { display: block; }
+
+/* ── Section label ─────────────────────────────────────────────────────── */
+.sl { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+
+/* ── Glass cards ───────────────────────────────────────────────────────── */
+.card {
+  background: var(--glass-02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--glass-border-bright); }
+
+/* ── Inputs ────────────────────────────────────────────────────────────── */
+.inp {
+  background: rgba(6,11,24,0.6);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 13px; color: var(--text-primary);
+  font-family: var(--font); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.inp:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(77,159,255,0.1); }
+.inp::placeholder { color: var(--text-muted); }
+.sel {
+  background: rgba(6,11,24,0.6);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-size: 12px; color: var(--text-secondary);
+  font-family: var(--font); outline: none;
+}
+.sel option { background: var(--navy-800); }
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.btn {
+  background: var(--glass-02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 13px; color: var(--text-primary);
+  cursor: pointer; font-family: var(--font); white-space: nowrap;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--glass-03); border-color: var(--glass-border-bright); }
+.btn-p {
+  background: linear-gradient(135deg, #1a5aff, #0a3acc);
+  border-color: rgba(77,159,255,0.4);
+  color: white;
+  box-shadow: 0 0 16px rgba(26,90,255,0.3);
+}
+.btn-p:hover { background: linear-gradient(135deg, #2a6aff, #1a4acc); box-shadow: 0 0 24px rgba(26,90,255,0.5); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-d { background: rgba(255,107,107,0.08); border-color: rgba(255,107,107,0.2); color: var(--red); }
+.btn-d:hover { background: rgba(255,107,107,0.14); }
+.btn-g { background: linear-gradient(135deg, rgba(0,229,160,0.2), rgba(0,180,120,0.15)); border-color: rgba(0,229,160,0.3); color: var(--green); }
+.btn-g:hover { box-shadow: 0 0 20px var(--green-glow); }
+
+.rb { font-size: 12px; color: var(--text-muted); cursor: pointer; padding: 2px 4px; }
+.rb:hover { color: var(--red); }
+.sm { font-size: 12px; color: var(--green); margin-top: 8px; min-height: 18px; }
+.sm.err { color: var(--red); }
+.fg { margin-bottom: 12px; }
+.fl { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+.req { color: var(--red); font-size: 10px; }
+.fi { width: 100%; } .fta { width: 100%; resize: vertical; min-height: 64px; }
+.cr2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ── Modals ────────────────────────────────────────────────────────────── */
+.mw { display: none; background: rgba(0,0,0,0.6); border-radius: var(--radius-lg); padding: 2rem 1rem; margin: 8px 0; backdrop-filter: blur(4px); }
+.mw.open { display: block; }
+.mb {
+  background: linear-gradient(135deg, rgba(15,32,68,0.95), rgba(6,11,24,0.98));
+  border: 1px solid var(--glass-border-bright);
+  border-radius: var(--radius-xl);
+  padding: 22px; max-width: 380px; margin: 0 auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(77,159,255,0.08);
+}
+.mt { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
+.pg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.po {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 8px 10px;
+  font-size: 12px; cursor: pointer; color: var(--text-secondary); text-align: center;
+  transition: all 0.15s;
+}
+.po:hover, .po.sel { border-color: var(--blue); color: var(--blue-bright); background: var(--blue-light); box-shadow: 0 0 12px var(--blue-glow); }
+.ma { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* ── Tasks ─────────────────────────────────────────────────────────────── */
+.trow { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--glass-border); }
+.trow:last-child { border-bottom: none; }
+.tck {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--glass-border-bright); border-radius: 4px;
+  flex-shrink: 0; margin-top: 1px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.tck:hover { border-color: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+.tck.done { background: var(--green); border-color: var(--green); box-shadow: 0 0 10px var(--green-glow); }
+.tck.done::after { content: ''; display: block; width: 8px; height: 5px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
+.ttxt { font-size: 13px; line-height: 1.45; flex: 1; }
+.ttxt.done { color: var(--text-muted); text-decoration: line-through; }
+.ttag { font-size: 10px; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; font-weight: 500; }
+.tg-work { background: rgba(77,159,255,0.12); color: var(--blue-bright); border: 1px solid rgba(77,159,255,0.2); }
+.tg-stream { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.tg-home { background: rgba(0,229,160,0.1); color: var(--green); border: 1px solid rgba(0,229,160,0.2); }
+.nb { font-size: 9px; padding: 2px 7px; border-radius: 99px; background: rgba(0,229,160,0.08); color: var(--green); border: 1px solid rgba(0,229,160,0.15); flex-shrink: 0; }
+
+/* ── Schedule ──────────────────────────────────────────────────────────── */
+.wh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.wn { display: flex; align-items: center; gap: 8px; }
+.wl { font-size: 13px; font-weight: 500; min-width: 160px; text-align: center; }
+.wnb {
+  background: var(--glass-02); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 5px 14px;
+  font-size: 16px; cursor: pointer; color: var(--text-primary);
+  transition: all 0.15s;
+}
+.wnb:hover { border-color: var(--glass-border-bright); }
+.wg { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 6px; height: calc(100vh - 200px); }
+.dc {
+  background: var(--glass-01);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  height: 100%; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.dc:hover { border-color: var(--glass-border-bright); }
+.dc.today { border-color: rgba(77,159,255,0.4); box-shadow: 0 0 20px rgba(77,159,255,0.08); }
+.dh { padding: 8px 8px 6px; border-bottom: 1px solid var(--glass-border); }
+.dn { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.dd { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-top: 1px; }
+.dd.tn { color: var(--blue); text-shadow: 0 0 10px var(--blue-glow); }
+.db3 { padding: 4px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; max-height: calc(100% - 46px); }
+.db3::-webkit-scrollbar { width: 3px; }
+.db3::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 2px; }
+.bp { border-radius: 5px; padding: 4px 7px; font-size: 11px; line-height: 1.3; display: flex; align-items: flex-start; gap: 4px; }
+.bpt { font-size: 9px; opacity: 0.7; white-space: nowrap; flex-shrink: 0; margin-top: 2px; font-family: var(--font-mono); }
+.bptl { flex: 1; word-break: break-word; }
+.bpd { flex-shrink: 0; font-size: 10px; opacity: 0; cursor: pointer; margin-top: 1px; }.bp:hover .bpd { opacity: 0.6; }
+.mp { background: rgba(77,159,255,0.14); color: var(--blue-bright); }
+.fp { background: rgba(167,139,250,0.14); color: var(--purple); }
+.wp { background: rgba(255,179,71,0.14); color: var(--amber); }
+.pp2 { background: rgba(0,229,160,0.12); color: var(--green); }
+.ab {
+  margin: 3px 4px; padding: 4px 6px; font-size: 10px;
+  color: var(--text-muted); background: none;
+  border: 1px dashed rgba(255,255,255,0.06);
+  border-radius: 4px; cursor: pointer; width: calc(100% - 8px); text-align: center;
+  font-family: var(--font); transition: all 0.15s;
+}
+.ab:hover { border-color: var(--glass-border-bright); color: var(--text-secondary); background: var(--glass-01); }
+
+/* Color swatches */
+.color-row { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.color-swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: transform .1s; }
+.color-swatch:hover { transform: scale(1.2); }
+.color-swatch.selected { border-color: white; transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.3); }
+
+/* ── Jira ──────────────────────────────────────────────────────────────── */
+.js { border: 1px solid var(--glass-border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s; }
+.js:hover { border-color: var(--glass-border-bright); }
+.jsh { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--glass-01); cursor: pointer; user-select: none; }
+.jst { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.jsb { font-size: 10px; padding: 2px 8px; border-radius: 99px; background: rgba(77,159,255,0.1); color: var(--blue-bright); border: 1px solid rgba(77,159,255,0.15); }
+.jsb.filled { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.2); }
+.jsc { font-size: 10px; color: var(--text-muted); transition: transform .15s; display: inline-block; }
+.jsc.open { transform: rotate(180deg); }
+.jsbd { padding: 14px; border-top: 1px solid var(--glass-border); display: none; }
+.jsbd.open { display: block; }
+.bl { list-style: none; margin-bottom: 8px; }
+.bi { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); }
+.bi:last-child { border-bottom: none; }
+.bd2 { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-dim); flex-shrink: 0; margin-top: 8px; }
+.bit { flex: 1; font-size: 13px; line-height: 1.5; }
+.bix { font-size: 11px; color: var(--text-muted); cursor: pointer; flex-shrink: 0; padding: 2px 4px; margin-top: 2px; }
+.bix:hover { color: var(--red); }
+.bar { display: flex; gap: 6px; margin-top: 6px; }
+.story-out {
+  background: rgba(6,11,24,0.8); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); padding: 16px;
+  font-size: 12px; line-height: 1.8; white-space: pre-wrap; word-break: break-word;
+  max-height: 340px; overflow-y: auto;
+  font-family: var(--font-mono); color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.pl { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+
+/* ── Recap ─────────────────────────────────────────────────────────────── */
+.st { display: flex; margin-bottom: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); overflow: hidden; }
+.sta { flex: 1; text-align: center; padding: 7px; font-size: 12px; cursor: pointer; color: var(--text-secondary); background: var(--glass-01); border: none; font-family: var(--font); transition: all 0.15s; }
+.sta.active { background: var(--blue-light); color: var(--blue-bright); font-weight: 500; }
+.uz { border: 1.5px dashed var(--glass-border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; }
+.uz:hover, .uz.dv { border-color: var(--blue); background: rgba(77,159,255,0.05); }
+.uz.hf { border-color: var(--green); background: rgba(0,229,160,0.05); border-style: solid; }
+.um { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.us { font-size: 12px; color: var(--text-secondary); }
+.tp { background: rgba(6,11,24,0.6); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--text-secondary); max-height: 120px; overflow-y: auto; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+.si { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.st2 { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.st2.active { color: var(--blue-bright); font-weight: 500; }
+.st2.done { color: var(--green); }
+.sd { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+.st2.active .sd { border-color: var(--blue); background: var(--blue-light); color: var(--blue); box-shadow: 0 0 8px var(--blue-glow); }
+.st2.done .sd { border-color: var(--green); background: var(--green); color: #000; box-shadow: 0 0 8px var(--green-glow); }
+.sl2 { flex: 1; height: 1px; background: var(--glass-border); max-width: 28px; }
+.rg { background: var(--glass-01); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 16px; text-align: center; margin: 10px 0; }
+.spn { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--glass-border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 6px var(--green-glow)} 50%{opacity:0.5;box-shadow:0 0 12px var(--green-glow)} }
+
+/* ── Client request tags ───────────────────────────────────────────────── */
+.to { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tc2 { font-size: 11px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--glass-border); cursor: pointer; color: var(--text-secondary); background: var(--glass-01); user-select: none; transition: all 0.15s; }
+.tc2.sc { border-color: transparent; }
+.c-bl.sc { background: rgba(167,139,250,0.12); color: var(--purple); border-color: rgba(167,139,250,0.2); }
+.c-ip.sc { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.2); }
+.c-co.sc { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.2); }
+.c-rd.sc { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.2); }
+.c-rf.sc { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.2); }
+.c-di.sc { background: rgba(0,212,255,0.1); color: var(--cyan); border-color: rgba(0,212,255,0.2); }
+.c-ni.sc { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
+.po2 { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.prp { font-size: 11px; padding: 4px 12px; border-radius: 99px; border: 1px solid var(--glass-border); cursor: pointer; color: var(--text-secondary); background: var(--glass-01); transition: all 0.15s; }
+.prp.sl { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.25); }
+.prp.sm2 { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.25); }
+.prp.sh { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.25); }
+.prp.sf { background: rgba(0,212,255,0.1); color: var(--cyan); border-color: rgba(0,212,255,0.2); }
+.subr { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--glass-border); }
+.subr:last-child { border-bottom: none; }
+.subn { flex: 1; font-size: 13px; } .subm { font-size: 11px; color: var(--text-muted); }
+.nel { font-size: 11px; color: var(--blue-bright); cursor: pointer; }
+.nel:hover { text-decoration: underline; color: var(--cyan); }
+
+/* ── Notion bar ────────────────────────────────────────────────────────── */
+.notion-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, rgba(15,32,68,0.6), rgba(6,11,24,0.4));
+  border: 1px solid var(--glass-border-bright);
+  border-radius: var(--radius-lg); padding: 14px 18px;
+  gap: 12px; margin-bottom: 16px;
+  box-shadow: 0 0 30px rgba(77,159,255,0.06);
+}
+.nbl { display: flex; align-items: center; gap: 12px; }
+.nbi { width: 30px; height: 30px; background: var(--glass-03); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+.nbt { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.nbs { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.obtn { background: var(--glass-02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 7px 16px; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.obtn:hover { border-color: var(--glass-border-bright); color: var(--text-primary); }
+
+/* ── Home widgets ──────────────────────────────────────────────────────── */
+.wgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.wgrid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.widget {
+  background: var(--glass-02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding: 16px 18px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.widget:hover { border-color: var(--glass-border-bright); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+.w-dt { display: flex; align-items: center; justify-content: space-between; }
+.w-day { font-size: 22px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+.w-month { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+.w-time { font-size: 22px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; font-family: var(--font-mono); color: var(--blue-bright); text-shadow: 0 0 20px var(--blue-glow); }
+.w-tz { font-size: 10px; color: var(--text-muted); margin-top: 4px; text-align: right; }
+.w-wm { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.w-temp { font-size: 28px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+.w-cond { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+.w-precip { font-size: 10px; color: var(--cyan); margin-top: 2px; }
+.w-icon { font-size: 28px; }
+.w-forecast { display: flex; gap: 5px; }
+.w-fd { flex: 1; text-align: center; background: rgba(6,11,24,0.5); border-radius: var(--radius-sm); padding: 6px 3px; border: 1px solid var(--glass-border); }
+.w-fd-name { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.w-fd-icon { font-size: 12px; margin: 2px 0; }
+.w-fd-temp { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.w-sn { font-size: 30px; font-weight: 600; line-height: 1; margin-bottom: 6px; letter-spacing: -0.03em; font-family: var(--font-mono); }
+.w-sl { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.w-ss { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.w-section { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.w-trow { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); }
+.w-trow:last-child { border-bottom: none; }
+.w-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-work { background: var(--blue); box-shadow: 0 0 6px var(--blue-glow); }
+.dot-stream { background: var(--purple); box-shadow: 0 0 6px var(--purple-glow); }
+.dot-home { background: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+.w-ttxt { font-size: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+.w-brow { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); }
+.w-brow:last-child { border-bottom: none; }
+.w-btime { font-size: 10px; color: var(--text-muted); width: 52px; flex-shrink: 0; font-family: var(--font-mono); }
+.w-btitle { font-size: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+.w-btag { font-size: 9px; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; font-weight: 500; }
+.bm2 { background: rgba(77,159,255,0.12); color: var(--blue-bright); }
+.bf2 { background: rgba(167,139,250,0.12); color: var(--purple); }
+.bw2 { background: rgba(255,179,71,0.12); color: var(--amber); }
+.bp3 { background: rgba(0,229,160,0.1); color: var(--green); }
+.w-empty { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
+.clickable { cursor: pointer; }
+.clickable:hover { opacity: 0.85; }
+
+/* ── Glow stat numbers ─────────────────────────────────────────────────── */
+#stat-open { color: var(--blue-bright); text-shadow: 0 0 20px var(--blue-glow); }
+#stat-blocks { color: var(--cyan); text-shadow: 0 0 20px var(--cyan-glow); }
+
+/* ── Scrollbar global ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 4px; }
+
+/* ── Notion integration card ───────────────────────────────────────────── */
+#pane-settings .card { border-color: var(--glass-border-bright); }
+#pane-settings code { font-family: var(--font-mono); font-size: 11px; background: var(--glass-03); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<!-- Ambient background orbs -->
+<div style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
+  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(29,58,122,0.35) 0%,transparent 70%);top:-200px;left:-100px;animation:orbFloat 18s ease-in-out infinite alternate"></div>
+  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,100,200,0.2) 0%,transparent 70%);bottom:-100px;right:100px;animation:orbFloat 22s ease-in-out infinite alternate-reverse"></div>
+</div>
+<style>
+@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
+</style>
+<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">CONNOR · DASHBOARD</span></div>
+<div class="layout" style="position:relative;z-index:1">
+  <div class="sidebar">
+    <div class="sidebar-logo"><span>⚡</span> Dashboard</div>
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" data-pane="home"><span class="nav-icon">🏠</span>Home</div>
+    <div class="nav-item" data-pane="tasks"><span class="nav-icon">✅</span>Tasks</div>
+    <div class="nav-item" data-pane="schedule"><span class="nav-icon">📅</span>Schedule</div>
+    <div class="nav-section">Work</div>
+    <div class="nav-item" data-pane="request"><span class="nav-icon">📬</span>Client request</div>
+    <div class="nav-item" data-pane="recap"><span class="nav-icon">📄</span>Recap</div>
+    <div class="nav-section">Quick</div>
+    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')"><span class="nav-icon">N</span>Notion tracker</div>
+    <div style="flex:1"></div>
+    <div class="nav-item" data-pane="settings"><span class="nav-icon">⚙</span>Settings</div>
+  </div>
+
+  <div class="main">
+    <div class="greeting" id="greeting"></div>
+    <div class="dateline" id="dateline"></div>
+
+    <!-- HOME -->
+    <div class="pane active" id="pane-home">
+
+      <!-- ── ROW 1: Clock | Weather ───────────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:12px">
+
+        <!-- CLOCK WIDGET -->
+        <div class="widget" style="position:relative;overflow:hidden;padding:0;min-height:160px;">
+          <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.07) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none"></div>
+          <div style="padding:20px 24px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Local Time</div>
+              <div style="display:flex;align-items:baseline;gap:5px">
+                <div id="w-time" style="font-size:52px;font-weight:300;font-family:var(--font-mono);color:var(--blue-bright);text-shadow:0 0 40px rgba(77,159,255,0.4);letter-spacing:-3px;line-height:1">--:--</div>
+                <div id="w-ampm" style="font-size:16px;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;font-family:var(--font-mono)">--</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <div id="w-day" style="font-size:14px;font-weight:500;color:var(--text-secondary)"></div>
+                <div style="width:3px;height:3px;border-radius:50%;background:var(--blue);box-shadow:0 0 6px var(--blue-glow)"></div>
+                <div id="w-month" style="font-size:14px;color:var(--text-tertiary)"></div>
+              </div>
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(77,159,255,0.08);border:1px solid rgba(77,159,255,0.15);border-radius:99px;padding:4px 12px">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green-glow);animation:pulse 2s ease-in-out infinite"></div>
+                <span style="font-size:10px;color:var(--text-tertiary);letter-spacing:0.04em">Hendersonville, NC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEATHER WIDGET -->
+        <div class="widget" style="padding:0;overflow:hidden;position:relative;min-height:160px;">
+          <canvas id="weather-canvas" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius-lg);"></canvas>
+          <div style="position:relative;z-index:2;padding:20px 22px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between">
+              <div>
+                <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <div class="w-temp" id="w-temp-live" style="font-size:44px;font-weight:300;line-height:1;text-shadow:0 0 30px rgba(255,255,255,0.15)">38°F</div>
+                </div>
+                <div class="w-cond" id="w-cond-live" style="margin-top:4px;font-size:13px">Sunny · Day</div>
+                <div class="w-precip" id="w-precip-live" style="margin-top:3px;font-size:11px">5% chance of snow today</div>
+              </div>
+              <div id="w-icon-live" style="font-size:48px;filter:drop-shadow(0 0 12px rgba(255,220,100,0.6));margin-top:4px">☀️</div>
+            </div>
+            <div class="w-forecast" id="w-forecast-live" style="gap:6px">
+              <div class="w-fd"><div class="w-fd-name">Tue</div><div class="w-fd-icon">☀️</div><div class="w-fd-temp">38°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Wed</div><div class="w-fd-icon">🌥️</div><div class="w-fd-temp">42°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Thu</div><div class="w-fd-icon">🌤️</div><div class="w-fd-temp">58°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Fri</div><div class="w-fd-icon">🌦️</div><div class="w-fd-temp">67°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Sat</div><div class="w-fd-icon">🌦️</div><div class="w-fd-temp">74°</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROW 2: Pomodoro (big) | Stats column ─────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:12px;margin-bottom:12px;align-items:stretch">
+
+        <!-- POMODORO WIDGET — large -->
+        <div class="widget" style="position:relative;overflow:hidden;padding:22px 28px">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 120% at 15% 50%,rgba(77,159,255,0.07) 0%,transparent 65%);pointer-events:none"></div>
+          <div style="position:relative;display:flex;align-items:center;gap:32px">
+
+            <!-- Big SVG ring -->
+            <div style="position:relative;flex-shrink:0;width:200px;height:200px">
+              <svg width="200" height="200" style="transform:rotate(-90deg)">
+                <!-- track -->
+                <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(77,159,255,0.06)" stroke-width="8"/>
+                <!-- soft glow layer -->
+                <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(77,159,255,0.03)" stroke-width="20"/>
+                <!-- progress ring -->
+                <circle id="pomo-ring" cx="100" cy="100" r="88" fill="none" stroke="var(--blue)" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"
+                  style="transition:stroke-dashoffset 1s linear,stroke 0.5s;filter:drop-shadow(0 0 10px rgba(77,159,255,0.6))"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                <div id="pomo-time" style="font-size:38px;font-weight:700;font-family:var(--font-mono);color:var(--blue-bright);line-height:1;text-shadow:0 0 30px rgba(77,159,255,0.6);letter-spacing:-1px">25:00</div>
+                <div id="pomo-label-inner" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted)">Focus</div>
+              </div>
+            </div>
+
+            <!-- Controls + info -->
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+                <div id="pomo-label" style="font-size:16px;font-weight:600;color:var(--text-primary)">Focus Session</div>
+                <div id="pomo-session" style="font-size:11px;color:var(--text-muted);background:var(--glass-02);border:1px solid var(--glass-border);border-radius:99px;padding:2px 10px">Session 1</div>
+              </div>
+              <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:18px">Stay locked in. Break coming soon.</div>
+
+              <!-- Session dots -->
+              <div style="display:flex;gap:6px;margin-bottom:18px" id="pomo-dots"></div>
+
+              <!-- Controls -->
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn btn-p" id="pomo-btn" onclick="pomodoroToggle()" style="font-size:13px;padding:9px 22px;min-width:100px">▶ Start</button>
+                <button class="btn btn-sm" onclick="pomodoroSkip()" style="font-size:13px;padding:8px 14px" title="Skip to next">⏭</button>
+                <button class="btn btn-sm" onclick="pomodoroReset()" style="font-size:13px;padding:8px 14px" title="Reset">↺</button>
+                <!-- Custom duration -->
+                <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+                  <span style="font-size:11px;color:var(--text-muted)">Focus:</span>
+                  <select id="pomo-duration-sel" class="sel" style="font-size:11px;padding:4px 6px" onchange="pomodoroSetDuration(this.value)">
+                    <option value="25">25 min</option>
+                    <option value="50">50 min</option>
+                    <option value="90">90 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+
+          <!-- Open tasks stat -->
+          <div class="widget" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Open Tasks</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div class="w-sn" id="stat-open" style="font-size:36px">–</div>
+              <div style="text-align:right">
+                <div style="font-size:10px;color:var(--text-muted)" id="stat-done-sub">– done</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(77,159,255,0.1);border:1px solid rgba(77,159,255,0.2);display:flex;align-items:center;justify-content:center;margin-top:4px">
+                  <span style="font-size:13px">✅</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocks today stat -->
+          <div class="widget" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Blocks Today</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div class="w-sn" id="stat-blocks" style="font-size:36px">–</div>
+              <div style="text-align:right">
+                <div style="font-size:10px;color:var(--text-muted)" id="stat-week-sub">– this week</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;margin-top:4px">
+                  <span style="font-size:13px">📅</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notion tracker -->
+          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Notion Tracker</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div style="font-size:22px;font-weight:700;color:var(--text-secondary);letter-spacing:-0.03em">N ↗</div>
+              <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+                <span style="font-size:13px">🔗</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROW 3: Tasks | Today schedule ─────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="widget" style="min-height:180px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="w-section">Upcoming tasks</div>
+            <div style="font-size:10px;color:var(--blue);cursor:pointer" onclick="document.querySelector('[data-pane=tasks]').click()">View all →</div>
+          </div>
+          <div id="w-task-list"></div>
+        </div>
+        <div class="widget" style="min-height:180px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="w-section">Today's blocks</div>
+            <div style="font-size:10px;color:var(--blue);cursor:pointer" onclick="document.querySelector('[data-pane=schedule]').click()">View all →</div>
+          </div>
+          <div id="w-sched-list"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TASKS -->
+    <div class="pane" id="pane-tasks">
+      <div class="card">
+        <div id="task-list"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input class="inp" id="task-input" placeholder="Add a task..." style="flex:1;min-width:120px" onkeydown="if(event.key==='Enter') addTask()" />
+          <select class="sel" id="task-tag"><option value="work">work</option><option value="stream">stream</option><option value="home">home</option></select>
+          <button class="btn" onclick="addTask()">Add + sync to Notion ↗</button>
+        </div>
+      </div>
+      <div class="mw" id="notion-modal">
+        <div class="mb">
+          <div class="mt">Choose Notion project</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">Task: <span id="modal-task-preview"></span></div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:10px;margin-bottom:4px">Project</div>
+          <div class="pg" id="project-grid"></div>
+          <div class="ma"><button class="btn btn-sm" onclick="closeNM()">Cancel</button><button class="btn btn-p btn-sm" onclick="confirmNT()">Add to Notion ↗</button></div>
+          <div class="sm" id="modal-status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="pane" id="pane-schedule">
+      <div class="wh">
+        <div class="wn"><button class="wnb" onclick="shiftW(-1)">&#8592;</button><span class="wl" id="week-label"></span><button class="wnb" onclick="shiftW(1)">&#8594;</button></div>
+        <button class="btn btn-sm" onclick="shiftW(0,true)">Today</button>
+      </div>
+      <div class="wg" id="week-grid"></div>
+      <div class="mw" id="block-modal">
+        <div class="mb">
+          <div class="mt" id="block-modal-title">Add block</div>
+          <div class="fg"><div class="fl">Time</div><input class="inp fi" id="block-time" placeholder="e.g. 9:00 AM" /></div>
+          <div class="fg"><div class="fl">Title</div><input class="inp fi" id="block-title" onkeydown="if(event.key==='Enter') saveBlock()" placeholder="e.g. Harford onboarding call" /></div>
+          <div class="fg"><div class="fl">Type</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div class="po" id="btype-meeting" onclick="SBT('meeting')">Meeting</div>
+              <div class="po" id="btype-focus" onclick="SBT('focus')">Focus</div>
+              <div class="po" id="btype-work" onclick="SBT('work')">Work</div>
+              <div class="po" id="btype-personal" onclick="SBT('personal')">Personal</div>
+            </div>
+          </div>
+          <div class="fg"><div class="fl">Color</div>
+            <div class="color-row" id="block-color-row">
+              <div class="color-swatch selected" data-color="default" style="background:var(--blue-light);border-color:var(--text-primary)" onclick="SBC(this,'default')"></div>
+              <div class="color-swatch" data-color="#E6F1FB" style="background:#E6F1FB" onclick="SBC(this,'#E6F1FB')"></div>
+              <div class="color-swatch" data-color="#EEEDFE" style="background:#EEEDFE" onclick="SBC(this,'#EEEDFE')"></div>
+              <div class="color-swatch" data-color="#E1F5EE" style="background:#E1F5EE" onclick="SBC(this,'#E1F5EE')"></div>
+              <div class="color-swatch" data-color="#FAEEDA" style="background:#FAEEDA" onclick="SBC(this,'#FAEEDA')"></div>
+              <div class="color-swatch" data-color="#FCEBEB" style="background:#FCEBEB" onclick="SBC(this,'#FCEBEB')"></div>
+              <div class="color-swatch" data-color="#FBEAF0" style="background:#FBEAF0" onclick="SBC(this,'#FBEAF0')"></div>
+              <div class="color-swatch" data-color="#F1EFE8" style="background:#F1EFE8" onclick="SBC(this,'#F1EFE8')"></div>
+              <div class="color-swatch" data-color="#2a3a5a" style="background:#2a3a5a" onclick="SBC(this,'#2a3a5a')"></div>
+              <div class="color-swatch" data-color="#3a2a5a" style="background:#3a2a5a" onclick="SBC(this,'#3a2a5a')"></div>
+              <div class="color-swatch" data-color="#2a5a3a" style="background:#2a5a3a" onclick="SBC(this,'#2a5a3a')"></div>
+              <div class="color-swatch" data-color="#5a3a2a" style="background:#5a3a2a" onclick="SBC(this,'#5a3a2a')"></div>
+              <div class="color-swatch" data-color="#5a2a2a" style="background:#5a2a2a" onclick="SBC(this,'#5a2a2a')"></div>
+              <div class="color-swatch" data-color="#1a1a2a" style="background:#1a1a2a" onclick="SBC(this,'#1a1a2a')"></div>
+            </div>
+          </div>
+          <div class="ma"><button class="btn btn-sm" onclick="closeBM()">Cancel</button><button class="btn btn-p btn-sm" onclick="saveBlock()">Add block</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENT REQUEST -->
+    <div class="pane" id="pane-request">
+      <div class="notion-bar">
+        <div class="nbl"><div class="nbi">N</div><div><div class="nbt">Client Request and Project Tracker</div><div class="nbs">View all requests, projects, and task statuses</div></div></div>
+        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Open in Notion ↗</button>
+      </div>
+      <div class="card">
+        <div class="sl" style="margin-bottom:14px">new task</div>
+        <div class="fg"><div class="fl">Task name <span class="req">required</span></div><input class="inp fi" id="cr-name" placeholder="e.g. Harford Claims — Results Dashboard filter request" /></div>
+        <div class="cr2">
+          <div class="fg"><div class="fl">Project</div><select class="sel fi" id="cr-project"><option>Harford Claims</option><option>Merchants Claims</option><option>Markel Claims</option><option>IAT</option><option>Branch</option><option>Reporting/Dashboard</option><option>IPG</option><option>MSI</option><option>Client = N/A</option></select></div>
+          <div class="fg"><div class="fl">Status</div><select class="sel fi" id="cr-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>Archived</option></select></div>
+        </div>
+        <div class="fg"><div class="fl">Priority</div><div class="po2"><div class="prp" id="pri-Low" onclick="SP('Low')">Low</div><div class="prp" id="pri-Medium" onclick="SP('Medium')">Medium</div><div class="prp" id="pri-High" onclick="SP('High')">High</div><div class="prp" id="pri-FRD" onclick="SP('FRD Done')">FRD Done</div></div></div>
+        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Dashboard</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
+        <div class="cr2"><div class="fg"><div class="fl">Due date</div><input class="inp fi" id="cr-due" type="date" /></div><div class="fg"><div class="fl">Jira ticket</div><input class="inp fi" id="cr-jira" placeholder="e.g. GQ-412" /></div></div>
+        <div class="cr2"><div class="fg"><div class="fl">Dev points</div><input class="inp fi" id="cr-devpoints" placeholder="e.g. 3" /></div><div class="fg" style="visibility:hidden"></div></div>
+        <div class="fg"><div class="fl">Notes</div><textarea class="inp fta" id="cr-notes" placeholder="Any additional context..."></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-p" onclick="submitCR()">Create in Notion ↗</button><button class="btn btn-d btn-sm" onclick="clearCR()">Clear</button></div>
+        <div class="sm" id="cr-sm"></div>
+      </div>
+      <div id="cr-submitted-wrap" style="display:none"><div class="sl">created this session</div><div class="card"><div id="cr-submitted-list"></div></div></div>
+    </div>
+
+    <!-- JIRA -->
+    <div class="pane" id="pane-jira">
+      <div class="card" style="margin-bottom:10px">
+        <div class="cr2" style="gap:10px">
+          <div class="fg" style="margin-bottom:0"><div class="fl">Summary <span class="req">required</span></div><input class="inp fi" id="j-summary" placeholder="e.g. Manually Change Calibration Review Report Status" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="fg" style="margin-bottom:0"><div class="fl">Component</div><select class="sel fi" id="j-component"><option>Calibration</option><option>Results Dashboard</option><option>FSA</option><option>Audit Admin</option><option>Reporting</option><option>IFR</option><option>Questionnaire</option><option>Other</option></select></div>
+            <div class="fg" style="margin-bottom:0"><div class="fl">Affected clients</div><input class="inp fi" id="j-clients" placeholder="e.g. Harford, All" /></div>
+          </div>
+        </div>
+      </div>
+      <div class="js"><div class="jsh" onclick="TS('description')"><div class="jst">Description <span class="jsb" id="badge-description">empty</span></div><span class="jsc open" id="chev-description">▼</span></div><div class="jsbd open" id="body-description"><div class="fl" style="margin-bottom:5px;font-size:12px;color:var(--text-secondary)">2–3 sentence overview</div><textarea class="inp fta" id="j-description" style="min-height:72px"></textarea></div></div>
+      <div class="js"><div class="jsh" onclick="TS('behavior')"><div class="jst">Behavior rules <span class="jsb" id="badge-behavior">0 rules</span></div><span class="jsc open" id="chev-behavior">▼</span></div><div class="jsbd open" id="body-behavior"><ul class="bl" id="behavior-list"></ul><div class="bar"><input class="inp" id="behavior-input" placeholder="Add a behavior rule..." style="flex:1" onkeydown="if(event.key==='Enter'){AB('behavior');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('behavior')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('permissions')"><div class="jst">Permissions <span class="jsb" id="badge-permissions">0 rules</span></div><span class="jsc open" id="chev-permissions">▼</span></div><div class="jsbd open" id="body-permissions"><ul class="bl" id="permissions-list"></ul><div class="bar"><input class="inp" id="permissions-input" placeholder="e.g. Secondary Reviewers can change status on their own reports" style="flex:1" onkeydown="if(event.key==='Enter'){AB('permissions');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('permissions')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('technical')"><div class="jst">Technical notes <span class="jsb" id="badge-technical">0 notes</span></div><span class="jsc" id="chev-technical">▼</span></div><div class="jsbd" id="body-technical"><ul class="bl" id="technical-list"></ul><div class="bar"><input class="inp" id="technical-input" placeholder="e.g. Status change does not require reopening the Audit" style="flex:1" onkeydown="if(event.key==='Enter'){AB('technical');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('technical')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('edge')"><div class="jst">Edge cases <span class="jsb" id="badge-edge">0 cases</span></div><span class="jsc" id="chev-edge">▼</span></div><div class="jsbd" id="body-edge"><ul class="bl" id="edge-list"></ul><div class="bar"><input class="inp" id="edge-input" placeholder="e.g. If Complete report is reopened, confirm resolutions are preserved" style="flex:1" onkeydown="if(event.key==='Enter'){AB('edge');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('edge')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('acceptance')"><div class="jst">Acceptance criteria <span class="jsb" id="badge-acceptance">0 criteria</span></div><span class="jsc" id="chev-acceptance">▼</span></div><div class="jsbd" id="body-acceptance"><ul class="bl" id="acceptance-list"></ul><div class="bar"><input class="inp" id="acceptance-input" placeholder="e.g. Status transitions follow Ready → In Progress → Complete only" style="flex:1" onkeydown="if(event.key==='Enter'){AB('acceptance');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('acceptance')">Add</button></div></div></div>
+
+      <!-- Generated story output (shown after clicking Generate) -->
+      <div id="jira-output-wrap" style="display:none;margin-top:12px">
+        <div class="pl"><span>Generated story</span><button class="btn btn-sm" onclick="copyStory()">Copy</button></div>
+        <div class="story-out" id="jira-output"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="fg" style="margin-bottom:0;flex:1;min-width:160px"><div class="fl" style="margin-bottom:4px">Notion project</div><select class="sel fi" id="j-notion-project"><option>Reporting/Dashboard</option><option>Harford Claims</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI</option><option>IAT</option><option>Branch</option><option>IPG</option><option>Client = N/A</option></select></div>
+          <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn btn-p" onclick="pushJira()">Push to Notion ↗</button><button class="btn btn-d btn-sm" onclick="clearJira()">Clear</button></div>
+        </div>
+        <div class="sm" id="jira-status"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px" id="jira-generate-row">
+        <button class="btn btn-g" onclick="generateStory()" style="flex:1">Generate story ↗</button>
+        <button class="btn btn-d btn-sm" onclick="clearJira()">Clear</button>
+      </div>
+    </div>
+
+    <!-- RECAP -->
+    <div class="pane" id="pane-recap">
+      <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees</div><input class="inp fi" id="r-attendees" placeholder="e.g. John Smith" /></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
+      <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
+    </div>
+    <!-- SETTINGS -->
+    <div class="pane" id="pane-settings">
+      <div class="card" style="max-width:500px">
+        <div class="sl" style="margin-bottom:16px">Notion integration</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          To sync tasks and Jira stories to Notion, you need an integration token.
+          <br><br>
+          1. Go to <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://www.notion.so/my-integrations')">notion.so/my-integrations</span><br>
+          2. Click <strong>+ New integration</strong><br>
+          3. Name it "Dashboard", select your workspace, click Save<br>
+          4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
+          5. Paste it below<br><br>
+          You'll also need to share each database with the integration:<br>
+          Open the database in Notion → ··· menu → Connections → add your integration.
+        </p>
+        <div class="fg">
+          <div class="fl">Notion token</div>
+          <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveSettings()">Save token</button>
+          <button class="btn btn-d btn-sm" onclick="clearSettings()">Clear</button>
+          <button class="btn btn-sm" onclick="checkBridge()">Test connection</button>
+          <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
+        </div>
+        <div id="settings-status" class="sm" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+const BRIDGE = 'http://127.0.0.1:3847';
+
+const PROJS = ['Harford Claims','Merchants Claims','Markel Claims','IAT','Branch','Reporting/Dashboard','IPG','MSI','Client = N/A'];
+
+// Restore saved token to bridge on startup
+(async () => {
+  const saved = localStorage.getItem('notion_token');
+  if (saved) {
+    try { await fetch(`${BRIDGE}/set-token`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:saved})}); } catch(e){}
+  }
+})();
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TMAP = {meeting:'mp',focus:'fp',work:'wp',personal:'pp2'};
+const TMAP2 = {meeting:'bm2',focus:'bf2',work:'bw2',personal:'bp3'};
+
+let tasks = JSON.parse(localStorage.getItem('cdash_t')||'null') || [
+  {text:'Finalize Harford Claims recap doc',tag:'work',done:false,notion:false},
+  {text:'Push Calibration Review Report story to Notion',tag:'work',done:false,notion:false},
+  {text:'Check MSI Claims onboarding status',tag:'work',done:false,notion:false},
+  {text:'Review stream overlay for new season',tag:'stream',done:false,notion:false},
+  {text:'Plan backyard project for weekend',tag:'home',done:false,notion:false},
+];
+let wBlocks = JSON.parse(localStorage.getItem('cdash_w')||'{}');
+let jBullets = {behavior:[],permissions:[],technical:[],edge:[],acceptance:[]};
+let pendTask=null, selProj=null, txText='', curSrc='upload';
+let wOff=0, pendDay=null, selBT='meeting';
+let selPri=null, selTags=new Set(), subReqs=[];
+let selBlockColor='default';
+let generatedStory='';
+
+function save(){
+  try{
+    localStorage.setItem('cdash_t',JSON.stringify(tasks));
+    localStorage.setItem('cdash_w',JSON.stringify(wBlocks));
+    if(typeof pomoState!=='undefined') localStorage.setItem('cdash_pomo',JSON.stringify(pomoState));
+  }catch(e){}
+  // Async disk save via bridge — fire and forget
+  fetch('http://127.0.0.1:3847/save-data',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({tasks, wBlocks, pomoState: typeof pomoState!=='undefined'?pomoState:null})
+  }).catch(()=>{});
+}
+function loadPersistedData(){
+  // Load from disk via bridge (authoritative source — survives localStorage clears)
+  fetch('http://127.0.0.1:3847/load-data')
+    .then(r=>r.json())
+    .then(d=>{
+      let changed = false;
+      if(d.tasks && Array.isArray(d.tasks)){
+        tasks = d.tasks;
+        localStorage.setItem('cdash_t', JSON.stringify(tasks));
+        changed = true;
+      }
+      if(d.wBlocks && typeof d.wBlocks==='object'){
+        wBlocks = d.wBlocks;
+        localStorage.setItem('cdash_w', JSON.stringify(wBlocks));
+        changed = true;
+      }
+      if(d.pomoState && typeof pomoState!=='undefined'){
+        // Restore pomodoro state but never resume a running timer (could be days old)
+        pomoState = { ...d.pomoState, running: false };
+        localStorage.setItem('cdash_pomo', JSON.stringify(pomoState));
+        pomoRender();
+      }
+      if(changed){ RT(); renderHomeWidgets(); RW(); }
+      console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
+    })
+    .catch(e => console.log('[data] bridge not ready, using localStorage:', e.message));
+}
+function openExt(url){window.open(url,'_blank');}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+const now = new Date(), hh = now.getHours();
+document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + ', Connor';
+document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
+document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
+document.getElementById('w-month').textContent = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+function tick(){
+  const t=new Date();
+  let h=t.getHours(), m=t.getMinutes(), ampm=h>=12?'PM':'AM';
+  h=h%12||12;
+  const tEl=document.getElementById('w-time');
+  const aEl=document.getElementById('w-ampm');
+  if(tEl) tEl.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  if(aEl) aEl.textContent=ampm;
+}
+tick(); setInterval(tick, 1000);
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-pane]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const t = el.dataset.pane;
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+    document.getElementById('pane-'+t).classList.add('active');
+    if(t==='home') renderHomeWidgets();
+  });
+});
+
+// ─── HOME WIDGETS ─────────────────────────────────────────────────────────────
+function renderHomeWidgets(){
+  const open=tasks.filter(t=>!t.done), done=tasks.filter(t=>t.done);
+  document.getElementById('stat-open').textContent = open.length;
+  document.getElementById('stat-done-sub').textContent = done.length + ' completed';
+  document.getElementById('w-task-list').innerHTML = open.length
+    ? open.slice(0,5).map(t=>`<div class="w-trow"><div class="w-dot dot-${t.tag}"></div><span class="w-ttxt">${t.text}</span></div>`).join('') + (open.length>5?`<div class="w-empty">+${open.length-5} more</div>`:'')
+    : '<div class="w-empty">All caught up!</div>';
+  const tk = now.toISOString().split('T')[0];
+  const todayBlocks = (wBlocks[tk]||[]).sort((a,b)=>a.time.localeCompare(b.time));
+  let weekTotal=0;
+  const ws=new Date(now); ws.setDate(ws.getDate()-ws.getDay()); ws.setHours(0,0,0,0);
+  for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(d.getDate()+i);weekTotal+=(wBlocks[d.toISOString().split('T')[0]]||[]).length;}
+  document.getElementById('stat-blocks').textContent = todayBlocks.length;
+  document.getElementById('stat-week-sub').textContent = weekTotal + ' this week';
+  document.getElementById('w-sched-list').innerHTML = todayBlocks.length
+    ? todayBlocks.map(b=>{
+        const style=b.color?`background:${b.color};color:${(parseInt(b.color.slice(1,3),16)+parseInt(b.color.slice(3,5),16)+parseInt(b.color.slice(5,7),16))>380?'#1a1a1a':'#f0f0f0'}`:'';
+        const cls=b.color?'':TMAP2[b.type]||'bm2';
+        return `<div class="w-brow"><span class="w-btime">${b.time}</span><span class="w-btitle">${b.title}</span><span class="w-btag ${cls}" style="${style}">${b.type}</span></div>`;
+      }).join('')
+    : '<div class="w-empty">No blocks today</div>';
+}
+
+// ─── NOTION API (via local bridge) ───────────────────────────────────────────
+function hasToken(){ return !!localStorage.getItem('notion_token'); }
+function requireToken(errEl){
+  if(!hasToken()){
+    if(errEl) { errEl.textContent='Set your Notion token first — click ⚙ Settings in the sidebar.'; errEl.className='sm err'; }
+    return false;
+  }
+  return true;
+}
+async function notionCreateTask(payload){
+  let data;
+  try {
+    const resp = await fetch(`${BRIDGE}/create-task`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    data = await resp.json();
+  } catch(e) {
+    throw new Error('Cannot reach local bridge — make sure the app is running via npm start, not opened directly as a file.');
+  }
+  if(!data.ok) {
+    // Surface the exact Notion error so it's actionable
+    const msg = data.error || 'Bridge error';
+    if(msg.includes('Could not find database') || msg.includes('shared with')) {
+      throw new Error('Notion permissions error: Share your Tasks database with your integration. In Notion: open the database → ··· → Connections → add your integration.');
+    }
+    if(msg.includes('No token')) {
+      throw new Error('No Notion token set. Go to ⚙ Settings in the sidebar and paste your integration token.');
+    }
+    throw new Error(msg);
+  }
+  return data;
+}
+async function saveToken(token){
+  try {
+    const resp = await fetch(`${BRIDGE}/set-token`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
+    });
+    return resp.json();
+  } catch(e) {
+    throw new Error('Cannot reach bridge server.');
+  }
+}
+async function saveToken(token){
+  localStorage.setItem('notion_token', token);
+  const resp = await fetch(`${BRIDGE}/set-token`, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
+  });
+  return resp.json();
+}
+
+// ─── TASKS ────────────────────────────────────────────────────────────────────
+function RT(){
+  const el=document.getElementById('task-list');
+  if(!tasks.length){el.innerHTML='<div style="font-size:13px;color:var(--text-tertiary);padding:8px 0">No tasks yet.</div>';return;}
+  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span>${t.notion?'<span class="nb">Notion ✓</span>':''}<span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
+}
+function tog(i){tasks[i].done=!tasks[i].done;save();RT();renderHomeWidgets();}
+function remT(i){tasks.splice(i,1);save();RT();renderHomeWidgets();}
+function addTask(){
+  const inp=document.getElementById('task-input'), tag=document.getElementById('task-tag').value, text=inp.value.trim();
+  if(!text)return; pendTask={text,tag,done:false,notion:false}; inp.value=''; openNM(text);
+}
+function openNM(p){
+  selProj=null;
+  document.getElementById('modal-task-preview').textContent=p;
+  document.getElementById('modal-status').textContent='';
+  document.getElementById('project-grid').innerHTML=PROJS.map(p=>`<div class="po" onclick="selP(this,'${p}')">${p}</div>`).join('');
+  document.getElementById('notion-modal').classList.add('open');
+}
+function selP(el,p){document.querySelectorAll('.po').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');selProj=p;}
+function closeNM(){document.getElementById('notion-modal').classList.remove('open');if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}}
+async function confirmNT(){
+  if(!selProj){document.getElementById('modal-status').textContent='Pick a project first.';document.getElementById('modal-status').className='sm err';return;}
+  if(!requireToken(document.getElementById('modal-status'))) return;
+  const sEl=document.getElementById('modal-status'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
+  try{
+    const page = await notionCreateTask({taskName:pendTask.text, project:selProj, status:'Not Started'});
+    sEl.textContent='Added to Notion ✓';
+    if(pendTask) pendTask.notion=true;
+    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
+    setTimeout(()=>document.getElementById('notion-modal').classList.remove('open'),1200);
+  }catch(e){
+    sEl.textContent='Notion error: '+e.message;sEl.className='sm err';
+    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
+  }
+}
+
+// ─── SCHEDULE ─────────────────────────────────────────────────────────────────
+function dKey(d){return d.toISOString().split('T')[0];}
+function GWS(off){const d=new Date();d.setDate(d.getDate()-d.getDay()+off*7);d.setHours(0,0,0,0);return d;}
+function RW(){
+  const ws=GWS(wOff), we=new Date(ws); we.setDate(we.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('week-label').textContent=fmt(ws)+' – '+fmt(we);
+  const tk=dKey(new Date()), grid=document.getElementById('week-grid'); grid.innerHTML='';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws); d.setDate(d.getDate()+i);
+    const k=dKey(d), isTd=k===tk, blks=wBlocks[k]||[];
+    const col=document.createElement('div'); col.className='dc'+(isTd?' today':'');
+    const hdr=document.createElement('div'); hdr.className='dh';
+    hdr.innerHTML=`<div class="dn">${DAYS[d.getDay()]}</div><div class="dd${isTd?' tn':''}">${d.getDate()}</div>`;
+    col.appendChild(hdr);
+    const bd=document.createElement('div'); bd.className='db3';
+    [...blks].sort((a,b)=>a.time.localeCompare(b.time)).forEach((b,bi)=>{
+      const p=document.createElement('div');
+      if(b.color){
+        p.className='bp';
+        // Derive a readable text color from the bg lightness
+        const isLight=(parseInt(b.color.slice(1,3),16)+parseInt(b.color.slice(3,5),16)+parseInt(b.color.slice(5,7),16))>380;
+        p.style.cssText=`background:${b.color};color:${isLight?'#1a1a1a':'#f0f0f0'}`;
+      } else {
+        p.className='bp '+(TMAP[b.type]||'mp');
+      }
+      const doneClass=b.done?' done-block':'';
+      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
+      bd.appendChild(p);
+    });
+    col.appendChild(bd);
+    const ab=document.createElement('button'); ab.className='ab'; ab.textContent='+ add block'; ab.onclick=()=>OBM(k,d);
+    col.appendChild(ab); grid.appendChild(col);
+  }
+}
+function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();}
+function OBM(k,dt){
+  pendDay=k; selBT='meeting';
+  document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('block-time').value=''; document.getElementById('block-title').value='';
+  document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('btype-meeting').classList.add('sel');
+  selBlockColor='default';
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  const firstSwatch=document.querySelector('.color-swatch[data-color="default"]');
+  if(firstSwatch){firstSwatch.classList.add('selected');}
+  document.getElementById('block-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('block-time').focus(),50);
+}
+function closeBM(){document.getElementById('block-modal').classList.remove('open');pendDay=null;}
+function SBT(t){selBT=t;document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));document.getElementById('btype-'+t).classList.add('sel');}
+function SBC(el,color){
+  selBlockColor=color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function saveBlock(){
+  const time=document.getElementById('block-time').value.trim(), title=document.getElementById('block-title').value.trim();
+  if(!time||!title||!pendDay)return;
+  if(!wBlocks[pendDay])wBlocks[pendDay]=[];
+  wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor}); save(); closeBM(); RW(); renderHomeWidgets();
+}
+function toggleBlock(k,idx,e){
+  e.stopPropagation(); if(!wBlocks[k])return;
+  const s=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)), bl=s[idx];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri>-1) wBlocks[k][ri].done = !wBlocks[k][ri].done;
+  save(); RW(); renderHomeWidgets();
+}
+function DB2(k,idx,e){
+  e.stopPropagation(); if(!wBlocks[k])return;
+  const s=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)), bl=s[idx];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri>-1)wBlocks[k].splice(ri,1); save(); RW(); renderHomeWidgets();
+}
+
+// ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
+function SP(p){
+  selPri=p;
+  const m={Low:'sl',Medium:'sm2',High:'sh','FRD Done':'sf'};
+  document.querySelectorAll('.prp').forEach(el=>{
+    el.className='prp';
+    const k=el.id.replace('pri-','').replace('FRD','FRD Done');
+    if(k===p||(el.id==='pri-FRD'&&p==='FRD Done')) el.classList.add(m[p]);
+  });
+}
+function TT(el){const tag=el.dataset.tag;selTags.has(tag)?(selTags.delete(tag),el.classList.remove('sc')):(selTags.add(tag),el.classList.add('sc'));}
+function clearCR(){
+  ['cr-name','cr-jira','cr-devpoints','cr-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cr-status').value='Not Started'; document.getElementById('cr-due').value='';
+  document.getElementById('cr-sm').textContent=''; selPri=null; selTags=new Set();
+  document.querySelectorAll('.prp').forEach(el=>el.className='prp');
+  document.querySelectorAll('.tc2').forEach(el=>el.classList.remove('sc'));
+}
+async function submitCR(){
+  const name=document.getElementById('cr-name').value.trim();
+  if(!name){document.getElementById('cr-sm').textContent='Task name is required.';document.getElementById('cr-sm').className='sm err';return;}
+  if(!requireToken(document.getElementById('cr-sm'))) return;
+  const proj=document.getElementById('cr-project').value,
+        status=document.getElementById('cr-status').value,
+        due=document.getElementById('cr-due').value,
+        jira=document.getElementById('cr-jira').value.trim(),
+        dev=document.getElementById('cr-devpoints').value.trim(),
+        notes=document.getElementById('cr-notes').value.trim(),
+        tags=[...selTags];
+  const sEl=document.getElementById('cr-sm'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
+  try{
+    const page = await notionCreateTask({taskName:name,project:proj,status,priority:selPri||'',tags,due,jiraTicket:jira,devPoints:dev,notes});
+    sEl.textContent='Created in Notion ✓';
+    subReqs.unshift({name,project:proj,priority:selPri,url:page.url,time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
+    renderSub(); clearCR();
+  }catch(e){sEl.textContent='Notion error: '+e.message; sEl.className='sm err';}
+}
+function renderSub(){
+  const w=document.getElementById('cr-submitted-wrap'), l=document.getElementById('cr-submitted-list');
+  if(!subReqs.length){w.style.display='none';return;} w.style.display='block';
+  l.innerHTML=subReqs.map(r=>`<div class="subr"><div><div class="subn">${r.name}</div><div class="subm">${r.project}${r.priority?' · '+r.priority:''} · ${r.time}</div></div>${r.url?`<span class="nel" onclick="openExt('${r.url}')">Open ↗</span>`:'<span class="subm">Notion</span>'}</div>`).join('');
+}
+
+// ─── JIRA STORY ───────────────────────────────────────────────────────────────
+function TS(id){const b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id),o=b.classList.contains('open');b.classList.toggle('open',!o);c.classList.toggle('open',!o);}
+function AB(s){const inp=document.getElementById(s+'-input'),text=inp.value.trim();if(!text)return;jBullets[s].push(text);inp.value='';RB2(s);}
+function remB(s,i){jBullets[s].splice(i,1);RB2(s);}
+function RB2(s){
+  const l=document.getElementById(s+'-list'), c={behavior:'rules',permissions:'rules',technical:'notes',edge:'cases',acceptance:'criteria'};
+  l.innerHTML=jBullets[s].map((b,i)=>`<li class="bi"><div class="bd2"></div><span class="bit">${b}</span><span class="bix" onclick="remB('${s}',${i})">✕</span></li>`).join('');
+  const n=jBullets[s].length, badge=document.getElementById('badge-'+s);
+  badge.textContent=n===0?`0 ${c[s]}`:`${n} ${c[s]}`; badge.className='jsb'+(n>0?' filled':'');
+}
+
+function generateStory(){
+  const summary=document.getElementById('j-summary').value.trim();
+  if(!summary){alert('Summary is required.');return;}
+  const desc=document.getElementById('j-description').value.trim();
+  const clients=document.getElementById('j-clients').value.trim();
+
+  let story = `Summary: ${summary}\n`;
+  if(clients) story += `Affected clients: ${clients}\n`;
+  story += `\nDescription:\n${desc||'[To be filled]'}\n`;
+
+  const labels={behavior:'Behavior Rules',permissions:'Permissions',technical:'Technical Notes',edge:'Edge Cases',acceptance:'Acceptance Criteria'};
+  ['behavior','permissions','technical','edge','acceptance'].forEach(s=>{
+    if(jBullets[s].length){
+      story += `\n${labels[s]}:\n`;
+      jBullets[s].forEach(b=>story += s==='acceptance'?`- [ ] ${b}\n`:`* ${b}\n`);
+    }
+  });
+
+  generatedStory = story;
+  document.getElementById('jira-output').textContent = story;
+  document.getElementById('jira-output-wrap').style.display = 'block';
+  document.getElementById('jira-generate-row').style.display = 'none';
+}
+
+function copyStory(){
+  navigator.clipboard.writeText(generatedStory).then(()=>{
+    const btn=document.querySelector('#jira-output-wrap .btn');
+    btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1500);
+  });
+}
+
+async function pushJira(){
+  if(!generatedStory){alert('Generate the story first.');return;}
+  if(!requireToken(document.getElementById('jira-status'))) return;
+  const proj=document.getElementById('j-notion-project').value;
+  const summary=document.getElementById('j-summary').value.trim();
+  const sEl=document.getElementById('jira-status'); sEl.className='sm'; sEl.textContent='Pushing to Notion...';
+
+  try{
+    const page = await notionCreateTask({
+      taskName: summary,
+      project: proj,
+      status: 'Not Started',
+      notes: generatedStory,
+    });
+    sEl.textContent='Pushed to Notion ✓ — ' + (page.url||'');
+  }catch(e){sEl.textContent='Notion error: '+e.message; sEl.className='sm err';}
+}
+
+function clearJira(){
+  document.getElementById('j-summary').value='';
+  document.getElementById('j-description').value='';
+  document.getElementById('j-clients').value='';
+  jBullets={behavior:[],permissions:[],technical:[],edge:[],acceptance:[]};
+  ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
+  document.getElementById('jira-status').textContent='';
+  document.getElementById('jira-output-wrap').style.display='none';
+  document.getElementById('jira-generate-row').style.display='flex';
+  generatedStory='';
+}
+
+// ─── RECAP ────────────────────────────────────────────────────────────────────
+function SS(s){curSrc=s;['upload','paste','none'].forEach(x=>{document.getElementById('src-tab-'+x).classList.toggle('active',x===s);document.getElementById('src-'+x).style.display=x===s?'block':'none';});}
+function HD(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dv');const f=e.dataTransfer.files[0];if(f)PD(f);}
+function HF(e){const f=e.target.files[0];if(f)PD(f);}
+function PD(file){
+  if(!file.name.endsWith('.docx')){document.getElementById('upload-status').textContent='Please upload a .docx file.';document.getElementById('upload-status').className='sm err';return;}
+  const sEl=document.getElementById('upload-status'); sEl.className='sm'; sEl.textContent='Extracting text...';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    mammoth.extractRawText({arrayBuffer:e.target.result}).then(result=>{
+      txText=result.value.trim();
+      document.getElementById('upload-zone').classList.add('hf');
+      document.getElementById('upload-inner').innerHTML=`<div style="font-size:20px;margin-bottom:6px">✅</div><div style="font-size:13px;font-weight:500;color:var(--green)">${file.name}</div><div class="us">${txText.length.toLocaleString()} chars extracted</div>`;
+      document.getElementById('transcript-preview').textContent=txText.slice(0,600)+(txText.length>600?'\n\n[...truncated]':'');
+      document.getElementById('transcript-preview-wrap').style.display='block';
+      sEl.textContent='';
+    }).catch(()=>{sEl.textContent='Could not extract text.';sEl.className='sm err';});
+  };
+  reader.readAsArrayBuffer(file);
+}
+function CT(){txText='';document.getElementById('upload-zone').classList.remove('hf');document.getElementById('upload-inner').innerHTML='<div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div>';document.getElementById('transcript-preview-wrap').style.display='none';document.getElementById('upload-status').textContent='';document.getElementById('docx-file-input').value='';}
+function setStep(n){[1,2,3].forEach(i=>{const el=document.getElementById('step'+i);el.className='st2'+(i<n?' done':i===n?' active':'');el.querySelector('.sd').textContent=i<n?'✓':i;document.getElementById('recap-step-'+i).style.display=i===n?'block':'none';});}
+function RN(from){
+  if(from===1){setStep(2);}
+  else if(from===2){
+    const cl=document.getElementById('r-client').value, dt=document.getElementById('r-date').value,
+          ty=document.getElementById('r-type').value, se=document.getElementById('r-session').value||'Session One',
+          at=document.getElementById('r-attendees').value.trim();
+    let ti='No transcript (stub)';
+    if(curSrc==='upload'&&txText) ti=`Transcript imported (${txText.length.toLocaleString()} chars)`;
+    else if(curSrc==='paste'){const t=document.getElementById('r-notes-paste').value.trim();if(t)ti=`Pasted notes (${t.length.toLocaleString()} chars)`;}
+    document.getElementById('recap-summary').innerHTML=`<div style="display:grid;grid-template-columns:110px 1fr;gap:6px 12px"><span style="color:var(--text-tertiary)">Client</span><span style="font-weight:500">${cl}</span><span style="color:var(--text-tertiary)">Date</span><span>${dt}</span><span style="color:var(--text-tertiary)">Session</span><span>${ty} ${se}</span>${at?`<span style="color:var(--text-tertiary)">Attendees</span><span>${at}</span>`:''}<span style="color:var(--text-tertiary)">Transcript</span><span>${ti}</span></div>`;
+    setStep(3);
+  }
+}
+function RB(from){setStep(from-1);}
+async function GR(){
+  const cl=document.getElementById('r-client').value,
+        dv=document.getElementById('r-date').value,
+        ty=document.getElementById('r-type').value,
+        se=document.getElementById('r-session').value||'Session One',
+        at=document.getElementById('r-attendees').value.trim();
+  let tx='';
+  if(curSrc==='upload') tx=txText;
+  else if(curSrc==='paste') tx=document.getElementById('r-notes-paste').value.trim();
+  let ds=dv;
+  if(dv){const d=new Date(dv+'T12:00:00'),day=d.getDate(),sfx=['th','st','nd','rd'][(day%100>10&&day%100<14)?0:(day%10<4?day%10:0)]||'th';ds=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}).replace(/(\d+)/,`$1${sfx}`);}
+
+  const showErr=(msg)=>{
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    document.getElementById('recap-status').textContent='Error: '+msg;
+    document.getElementById('recap-status').className='sm err';
+  };
+
+  document.getElementById('recap-generating').style.display='block';
+  document.getElementById('recap-actions').style.display='none';
+  document.getElementById('recap-status').textContent='';
+
+  // For long transcripts: summarize in parallel chunks first
+  let processedTx = tx;
+  if(tx.length > 6000){
+    try{
+      document.getElementById('recap-gen-msg').textContent='Summarizing long transcript...';
+      const chunks=[];
+      for(let i=0;i<tx.length;i+=4000) chunks.push(tx.slice(i,i+4000));
+      const summaries = await Promise.all(chunks.map((chunk,i)=>
+        fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,
+            system:'Summarize this meeting transcript segment into concise bullet points capturing all decisions, action items, and key topics. Return plain text bullets only, no JSON.',
+            messages:[{role:'user',content:`Segment ${i+1}:\n${chunk}`}]
+          })
+        }).then(r=>r.json()).then(d=>(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join(''))
+        .catch(()=>'[segment failed]')
+      ));
+      processedTx = summaries.join('\n\n');
+      document.getElementById('recap-gen-msg').textContent='Building recap structure...';
+    } catch(e){ processedTx = tx.slice(0,5000); }
+  }
+
+  const sys=`You are a meeting recap parser for GaugeQuality (GQ). Return ONLY a raw JSON object. No markdown fences, no explanation, nothing outside the JSON.
+
+Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"owner":"string","items":["string"]}],"keyTakeaways":["string"]}
+
+- First section must be "Session Overview"
+- End with "Next Steps" then "Key Takeaways"
+- If no transcript: use "[To be filled]" placeholders
+- Response must start with { and end with } and be valid JSON`;
+
+  const um = processedTx
+    ? `Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\nAttendees: ${at||'Not specified'}\n\nTranscript:\n${processedTx.slice(0,5000)}`
+    : `Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\n\nNo transcript provided.`;
+
+  try{
+    // Prefill assistant turn with '{' to force JSON-only output
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:3000,system:sys,
+        messages:[{role:'user',content:um},{role:'assistant',content:'{'}]
+      })
+    });
+    if(!r.ok){const t=await r.text();throw new Error(`API ${r.status}: ${t.slice(0,150)}`);}
+    const d=await r.json();
+    if(d.type==='error') throw new Error(d.error?.message||'API error');
+    const partial=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const raw='{'+partial;
+    let cj;
+    try{
+      const end=raw.lastIndexOf('}');
+      if(end===-1) throw new Error('No closing brace');
+      cj=JSON.parse(raw.slice(0,end+1));
+    }catch(e){ throw new Error('JSON parse failed — transcript may be too complex. Try a shorter excerpt.'); }
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    navigator.clipboard.writeText(`[GENERATE_RECAP_DOCX]\n${JSON.stringify({client:cl,dateStr:ds,type:ty,session:se,attendees:at,content:cj})}`).catch(()=>{});
+    document.getElementById('recap-status').textContent='✓ Done — paste into Claude.ai to generate the .docx file.';
+  }catch(e){
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    document.getElementById('recap-status').textContent='Error: '+(e.message||'Try again.');
+    document.getElementById('recap-status').className='sm err';
+  }
+}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connor Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #ffffff; --bg-secondary: #f5f5f4; --bg-tertiary: #eeece9;
+    --text-primary: #1a1a1a; --text-secondary: #6b6b6b; --text-tertiary: #a0a0a0;
+    --border: rgba(0,0,0,0.1); --border-hover: rgba(0,0,0,0.2);
+    --blue: #185FA5; --blue-light: #E6F1FB; --blue-mid: #378ADD;
+    --green: #1D9E75; --green-light: #E1F5EE;
+    --red-light: #FCEBEB; --red: #A32D2D;
+    --amber-light: #FAEEDA; --amber: #633806;
+    --purple-light: #EEEDFE; --purple: #3C3489;
+    --gray-light: #F1EFE8; --gray: #444441;
+    --radius-md: 8px; --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'SF Mono','Fira Code','Consolas',monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary:#1e1e1e;--bg-secondary:#2a2a2a;--bg-tertiary:#333;
+      --text-primary:#e8e8e8;--text-secondary:#a0a0a0;--text-tertiary:#6b6b6b;
+      --border:rgba(255,255,255,0.1);--border-hover:rgba(255,255,255,0.2);
+      --blue-light:#0C2545;--green-light:#082a1e;--red-light:#2a0f0f;
+      --amber-light:#2a1a06;--purple-light:#1a1842;--gray-light:#2a2a28;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--bg-secondary);color:var(--text-primary);min-height:100vh;}
+  .titlebar{height:28px;background:var(--bg-primary);-webkit-app-region:drag;border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 80px 0 16px;}
+  .titlebar-title{font-size:12px;font-weight:500;color:var(--text-tertiary);-webkit-app-region:no-drag;}
+  .layout{display:flex;height:calc(100vh - 28px);overflow:hidden;}
+  .sidebar{width:200px;flex-shrink:0;background:var(--bg-primary);border-right:0.5px solid var(--border);display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;}
+  .sidebar-logo{padding:0 16px 16px;font-size:15px;font-weight:600;border-bottom:0.5px solid var(--border);margin-bottom:8px;}
+  .nav-section{padding:4px 8px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);margin:8px 0 2px;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:var(--text-secondary);cursor:pointer;user-select:none;}
+  .nav-item:hover{background:var(--bg-secondary);color:var(--text-primary);}
+  .nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:500;}
+  .nav-icon{font-size:14px;width:18px;text-align:center;}
+  .main{flex:1;overflow-y:auto;padding:24px 28px;}
+  .greeting{font-size:22px;font-weight:500;margin-bottom:4px;}
+  .dateline{font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
+  .pane{display:none;}.pane.active{display:block;}
+  .sl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px;}
+  .card{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px;}
+  .inp{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:7px 10px;font-size:13px;color:var(--text-primary);font-family:var(--font);outline:none;}
+  .inp:focus{border-color:var(--blue-mid);}
+  .inp::placeholder{color:var(--text-tertiary);}
+  .sel{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:7px 8px;font-size:12px;color:var(--text-secondary);font-family:var(--font);outline:none;}
+  .btn{background:var(--bg-secondary);border:0.5px solid var(--border-hover);border-radius:var(--radius-md);padding:7px 14px;font-size:13px;color:var(--text-primary);cursor:pointer;font-family:var(--font);white-space:nowrap;}
+  .btn:hover{background:var(--bg-tertiary);}
+  .btn-p{background:var(--blue);border-color:var(--blue);color:white;}.btn-p:hover{background:#0C447C;}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  .btn-d{background:var(--red-light);border-color:#F09595;color:var(--red);}
+  .btn-g{background:var(--green);border-color:var(--green);color:white;}.btn-g:hover{background:#0F6E56;}
+  .rb{font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:2px 4px;}.rb:hover{color:var(--text-primary);}
+  .sm{font-size:12px;color:var(--green);margin-top:8px;min-height:18px;}.sm.err{color:#D85A30;}
+  .fg{margin-bottom:12px;}
+  .fl{font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+  .req{color:#D85A30;font-size:11px;}
+  .fi{width:100%;}.fta{width:100%;resize:vertical;min-height:64px;}
+  .cr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .mw{display:none;background:rgba(0,0,0,0.4);border-radius:var(--radius-lg);padding:2rem 1rem;margin:8px 0;}
+  .mw.open{display:block;}
+  .mb{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;max-width:360px;margin:0 auto;}
+  .mt{font-size:15px;font-weight:500;margin-bottom:14px;}
+  .pg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;}
+  .po{border:0.5px solid var(--border);border-radius:var(--radius-md);padding:7px 10px;font-size:12px;cursor:pointer;color:var(--text-secondary);text-align:center;}
+  .po:hover,.po.sel{border-color:var(--blue-mid);color:var(--blue);background:var(--blue-light);}
+  .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+  .trow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);}
+  .trow:last-child{border-bottom:none;}
+  .tck{width:16px;height:16px;border:0.5px solid var(--border-hover);border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .tck.done{background:var(--green);border-color:var(--green);}
+  .tck.done::after{content:'';display:block;width:8px;height:5px;border-left:1.5px solid white;border-bottom:1.5px solid white;transform:rotate(-45deg) translateY(-1px);}
+  .ttxt{font-size:13px;line-height:1.4;flex:1;}.ttxt.done{color:var(--text-tertiary);text-decoration:line-through;}
+  .ttag{font-size:11px;padding:2px 7px;border-radius:99px;flex-shrink:0;}
+  .tg-work{background:var(--blue-light);color:#0C447C;}.tg-stream{background:var(--purple-light);color:var(--purple);}.tg-home{background:var(--green-light);color:#085041;}
+  .nb{font-size:10px;padding:2px 6px;border-radius:99px;background:var(--gray-light);color:var(--gray);flex-shrink:0;}
+  .wh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .wn{display:flex;align-items:center;gap:8px;}
+  .wl{font-size:13px;font-weight:500;min-width:160px;text-align:center;}
+  .wnb{background:var(--bg-secondary);border:0.5px solid var(--border-hover);border-radius:var(--radius-md);padding:4px 12px;font-size:15px;cursor:pointer;color:var(--text-primary);}
+  .wg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;height:calc(100vh - 200px);align-items:stretch;}.dc{display:flex;flex-direction:column;}
+  .dc{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-md);min-height:120px;overflow:hidden;}
+  .dc.today{border-color:var(--blue-mid);border-width:1.5px;}
+  .dh{padding:6px 8px;border-bottom:0.5px solid var(--border);}
+  .dn{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;}
+  .dd{font-size:14px;font-weight:500;}.dd.tn{color:var(--blue);}
+  .db3{padding:4px;display:flex;flex-direction:column;gap:3px;}
+  .bp{border-radius:6px;padding:6px 8px;font-size:12px;line-height:1.4;display:flex;flex-direction:column;gap:2px;transition:filter .15s,box-shadow .15s;cursor:default;}
+  .bp:hover{filter:brightness(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+  .bp-header{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+  .bpt{font-size:9px;opacity:.7;white-space:nowrap;font-family:var(--font-mono);font-weight:600;letter-spacing:0.04em;}
+  .bptl{font-size:12px;font-weight:500;line-height:1.35;word-break:break-word;overflow-wrap:anywhere;}
+  .bptl.done-block{text-decoration:line-through;opacity:.4;}
+  .bp-actions{display:flex;gap:3px;opacity:0;transition:opacity .15s;flex-shrink:0;}
+  .bp:hover .bp-actions{opacity:1;}
+  .bp-btn{font-size:10px;cursor:pointer;padding:2px 4px;border-radius:3px;line-height:1;border:none;background:rgba(255,255,255,0.12);color:inherit;font-family:var(--font);transition:background .1s;}
+  .bp-btn:hover{background:rgba(255,255,255,0.25);}
+  .bpd{display:none;}
+  .mp{background:var(--blue-light);color:#0C447C;}.fp{background:var(--purple-light);color:var(--purple);}
+  .wp{background:var(--amber-light);color:var(--amber);}.pp2{background:var(--green-light);color:#085041;}
+  .ab{margin:4px;padding:4px 6px;font-size:11px;color:var(--text-tertiary);background:none;border:0.5px dashed var(--border-hover);border-radius:4px;cursor:pointer;width:calc(100% - 8px);text-align:center;font-family:var(--font);}
+.color-row{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;}
+.color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:transform .1s;}
+.color-swatch:hover{transform:scale(1.15);}
+.color-swatch.selected{border-color:var(--text-primary);transform:scale(1.15);}
+  .ab:hover{color:var(--text-secondary);background:var(--bg-secondary);}
+  /* Jira sections */
+  .js{border:0.5px solid var(--border);border-radius:var(--radius-md);margin-bottom:10px;overflow:hidden;}
+  .jsh{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg-secondary);cursor:pointer;user-select:none;}
+  .jst{font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;}
+  .jsb{font-size:10px;padding:1px 7px;border-radius:99px;background:var(--blue-light);color:#0C447C;}
+  .jsb.filled{background:var(--green-light);color:#085041;}
+  .jsc{font-size:10px;color:var(--text-tertiary);transition:transform .15s;display:inline-block;}
+  .jsc.open{transform:rotate(180deg);}
+  .jsbd{padding:12px;border-top:0.5px solid var(--border);display:none;}.jsbd.open{display:block;}
+  .bl{list-style:none;margin-bottom:8px;}
+  .bi{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--border);}.bi:last-child{border-bottom:none;}
+  .bd2{width:6px;height:6px;border-radius:50%;background:var(--border-hover);flex-shrink:0;margin-top:7px;}
+  .bit{flex:1;font-size:13px;line-height:1.5;}
+  .bix{font-size:11px;color:var(--text-tertiary);cursor:pointer;flex-shrink:0;padding:2px 4px;margin-top:2px;}.bix:hover{color:#D85A30;}
+  .bar{display:flex;gap:6px;margin-top:6px;}
+  /* Story output */
+  .story-out{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;font-family:var(--font-mono);margin-bottom:12px;}
+  .pl{font-size:11px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+  /* Recap */
+  .st{display:flex;margin-bottom:10px;border:0.5px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
+  .sta{flex:1;text-align:center;padding:6px;font-size:12px;cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);border:none;font-family:var(--font);}
+  .sta.active{background:var(--bg-primary);color:var(--text-primary);font-weight:500;}
+  .uz{border:1.5px dashed var(--border-hover);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:10px;}
+  .uz:hover,.uz.dv{border-color:var(--blue-mid);background:var(--blue-light);}
+  .uz.hf{border-color:var(--green);background:var(--green-light);border-style:solid;}
+  .um{font-size:13px;font-weight:500;margin-bottom:2px;}.us{font-size:12px;color:var(--text-secondary);}
+  .tp{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--text-secondary);max-height:120px;overflow-y:auto;margin-bottom:10px;white-space:pre-wrap;word-break:break-word;}
+  .si{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+  .st2{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary);}
+  .st2.active{color:var(--blue);font-weight:500;}.st2.done{color:var(--green);}
+  .sd{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-hover);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+  .st2.active .sd{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+  .st2.done .sd{border-color:var(--green);background:var(--green);color:white;}
+  .sl2{flex:1;height:0.5px;background:var(--border);max-width:24px;}
+  .rg{background:var(--bg-secondary);border-radius:var(--radius-md);padding:14px;text-align:center;margin:10px 0;}
+  .spn{display:inline-block;width:18px;height:18px;border:2px solid var(--border-hover);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  /* Client request */
+  .to{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .tc2{font-size:12px;padding:4px 10px;border-radius:99px;border:0.5px solid var(--border);cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);user-select:none;}
+  .tc2.sc{border-color:transparent;}
+  .c-bl.sc{background:var(--purple-light);color:var(--purple);}
+  .c-ip.sc{background:var(--amber-light);color:var(--amber);}
+  .c-co.sc{background:var(--green-light);color:#085041;}
+  .c-rd.sc{background:var(--amber-light);color:var(--amber);}
+  .c-rf.sc{background:var(--green-light);color:#27500A;}
+  .c-di.sc{background:#FBEAF0;color:#72243E;}
+  .c-ni.sc{background:var(--red-light);color:var(--red);}
+  .po2{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+  .prp{font-size:12px;padding:4px 12px;border-radius:99px;border:0.5px solid var(--border);cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);}
+  .prp.sl{background:var(--green-light);color:#27500A;border-color:transparent;}
+  .prp.sm2{background:var(--amber-light);color:var(--amber);border-color:transparent;}
+  .prp.sh{background:var(--red-light);color:var(--red);border-color:transparent;}
+  .prp.sf{background:var(--amber-light);color:var(--amber);border-color:transparent;}
+  .subr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);}
+  .subr:last-child{border-bottom:none;}
+  .subn{flex:1;font-size:13px;}.subm{font-size:11px;color:var(--text-tertiary);}
+  .nel{font-size:11px;color:var(--blue);cursor:pointer;}.nel:hover{text-decoration:underline;}
+  .notion-bar{display:flex;align-items:center;justify-content:space-between;background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;gap:12px;margin-bottom:14px;}
+  .nbl{display:flex;align-items:center;gap:10px;}
+  .nbi{width:28px;height:28px;background:var(--gray-light);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--gray);flex-shrink:0;}
+  .nbt{font-size:13px;font-weight:500;}.nbs{font-size:11px;color:var(--text-tertiary);margin-top:1px;}
+  .obtn{background:var(--gray-light);border:0.5px solid var(--border-hover);border-radius:var(--radius-md);padding:6px 14px;font-size:12px;font-weight:500;color:var(--gray);cursor:pointer;font-family:var(--font);}
+  .obtn:hover{background:#D3D1C7;}
+  /* Home widgets */
+  .wgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .wgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+  .widget{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;}
+  .w-dt{display:flex;align-items:center;justify-content:space-between;}
+  .w-day{font-size:24px;font-weight:500;line-height:1;}
+  .w-month{font-size:12px;color:var(--text-secondary);margin-top:3px;}
+  .w-time{font-size:24px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums;}
+  .w-tz{font-size:11px;color:var(--text-tertiary);margin-top:3px;text-align:right;}
+  .w-wm{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+  .w-temp{font-size:28px;font-weight:500;line-height:1;}
+  .w-cond{font-size:12px;color:var(--text-secondary);margin-top:3px;}
+  .w-precip{font-size:11px;color:var(--blue);margin-top:2px;}
+  .w-icon{font-size:28px;}
+  .w-forecast{display:flex;gap:5px;}
+  .w-fd{flex:1;text-align:center;background:var(--bg-secondary);border-radius:var(--radius-md);padding:6px 3px;}
+  .w-fd-name{font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;}
+  .w-fd-icon{font-size:12px;margin:2px 0;}
+  .w-fd-temp{font-size:12px;font-weight:500;}
+  .w-sn{font-size:28px;font-weight:500;line-height:1;margin-bottom:6px;}
+  .w-sl{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;}
+  .w-ss{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+  .w-section{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .w-trow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);}
+  .w-trow:last-child{border-bottom:none;}
+  .w-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .dot-work{background:var(--blue-mid);}.dot-stream{background:#7F77DD;}.dot-home{background:var(--green);}
+  .w-ttxt{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .w-brow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);}
+  .w-brow:last-child{border-bottom:none;}
+  .w-btime{font-size:11px;color:var(--text-tertiary);width:52px;flex-shrink:0;}
+  .w-btitle{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .w-btag{font-size:10px;padding:1px 6px;border-radius:99px;flex-shrink:0;}
+  .bm2{background:var(--blue-light);color:#0C447C;}.bf2{background:var(--purple-light);color:var(--purple);}
+  .bw2{background:var(--amber-light);color:var(--amber);}.bp3{background:var(--green-light);color:#085041;}
+  .w-empty{font-size:12px;color:var(--text-tertiary);padding:4px 0;}
+  .clickable{cursor:pointer;}.clickable:hover{opacity:.85;}
+</style>
+</head>
+<body>
+<!-- Ambient background orbs -->
+<div style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
+  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(29,58,122,0.35) 0%,transparent 70%);top:-200px;left:-100px;animation:orbFloat 18s ease-in-out infinite alternate"></div>
+  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,100,200,0.2) 0%,transparent 70%);bottom:-100px;right:100px;animation:orbFloat 22s ease-in-out infinite alternate-reverse"></div>
+</div>
+<style>
+@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
+</style>
+<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">CONNOR · DASHBOARD</span></div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-logo"><span>⚡</span> Dashboard</div>
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" data-pane="home"><span class="nav-icon">🏠</span>Home</div>
+    <div class="nav-item" data-pane="tasks"><span class="nav-icon">✅</span>Tasks</div>
+    <div class="nav-item" data-pane="schedule"><span class="nav-icon">📅</span>Schedule</div>
+    <div class="nav-section">Work</div>
+    <div class="nav-item" data-pane="request"><span class="nav-icon">📬</span>Client request</div>
+    <div class="nav-item" data-pane="recap"><span class="nav-icon">📄</span>Recap</div>
+    <div class="nav-section">Quick</div>
+    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')"><span class="nav-icon">N</span>Notion tracker</div>
+    <div style="flex:1"></div>
+    <div class="nav-item" data-pane="settings"><span class="nav-icon">⚙</span>Settings</div>
+  </div>
+
+  <div class="main">
+    <div class="greeting" id="greeting"></div>
+    <div class="dateline" id="dateline"></div>
+
+    <!-- HOME -->
+    <div class="pane active" id="pane-home">
+
+      <!-- ── ROW 1: Clock | Weather ───────────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:12px">
+
+        <!-- CLOCK WIDGET -->
+        <div class="widget" style="position:relative;overflow:hidden;padding:0;min-height:160px;">
+          <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.07) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none"></div>
+          <div style="padding:20px 24px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Local Time</div>
+              <div style="display:flex;align-items:baseline;gap:5px">
+                <div id="w-time" style="font-size:52px;font-weight:300;font-family:var(--font-mono);color:var(--blue-bright);text-shadow:0 0 40px rgba(77,159,255,0.4);letter-spacing:-3px;line-height:1">--:--</div>
+                <div id="w-ampm" style="font-size:16px;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;font-family:var(--font-mono)">--</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <div id="w-day" style="font-size:14px;font-weight:500;color:var(--text-secondary)"></div>
+                <div style="width:3px;height:3px;border-radius:50%;background:var(--blue);box-shadow:0 0 6px var(--blue-glow)"></div>
+                <div id="w-month" style="font-size:14px;color:var(--text-tertiary)"></div>
+              </div>
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(77,159,255,0.08);border:1px solid rgba(77,159,255,0.15);border-radius:99px;padding:4px 12px">
+                <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green-glow);animation:pulse 2s ease-in-out infinite"></div>
+                <span style="font-size:10px;color:var(--text-tertiary);letter-spacing:0.04em">Hendersonville, NC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WEATHER WIDGET -->
+        <div class="widget" style="padding:0;overflow:hidden;position:relative;min-height:160px;">
+          <canvas id="weather-canvas" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius-lg);"></canvas>
+          <div style="position:relative;z-index:2;padding:20px 22px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between">
+              <div>
+                <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <div class="w-temp" id="w-temp-live" style="font-size:44px;font-weight:300;line-height:1;text-shadow:0 0 30px rgba(255,255,255,0.15)">38°F</div>
+                </div>
+                <div class="w-cond" id="w-cond-live" style="margin-top:4px;font-size:13px">Sunny · Day</div>
+                <div class="w-precip" id="w-precip-live" style="margin-top:3px;font-size:11px">5% chance of snow today</div>
+              </div>
+              <div id="w-icon-live" style="font-size:48px;filter:drop-shadow(0 0 12px rgba(255,220,100,0.6));margin-top:4px">☀️</div>
+            </div>
+            <div class="w-forecast" id="w-forecast-live" style="gap:6px">
+              <div class="w-fd"><div class="w-fd-name">Tue</div><div class="w-fd-icon">☀️</div><div class="w-fd-temp">38°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Wed</div><div class="w-fd-icon">🌥️</div><div class="w-fd-temp">42°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Thu</div><div class="w-fd-icon">🌤️</div><div class="w-fd-temp">58°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Fri</div><div class="w-fd-icon">🌦️</div><div class="w-fd-temp">67°</div></div>
+              <div class="w-fd"><div class="w-fd-name">Sat</div><div class="w-fd-icon">🌦️</div><div class="w-fd-temp">74°</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROW 2: Pomodoro (big) | Stats column ─────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:12px;margin-bottom:12px;align-items:stretch">
+
+        <!-- POMODORO WIDGET — large -->
+        <div class="widget" style="position:relative;overflow:hidden;padding:22px 28px">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 120% at 15% 50%,rgba(77,159,255,0.07) 0%,transparent 65%);pointer-events:none"></div>
+          <div style="position:relative;display:flex;align-items:center;gap:32px">
+
+            <!-- Big SVG ring -->
+            <div style="position:relative;flex-shrink:0;width:200px;height:200px">
+              <svg width="200" height="200" style="transform:rotate(-90deg)">
+                <!-- track -->
+                <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(77,159,255,0.06)" stroke-width="8"/>
+                <!-- soft glow layer -->
+                <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(77,159,255,0.03)" stroke-width="20"/>
+                <!-- progress ring -->
+                <circle id="pomo-ring" cx="100" cy="100" r="88" fill="none" stroke="var(--blue)" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"
+                  style="transition:stroke-dashoffset 1s linear,stroke 0.5s;filter:drop-shadow(0 0 10px rgba(77,159,255,0.6))"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                <div id="pomo-time" style="font-size:38px;font-weight:700;font-family:var(--font-mono);color:var(--blue-bright);line-height:1;text-shadow:0 0 30px rgba(77,159,255,0.6);letter-spacing:-1px">25:00</div>
+                <div id="pomo-label-inner" style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted)">Focus</div>
+              </div>
+            </div>
+
+            <!-- Controls + info -->
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+                <div id="pomo-label" style="font-size:16px;font-weight:600;color:var(--text-primary)">Focus Session</div>
+                <div id="pomo-session" style="font-size:11px;color:var(--text-muted);background:var(--glass-02);border:1px solid var(--glass-border);border-radius:99px;padding:2px 10px">Session 1</div>
+              </div>
+              <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:18px">Stay locked in. Break coming soon.</div>
+
+              <!-- Session dots -->
+              <div style="display:flex;gap:6px;margin-bottom:18px" id="pomo-dots"></div>
+
+              <!-- Controls -->
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn btn-p" id="pomo-btn" onclick="pomodoroToggle()" style="font-size:13px;padding:9px 22px;min-width:100px">▶ Start</button>
+                <button class="btn btn-sm" onclick="pomodoroSkip()" style="font-size:13px;padding:8px 14px" title="Skip to next">⏭</button>
+                <button class="btn btn-sm" onclick="pomodoroReset()" style="font-size:13px;padding:8px 14px" title="Reset">↺</button>
+                <!-- Custom duration -->
+                <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+                  <span style="font-size:11px;color:var(--text-muted)">Focus:</span>
+                  <select id="pomo-duration-sel" class="sel" style="font-size:11px;padding:4px 6px" onchange="pomodoroSetDuration(this.value)">
+                    <option value="25">25 min</option>
+                    <option value="50">50 min</option>
+                    <option value="90">90 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+
+          <!-- Open tasks stat -->
+          <div class="widget" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Open Tasks</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div class="w-sn" id="stat-open" style="font-size:36px">–</div>
+              <div style="text-align:right">
+                <div style="font-size:10px;color:var(--text-muted)" id="stat-done-sub">– done</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(77,159,255,0.1);border:1px solid rgba(77,159,255,0.2);display:flex;align-items:center;justify-content:center;margin-top:4px">
+                  <span style="font-size:13px">✅</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocks today stat -->
+          <div class="widget" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Blocks Today</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div class="w-sn" id="stat-blocks" style="font-size:36px">–</div>
+              <div style="text-align:right">
+                <div style="font-size:10px;color:var(--text-muted)" id="stat-week-sub">– this week</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;margin-top:4px">
+                  <span style="font-size:13px">📅</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notion tracker -->
+          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+            <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Notion Tracker</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between">
+              <div style="font-size:22px;font-weight:700;color:var(--text-secondary);letter-spacing:-0.03em">N ↗</div>
+              <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+                <span style="font-size:13px">🔗</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROW 3: Tasks | Today schedule ─────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="widget" style="min-height:180px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="w-section">Upcoming tasks</div>
+            <div style="font-size:10px;color:var(--blue);cursor:pointer" onclick="document.querySelector('[data-pane=tasks]').click()">View all →</div>
+          </div>
+          <div id="w-task-list"></div>
+        </div>
+        <div class="widget" style="min-height:180px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="w-section">Today's blocks</div>
+            <div style="font-size:10px;color:var(--blue);cursor:pointer" onclick="document.querySelector('[data-pane=schedule]').click()">View all →</div>
+          </div>
+          <div id="w-sched-list"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TASKS -->
+    <div class="pane" id="pane-tasks">
+      <div class="card">
+        <div id="task-list"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input class="inp" id="task-input" placeholder="Add a task..." style="flex:1;min-width:120px" onkeydown="if(event.key==='Enter') addTask()" />
+          <select class="sel" id="task-tag"><option value="work">work</option><option value="stream">stream</option><option value="home">home</option></select>
+          <button class="btn" onclick="addTask()">Add + sync to Notion ↗</button>
+        </div>
+      </div>
+      <div class="mw" id="notion-modal">
+        <div class="mb">
+          <div class="mt">Choose Notion project</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">Task: <span id="modal-task-preview"></span></div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:10px;margin-bottom:4px">Project</div>
+          <div class="pg" id="project-grid"></div>
+          <div class="ma"><button class="btn btn-sm" onclick="closeNM()">Cancel</button><button class="btn btn-p btn-sm" onclick="confirmNT()">Add to Notion ↗</button></div>
+          <div class="sm" id="modal-status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="pane" id="pane-schedule">
+      <div class="wh">
+        <div class="wn"><button class="wnb" onclick="shiftW(-1)">&#8592;</button><span class="wl" id="week-label"></span><button class="wnb" onclick="shiftW(1)">&#8594;</button></div>
+        <button class="btn btn-sm" onclick="shiftW(0,true)">Today</button>
+      </div>
+      <div class="wg" id="week-grid"></div>
+      <div class="mw" id="block-modal">
+        <div class="mb">
+          <div class="mt" id="block-modal-title">Add block</div>
+          <div class="fg"><div class="fl">Time</div><input class="inp fi" id="block-time" placeholder="e.g. 9:00 AM" /></div>
+          <div class="fg"><div class="fl">Title</div><input class="inp fi" id="block-title" onkeydown="if(event.key==='Enter') saveBlock()" placeholder="e.g. Harford onboarding call" /></div>
+          <div class="fg"><div class="fl">Type</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div class="po" id="btype-meeting" onclick="SBT('meeting')">Meeting</div>
+              <div class="po" id="btype-focus" onclick="SBT('focus')">Focus</div>
+              <div class="po" id="btype-work" onclick="SBT('work')">Work</div>
+              <div class="po" id="btype-personal" onclick="SBT('personal')">Personal</div>
+            </div>
+          </div>
+          <div class="fg"><div class="fl">Color</div>
+            <div class="color-row" id="block-color-row">
+              <div class="color-swatch selected" data-color="default" style="background:var(--blue-light);border-color:var(--text-primary)" onclick="SBC(this,'default')"></div>
+              <div class="color-swatch" data-color="#E6F1FB" style="background:#E6F1FB" onclick="SBC(this,'#E6F1FB')"></div>
+              <div class="color-swatch" data-color="#EEEDFE" style="background:#EEEDFE" onclick="SBC(this,'#EEEDFE')"></div>
+              <div class="color-swatch" data-color="#E1F5EE" style="background:#E1F5EE" onclick="SBC(this,'#E1F5EE')"></div>
+              <div class="color-swatch" data-color="#FAEEDA" style="background:#FAEEDA" onclick="SBC(this,'#FAEEDA')"></div>
+              <div class="color-swatch" data-color="#FCEBEB" style="background:#FCEBEB" onclick="SBC(this,'#FCEBEB')"></div>
+              <div class="color-swatch" data-color="#FBEAF0" style="background:#FBEAF0" onclick="SBC(this,'#FBEAF0')"></div>
+              <div class="color-swatch" data-color="#F1EFE8" style="background:#F1EFE8" onclick="SBC(this,'#F1EFE8')"></div>
+              <div class="color-swatch" data-color="#2a3a5a" style="background:#2a3a5a" onclick="SBC(this,'#2a3a5a')"></div>
+              <div class="color-swatch" data-color="#3a2a5a" style="background:#3a2a5a" onclick="SBC(this,'#3a2a5a')"></div>
+              <div class="color-swatch" data-color="#2a5a3a" style="background:#2a5a3a" onclick="SBC(this,'#2a5a3a')"></div>
+              <div class="color-swatch" data-color="#5a3a2a" style="background:#5a3a2a" onclick="SBC(this,'#5a3a2a')"></div>
+              <div class="color-swatch" data-color="#5a2a2a" style="background:#5a2a2a" onclick="SBC(this,'#5a2a2a')"></div>
+              <div class="color-swatch" data-color="#1a1a2a" style="background:#1a1a2a" onclick="SBC(this,'#1a1a2a')"></div>
+            </div>
+          </div>
+          <div class="ma"><button class="btn btn-sm" onclick="closeBM()">Cancel</button><button class="btn btn-p btn-sm" onclick="saveBlock()">Add block</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENT REQUEST -->
+    <div class="pane" id="pane-request">
+      <div class="notion-bar">
+        <div class="nbl"><div class="nbi">N</div><div><div class="nbt">Client Request and Project Tracker</div><div class="nbs">View all requests, projects, and task statuses</div></div></div>
+        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Open in Notion ↗</button>
+      </div>
+      <div class="card">
+        <div class="sl" style="margin-bottom:14px">new task</div>
+        <div class="fg"><div class="fl">Task name <span class="req">required</span></div><input class="inp fi" id="cr-name" placeholder="e.g. Harford Claims — Results Dashboard filter request" /></div>
+        <div class="cr2">
+          <div class="fg"><div class="fl">Project</div><select class="sel fi" id="cr-project"><option>Harford Claims</option><option>Merchants Claims</option><option>Markel Claims</option><option>IAT</option><option>Branch</option><option>Reporting/Dashboard</option><option>IPG</option><option>MSI</option><option>Client = N/A</option></select></div>
+          <div class="fg"><div class="fl">Status</div><select class="sel fi" id="cr-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>Archived</option></select></div>
+        </div>
+        <div class="fg"><div class="fl">Priority</div><div class="po2"><div class="prp" id="pri-Low" onclick="SP('Low')">Low</div><div class="prp" id="pri-Medium" onclick="SP('Medium')">Medium</div><div class="prp" id="pri-High" onclick="SP('High')">High</div><div class="prp" id="pri-FRD" onclick="SP('FRD Done')">FRD Done</div></div></div>
+        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Dashboard</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
+        <div class="cr2"><div class="fg"><div class="fl">Due date</div><input class="inp fi" id="cr-due" type="date" /></div><div class="fg"><div class="fl">Jira ticket</div><input class="inp fi" id="cr-jira" placeholder="e.g. GQ-412" /></div></div>
+        <div class="cr2"><div class="fg"><div class="fl">Dev points</div><input class="inp fi" id="cr-devpoints" placeholder="e.g. 3" /></div><div class="fg" style="visibility:hidden"></div></div>
+        <div class="fg"><div class="fl">Notes</div><textarea class="inp fta" id="cr-notes" placeholder="Any additional context..."></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-p" onclick="submitCR()">Create in Notion ↗</button><button class="btn btn-d btn-sm" onclick="clearCR()">Clear</button></div>
+        <div class="sm" id="cr-sm"></div>
+      </div>
+      <div id="cr-submitted-wrap" style="display:none"><div class="sl">created this session</div><div class="card"><div id="cr-submitted-list"></div></div></div>
+    </div>
+
+    <!-- JIRA -->
+    <div class="pane" id="pane-jira">
+      <div class="card" style="margin-bottom:10px">
+        <div class="cr2" style="gap:10px">
+          <div class="fg" style="margin-bottom:0"><div class="fl">Summary <span class="req">required</span></div><input class="inp fi" id="j-summary" placeholder="e.g. Manually Change Calibration Review Report Status" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="fg" style="margin-bottom:0"><div class="fl">Component</div><select class="sel fi" id="j-component"><option>Calibration</option><option>Results Dashboard</option><option>FSA</option><option>Audit Admin</option><option>Reporting</option><option>IFR</option><option>Questionnaire</option><option>Other</option></select></div>
+            <div class="fg" style="margin-bottom:0"><div class="fl">Affected clients</div><input class="inp fi" id="j-clients" placeholder="e.g. Harford, All" /></div>
+          </div>
+        </div>
+      </div>
+      <div class="js"><div class="jsh" onclick="TS('description')"><div class="jst">Description <span class="jsb" id="badge-description">empty</span></div><span class="jsc open" id="chev-description">▼</span></div><div class="jsbd open" id="body-description"><div class="fl" style="margin-bottom:5px;font-size:12px;color:var(--text-secondary)">2–3 sentence overview</div><textarea class="inp fta" id="j-description" style="min-height:72px"></textarea></div></div>
+      <div class="js"><div class="jsh" onclick="TS('behavior')"><div class="jst">Behavior rules <span class="jsb" id="badge-behavior">0 rules</span></div><span class="jsc open" id="chev-behavior">▼</span></div><div class="jsbd open" id="body-behavior"><ul class="bl" id="behavior-list"></ul><div class="bar"><input class="inp" id="behavior-input" placeholder="Add a behavior rule..." style="flex:1" onkeydown="if(event.key==='Enter'){AB('behavior');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('behavior')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('permissions')"><div class="jst">Permissions <span class="jsb" id="badge-permissions">0 rules</span></div><span class="jsc open" id="chev-permissions">▼</span></div><div class="jsbd open" id="body-permissions"><ul class="bl" id="permissions-list"></ul><div class="bar"><input class="inp" id="permissions-input" placeholder="e.g. Secondary Reviewers can change status on their own reports" style="flex:1" onkeydown="if(event.key==='Enter'){AB('permissions');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('permissions')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('technical')"><div class="jst">Technical notes <span class="jsb" id="badge-technical">0 notes</span></div><span class="jsc" id="chev-technical">▼</span></div><div class="jsbd" id="body-technical"><ul class="bl" id="technical-list"></ul><div class="bar"><input class="inp" id="technical-input" placeholder="e.g. Status change does not require reopening the Audit" style="flex:1" onkeydown="if(event.key==='Enter'){AB('technical');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('technical')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('edge')"><div class="jst">Edge cases <span class="jsb" id="badge-edge">0 cases</span></div><span class="jsc" id="chev-edge">▼</span></div><div class="jsbd" id="body-edge"><ul class="bl" id="edge-list"></ul><div class="bar"><input class="inp" id="edge-input" placeholder="e.g. If Complete report is reopened, confirm resolutions are preserved" style="flex:1" onkeydown="if(event.key==='Enter'){AB('edge');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('edge')">Add</button></div></div></div>
+      <div class="js"><div class="jsh" onclick="TS('acceptance')"><div class="jst">Acceptance criteria <span class="jsb" id="badge-acceptance">0 criteria</span></div><span class="jsc" id="chev-acceptance">▼</span></div><div class="jsbd" id="body-acceptance"><ul class="bl" id="acceptance-list"></ul><div class="bar"><input class="inp" id="acceptance-input" placeholder="e.g. Status transitions follow Ready → In Progress → Complete only" style="flex:1" onkeydown="if(event.key==='Enter'){AB('acceptance');event.preventDefault()}" /><button class="btn btn-sm" onclick="AB('acceptance')">Add</button></div></div></div>
+
+      <!-- Generated story output (shown after clicking Generate) -->
+      <div id="jira-output-wrap" style="display:none;margin-top:12px">
+        <div class="pl"><span>Generated story</span><button class="btn btn-sm" onclick="copyStory()">Copy</button></div>
+        <div class="story-out" id="jira-output"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="fg" style="margin-bottom:0;flex:1;min-width:160px"><div class="fl" style="margin-bottom:4px">Notion project</div><select class="sel fi" id="j-notion-project"><option>Reporting/Dashboard</option><option>Harford Claims</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI</option><option>IAT</option><option>Branch</option><option>IPG</option><option>Client = N/A</option></select></div>
+          <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn btn-p" onclick="pushJira()">Push to Notion ↗</button><button class="btn btn-d btn-sm" onclick="clearJira()">Clear</button></div>
+        </div>
+        <div class="sm" id="jira-status"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px" id="jira-generate-row">
+        <button class="btn btn-g" onclick="generateStory()" style="flex:1">Generate story ↗</button>
+        <button class="btn btn-d btn-sm" onclick="clearJira()">Clear</button>
+      </div>
+    </div>
+
+    <!-- RECAP -->
+    <div class="pane" id="pane-recap">
+      <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees</div><input class="inp fi" id="r-attendees" placeholder="e.g. John Smith" /></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
+      <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
+    </div>
+    <!-- SETTINGS -->
+    <div class="pane" id="pane-settings">
+      <div class="card" style="max-width:500px">
+        <div class="sl" style="margin-bottom:16px">Notion integration</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          To sync tasks and Jira stories to Notion, you need an integration token.
+          <br><br>
+          1. Go to <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://www.notion.so/my-integrations')">notion.so/my-integrations</span><br>
+          2. Click <strong>+ New integration</strong><br>
+          3. Name it "Dashboard", select your workspace, click Save<br>
+          4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
+          5. Paste it below<br><br>
+          You'll also need to share each database with the integration:<br>
+          Open the database in Notion → ··· menu → Connections → add your integration.
+        </p>
+        <div class="fg">
+          <div class="fl">Notion token</div>
+          <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveSettings()">Save token</button>
+          <button class="btn btn-d btn-sm" onclick="clearSettings()">Clear</button>
+          <button class="btn btn-sm" onclick="checkBridge()">Test connection</button>
+          <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
+        </div>
+        <div id="settings-status" class="sm" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+const BRIDGE = 'http://127.0.0.1:3847';
+
+const PROJS = ['Harford Claims','Merchants Claims','Markel Claims','IAT','Branch','Reporting/Dashboard','IPG','MSI','Client = N/A'];
+
+// Restore saved token to bridge on startup
+(async () => {
+  const saved = localStorage.getItem('notion_token');
+  if (saved) {
+    try { await fetch(`${BRIDGE}/set-token`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:saved})}); } catch(e){}
+  }
+})();
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TMAP = {meeting:'mp',focus:'fp',work:'wp',personal:'pp2'};
+const TMAP2 = {meeting:'bm2',focus:'bf2',work:'bw2',personal:'bp3'};
+
+let tasks = JSON.parse(localStorage.getItem('cdash_t')||'null') || [
+  {text:'Finalize Harford Claims recap doc',tag:'work',done:false,notion:false},
+  {text:'Push Calibration Review Report story to Notion',tag:'work',done:false,notion:false},
+  {text:'Check MSI Claims onboarding status',tag:'work',done:false,notion:false},
+  {text:'Review stream overlay for new season',tag:'stream',done:false,notion:false},
+  {text:'Plan backyard project for weekend',tag:'home',done:false,notion:false},
+];
+let wBlocks = JSON.parse(localStorage.getItem('cdash_w')||'{}');
+let jBullets = {behavior:[],permissions:[],technical:[],edge:[],acceptance:[]};
+let pendTask=null, selProj=null, txText='', curSrc='upload';
+let wOff=0, pendDay=null, selBT='meeting';
+let selPri=null, selTags=new Set(), subReqs=[];
+let selBlockColor='default';
+let generatedStory='';
+
+function save(){
+  try{
+    localStorage.setItem('cdash_t',JSON.stringify(tasks));
+    localStorage.setItem('cdash_w',JSON.stringify(wBlocks));
+    if(typeof pomoState!=='undefined') localStorage.setItem('cdash_pomo',JSON.stringify(pomoState));
+  }catch(e){}
+  // Async disk save via bridge — fire and forget
+  fetch('http://127.0.0.1:3847/save-data',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({tasks, wBlocks, pomoState: typeof pomoState!=='undefined'?pomoState:null})
+  }).catch(()=>{});
+}
+function loadPersistedData(){
+  // Load from disk via bridge (authoritative source — survives localStorage clears)
+  fetch('http://127.0.0.1:3847/load-data')
+    .then(r=>r.json())
+    .then(d=>{
+      let changed = false;
+      if(d.tasks && Array.isArray(d.tasks)){
+        tasks = d.tasks;
+        localStorage.setItem('cdash_t', JSON.stringify(tasks));
+        changed = true;
+      }
+      if(d.wBlocks && typeof d.wBlocks==='object'){
+        wBlocks = d.wBlocks;
+        localStorage.setItem('cdash_w', JSON.stringify(wBlocks));
+        changed = true;
+      }
+      if(d.pomoState && typeof pomoState!=='undefined'){
+        // Restore pomodoro state but never resume a running timer (could be days old)
+        pomoState = { ...d.pomoState, running: false };
+        localStorage.setItem('cdash_pomo', JSON.stringify(pomoState));
+        pomoRender();
+      }
+      if(changed){ RT(); renderHomeWidgets(); RW(); }
+      console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
+    })
+    .catch(e => console.log('[data] bridge not ready, using localStorage:', e.message));
+}
+function openExt(url){window.open(url,'_blank');}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+const now = new Date(), hh = now.getHours();
+document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + ', Connor';
+document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
+document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
+document.getElementById('w-month').textContent = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+function tick(){
+  const t=new Date();
+  let h=t.getHours(), m=t.getMinutes(), ampm=h>=12?'PM':'AM';
+  h=h%12||12;
+  const tEl=document.getElementById('w-time');
+  const aEl=document.getElementById('w-ampm');
+  if(tEl) tEl.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  if(aEl) aEl.textContent=ampm;
+}
+tick(); setInterval(tick, 1000);
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-pane]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const t = el.dataset.pane;
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+    document.getElementById('pane-'+t).classList.add('active');
+    if(t==='home') renderHomeWidgets();
+  });
+});
+
+// ─── HOME WIDGETS ─────────────────────────────────────────────────────────────
+function renderHomeWidgets(){
+  const open=tasks.filter(t=>!t.done), done=tasks.filter(t=>t.done);
+  document.getElementById('stat-open').textContent = open.length;
+  document.getElementById('stat-done-sub').textContent = done.length + ' completed';
+  document.getElementById('w-task-list').innerHTML = open.length
+    ? open.slice(0,5).map(t=>`<div class="w-trow"><div class="w-dot dot-${t.tag}"></div><span class="w-ttxt">${t.text}</span></div>`).join('') + (open.length>5?`<div class="w-empty">+${open.length-5} more</div>`:'')
+    : '<div class="w-empty">All caught up!</div>';
+  const tk = now.toISOString().split('T')[0];
+  const todayBlocks = (wBlocks[tk]||[]).sort((a,b)=>a.time.localeCompare(b.time));
+  let weekTotal=0;
+  const ws=new Date(now); ws.setDate(ws.getDate()-ws.getDay()); ws.setHours(0,0,0,0);
+  for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(d.getDate()+i);weekTotal+=(wBlocks[d.toISOString().split('T')[0]]||[]).length;}
+  document.getElementById('stat-blocks').textContent = todayBlocks.length;
+  document.getElementById('stat-week-sub').textContent = weekTotal + ' this week';
+  document.getElementById('w-sched-list').innerHTML = todayBlocks.length
+    ? todayBlocks.map(b=>{
+        const style=b.color?`background:${b.color};color:${(parseInt(b.color.slice(1,3),16)+parseInt(b.color.slice(3,5),16)+parseInt(b.color.slice(5,7),16))>380?'#1a1a1a':'#f0f0f0'}`:'';
+        const cls=b.color?'':TMAP2[b.type]||'bm2';
+        return `<div class="w-brow"><span class="w-btime">${b.time}</span><span class="w-btitle">${b.title}</span><span class="w-btag ${cls}" style="${style}">${b.type}</span></div>`;
+      }).join('')
+    : '<div class="w-empty">No blocks today</div>';
+}
+
+// ─── NOTION API (via local bridge) ───────────────────────────────────────────
+function hasToken(){ return !!localStorage.getItem('notion_token'); }
+function requireToken(errEl){
+  if(!hasToken()){
+    if(errEl) { errEl.textContent='Set your Notion token first — click ⚙ Settings in the sidebar.'; errEl.className='sm err'; }
+    return false;
+  }
+  return true;
+}
+async function notionCreateTask(payload){
+  let data;
+  try {
+    const resp = await fetch(`${BRIDGE}/create-task`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    data = await resp.json();
+  } catch(e) {
+    throw new Error('Cannot reach local bridge — make sure the app is running via npm start, not opened directly as a file.');
+  }
+  if(!data.ok) {
+    // Surface the exact Notion error so it's actionable
+    const msg = data.error || 'Bridge error';
+    if(msg.includes('Could not find database') || msg.includes('shared with')) {
+      throw new Error('Notion permissions error: Share your Tasks database with your integration. In Notion: open the database → ··· → Connections → add your integration.');
+    }
+    if(msg.includes('No token')) {
+      throw new Error('No Notion token set. Go to ⚙ Settings in the sidebar and paste your integration token.');
+    }
+    throw new Error(msg);
+  }
+  return data;
+}
+async function saveToken(token){
+  try {
+    const resp = await fetch(`${BRIDGE}/set-token`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
+    });
+    return resp.json();
+  } catch(e) {
+    throw new Error('Cannot reach bridge server.');
+  }
+}
+async function saveToken(token){
+  localStorage.setItem('notion_token', token);
+  const resp = await fetch(`${BRIDGE}/set-token`, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
+  });
+  return resp.json();
+}
+
+// ─── TASKS ────────────────────────────────────────────────────────────────────
+function RT(){
+  const el=document.getElementById('task-list');
+  if(!tasks.length){el.innerHTML='<div style="font-size:13px;color:var(--text-tertiary);padding:8px 0">No tasks yet.</div>';return;}
+  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span>${t.notion?'<span class="nb">Notion ✓</span>':''}<span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
+}
+function tog(i){tasks[i].done=!tasks[i].done;save();RT();renderHomeWidgets();}
+function remT(i){tasks.splice(i,1);save();RT();renderHomeWidgets();}
+function addTask(){
+  const inp=document.getElementById('task-input'), tag=document.getElementById('task-tag').value, text=inp.value.trim();
+  if(!text)return; pendTask={text,tag,done:false,notion:false}; inp.value=''; openNM(text);
+}
+function openNM(p){
+  selProj=null;
+  document.getElementById('modal-task-preview').textContent=p;
+  document.getElementById('modal-status').textContent='';
+  document.getElementById('project-grid').innerHTML=PROJS.map(p=>`<div class="po" onclick="selP(this,'${p}')">${p}</div>`).join('');
+  document.getElementById('notion-modal').classList.add('open');
+}
+function selP(el,p){document.querySelectorAll('.po').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');selProj=p;}
+function closeNM(){document.getElementById('notion-modal').classList.remove('open');if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}}
+async function confirmNT(){
+  if(!selProj){document.getElementById('modal-status').textContent='Pick a project first.';document.getElementById('modal-status').className='sm err';return;}
+  if(!requireToken(document.getElementById('modal-status'))) return;
+  const sEl=document.getElementById('modal-status'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
+  try{
+    const page = await notionCreateTask({taskName:pendTask.text, project:selProj, status:'Not Started'});
+    sEl.textContent='Added to Notion ✓';
+    if(pendTask) pendTask.notion=true;
+    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
+    setTimeout(()=>document.getElementById('notion-modal').classList.remove('open'),1200);
+  }catch(e){
+    sEl.textContent='Notion error: '+e.message;sEl.className='sm err';
+    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
+  }
+}
+
+// ─── SCHEDULE ─────────────────────────────────────────────────────────────────
+function dKey(d){return d.toISOString().split('T')[0];}
+function GWS(off){const d=new Date();d.setDate(d.getDate()-d.getDay()+off*7);d.setHours(0,0,0,0);return d;}
+function RW(){
+  const ws=GWS(wOff), we=new Date(ws); we.setDate(we.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('week-label').textContent=fmt(ws)+' – '+fmt(we);
+  const tk=dKey(new Date()), grid=document.getElementById('week-grid'); grid.innerHTML='';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws); d.setDate(d.getDate()+i);
+    const k=dKey(d), isTd=k===tk, blks=wBlocks[k]||[];
+    const col=document.createElement('div'); col.className='dc'+(isTd?' today':'');
+    const hdr=document.createElement('div'); hdr.className='dh';
+    hdr.innerHTML=`<div class="dn">${DAYS[d.getDay()]}</div><div class="dd${isTd?' tn':''}">${d.getDate()}</div>`;
+    col.appendChild(hdr);
+    const bd=document.createElement('div'); bd.className='db3';
+    [...blks].sort((a,b)=>a.time.localeCompare(b.time)).forEach((b,bi)=>{
+      const p=document.createElement('div');
+      if(b.color){
+        p.className='bp';
+        // Derive a readable text color from the bg lightness
+        const isLight=(parseInt(b.color.slice(1,3),16)+parseInt(b.color.slice(3,5),16)+parseInt(b.color.slice(5,7),16))>380;
+        p.style.cssText=`background:${b.color};color:${isLight?'#1a1a1a':'#f0f0f0'}`;
+      } else {
+        p.className='bp '+(TMAP[b.type]||'mp');
+      }
+      const doneClass=b.done?' done-block':'';
+      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
+      bd.appendChild(p);
+    });
+    col.appendChild(bd);
+    const ab=document.createElement('button'); ab.className='ab'; ab.textContent='+ add block'; ab.onclick=()=>OBM(k,d);
+    col.appendChild(ab); grid.appendChild(col);
+  }
+}
+function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();}
+function OBM(k,dt){
+  pendDay=k; selBT='meeting';
+  document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('block-time').value=''; document.getElementById('block-title').value='';
+  document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('btype-meeting').classList.add('sel');
+  selBlockColor='default';
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  const firstSwatch=document.querySelector('.color-swatch[data-color="default"]');
+  if(firstSwatch){firstSwatch.classList.add('selected');}
+  document.getElementById('block-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('block-time').focus(),50);
+}
+function closeBM(){document.getElementById('block-modal').classList.remove('open');pendDay=null;}
+function SBT(t){selBT=t;document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));document.getElementById('btype-'+t).classList.add('sel');}
+function SBC(el,color){
+  selBlockColor=color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function saveBlock(){
+  const time=document.getElementById('block-time').value.trim(), title=document.getElementById('block-title').value.trim();
+  if(!time||!title||!pendDay)return;
+  if(!wBlocks[pendDay])wBlocks[pendDay]=[];
+  wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor}); save(); closeBM(); RW(); renderHomeWidgets();
+}
+function toggleBlock(k,idx,e){
+  e.stopPropagation(); if(!wBlocks[k])return;
+  const s=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)), bl=s[idx];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri>-1) wBlocks[k][ri].done = !wBlocks[k][ri].done;
+  save(); RW(); renderHomeWidgets();
+}
+function DB2(k,idx,e){
+  e.stopPropagation(); if(!wBlocks[k])return;
+  const s=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)), bl=s[idx];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri>-1)wBlocks[k].splice(ri,1); save(); RW(); renderHomeWidgets();
+}
+
+// ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
+function SP(p){
+  selPri=p;
+  const m={Low:'sl',Medium:'sm2',High:'sh','FRD Done':'sf'};
+  document.querySelectorAll('.prp').forEach(el=>{
+    el.className='prp';
+    const k=el.id.replace('pri-','').replace('FRD','FRD Done');
+    if(k===p||(el.id==='pri-FRD'&&p==='FRD Done')) el.classList.add(m[p]);
+  });
+}
+function TT(el){const tag=el.dataset.tag;selTags.has(tag)?(selTags.delete(tag),el.classList.remove('sc')):(selTags.add(tag),el.classList.add('sc'));}
+function clearCR(){
+  ['cr-name','cr-jira','cr-devpoints','cr-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cr-status').value='Not Started'; document.getElementById('cr-due').value='';
+  document.getElementById('cr-sm').textContent=''; selPri=null; selTags=new Set();
+  document.querySelectorAll('.prp').forEach(el=>el.className='prp');
+  document.querySelectorAll('.tc2').forEach(el=>el.classList.remove('sc'));
+}
+async function submitCR(){
+  const name=document.getElementById('cr-name').value.trim();
+  if(!name){document.getElementById('cr-sm').textContent='Task name is required.';document.getElementById('cr-sm').className='sm err';return;}
+  if(!requireToken(document.getElementById('cr-sm'))) return;
+  const proj=document.getElementById('cr-project').value,
+        status=document.getElementById('cr-status').value,
+        due=document.getElementById('cr-due').value,
+        jira=document.getElementById('cr-jira').value.trim(),
+        dev=document.getElementById('cr-devpoints').value.trim(),
+        notes=document.getElementById('cr-notes').value.trim(),
+        tags=[...selTags];
+  const sEl=document.getElementById('cr-sm'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
+  try{
+    const page = await notionCreateTask({taskName:name,project:proj,status,priority:selPri||'',tags,due,jiraTicket:jira,devPoints:dev,notes});
+    sEl.textContent='Created in Notion ✓';
+    subReqs.unshift({name,project:proj,priority:selPri,url:page.url,time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
+    renderSub(); clearCR();
+  }catch(e){sEl.textContent='Notion error: '+e.message; sEl.className='sm err';}
+}
+function renderSub(){
+  const w=document.getElementById('cr-submitted-wrap'), l=document.getElementById('cr-submitted-list');
+  if(!subReqs.length){w.style.display='none';return;} w.style.display='block';
+  l.innerHTML=subReqs.map(r=>`<div class="subr"><div><div class="subn">${r.name}</div><div class="subm">${r.project}${r.priority?' · '+r.priority:''} · ${r.time}</div></div>${r.url?`<span class="nel" onclick="openExt('${r.url}')">Open ↗</span>`:'<span class="subm">Notion</span>'}</div>`).join('');
+}
+
+// ─── JIRA STORY ───────────────────────────────────────────────────────────────
+function TS(id){const b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id),o=b.classList.contains('open');b.classList.toggle('open',!o);c.classList.toggle('open',!o);}
+function AB(s){const inp=document.getElementById(s+'-input'),text=inp.value.trim();if(!text)return;jBullets[s].push(text);inp.value='';RB2(s);}
+function remB(s,i){jBullets[s].splice(i,1);RB2(s);}
+function RB2(s){
+  const l=document.getElementById(s+'-list'), c={behavior:'rules',permissions:'rules',technical:'notes',edge:'cases',acceptance:'criteria'};
+  l.innerHTML=jBullets[s].map((b,i)=>`<li class="bi"><div class="bd2"></div><span class="bit">${b}</span><span class="bix" onclick="remB('${s}',${i})">✕</span></li>`).join('');
+  const n=jBullets[s].length, badge=document.getElementById('badge-'+s);
+  badge.textContent=n===0?`0 ${c[s]}`:`${n} ${c[s]}`; badge.className='jsb'+(n>0?' filled':'');
+}
+
+function generateStory(){
+  const summary=document.getElementById('j-summary').value.trim();
+  if(!summary){alert('Summary is required.');return;}
+  const desc=document.getElementById('j-description').value.trim();
+  const clients=document.getElementById('j-clients').value.trim();
+
+  let story = `Summary: ${summary}\n`;
+  if(clients) story += `Affected clients: ${clients}\n`;
+  story += `\nDescription:\n${desc||'[To be filled]'}\n`;
+
+  const labels={behavior:'Behavior Rules',permissions:'Permissions',technical:'Technical Notes',edge:'Edge Cases',acceptance:'Acceptance Criteria'};
+  ['behavior','permissions','technical','edge','acceptance'].forEach(s=>{
+    if(jBullets[s].length){
+      story += `\n${labels[s]}:\n`;
+      jBullets[s].forEach(b=>story += s==='acceptance'?`- [ ] ${b}\n`:`* ${b}\n`);
+    }
+  });
+
+  generatedStory = story;
+  document.getElementById('jira-output').textContent = story;
+  document.getElementById('jira-output-wrap').style.display = 'block';
+  document.getElementById('jira-generate-row').style.display = 'none';
+}
+
+function copyStory(){
+  navigator.clipboard.writeText(generatedStory).then(()=>{
+    const btn=document.querySelector('#jira-output-wrap .btn');
+    btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1500);
+  });
+}
+
+async function pushJira(){
+  if(!generatedStory){alert('Generate the story first.');return;}
+  if(!requireToken(document.getElementById('jira-status'))) return;
+  const proj=document.getElementById('j-notion-project').value;
+  const summary=document.getElementById('j-summary').value.trim();
+  const sEl=document.getElementById('jira-status'); sEl.className='sm'; sEl.textContent='Pushing to Notion...';
+
+  try{
+    const page = await notionCreateTask({
+      taskName: summary,
+      project: proj,
+      status: 'Not Started',
+      notes: generatedStory,
+    });
+    sEl.textContent='Pushed to Notion ✓ — ' + (page.url||'');
+  }catch(e){sEl.textContent='Notion error: '+e.message; sEl.className='sm err';}
+}
+
+function clearJira(){
+  document.getElementById('j-summary').value='';
+  document.getElementById('j-description').value='';
+  document.getElementById('j-clients').value='';
+  jBullets={behavior:[],permissions:[],technical:[],edge:[],acceptance:[]};
+  ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
+  document.getElementById('jira-status').textContent='';
+  document.getElementById('jira-output-wrap').style.display='none';
+  document.getElementById('jira-generate-row').style.display='flex';
+  generatedStory='';
+}
+
+// ─── RECAP ────────────────────────────────────────────────────────────────────
+function SS(s){curSrc=s;['upload','paste','none'].forEach(x=>{document.getElementById('src-tab-'+x).classList.toggle('active',x===s);document.getElementById('src-'+x).style.display=x===s?'block':'none';});}
+function HD(e){e.preventDefault();document.getElementById('upload-zone').classList.remove('dv');const f=e.dataTransfer.files[0];if(f)PD(f);}
+function HF(e){const f=e.target.files[0];if(f)PD(f);}
+function PD(file){
+  if(!file.name.endsWith('.docx')){document.getElementById('upload-status').textContent='Please upload a .docx file.';document.getElementById('upload-status').className='sm err';return;}
+  const sEl=document.getElementById('upload-status'); sEl.className='sm'; sEl.textContent='Extracting text...';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    mammoth.extractRawText({arrayBuffer:e.target.result}).then(result=>{
+      txText=result.value.trim();
+      document.getElementById('upload-zone').classList.add('hf');
+      document.getElementById('upload-inner').innerHTML=`<div style="font-size:20px;margin-bottom:6px">✅</div><div style="font-size:13px;font-weight:500;color:var(--green)">${file.name}</div><div class="us">${txText.length.toLocaleString()} chars extracted</div>`;
+      document.getElementById('transcript-preview').textContent=txText.slice(0,600)+(txText.length>600?'\n\n[...truncated]':'');
+      document.getElementById('transcript-preview-wrap').style.display='block';
+      sEl.textContent='';
+    }).catch(()=>{sEl.textContent='Could not extract text.';sEl.className='sm err';});
+  };
+  reader.readAsArrayBuffer(file);
+}
+function CT(){txText='';document.getElementById('upload-zone').classList.remove('hf');document.getElementById('upload-inner').innerHTML='<div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div>';document.getElementById('transcript-preview-wrap').style.display='none';document.getElementById('upload-status').textContent='';document.getElementById('docx-file-input').value='';}
+function setStep(n){[1,2,3].forEach(i=>{const el=document.getElementById('step'+i);el.className='st2'+(i<n?' done':i===n?' active':'');el.querySelector('.sd').textContent=i<n?'✓':i;document.getElementById('recap-step-'+i).style.display=i===n?'block':'none';});}
+function RN(from){
+  if(from===1){setStep(2);}
+  else if(from===2){
+    const cl=document.getElementById('r-client').value, dt=document.getElementById('r-date').value,
+          ty=document.getElementById('r-type').value, se=document.getElementById('r-session').value||'Session One',
+          at=document.getElementById('r-attendees').value.trim();
+    let ti='No transcript (stub)';
+    if(curSrc==='upload'&&txText) ti=`Transcript imported (${txText.length.toLocaleString()} chars)`;
+    else if(curSrc==='paste'){const t=document.getElementById('r-notes-paste').value.trim();if(t)ti=`Pasted notes (${t.length.toLocaleString()} chars)`;}
+    document.getElementById('recap-summary').innerHTML=`<div style="display:grid;grid-template-columns:110px 1fr;gap:6px 12px"><span style="color:var(--text-tertiary)">Client</span><span style="font-weight:500">${cl}</span><span style="color:var(--text-tertiary)">Date</span><span>${dt}</span><span style="color:var(--text-tertiary)">Session</span><span>${ty} ${se}</span>${at?`<span style="color:var(--text-tertiary)">Attendees</span><span>${at}</span>`:''}<span style="color:var(--text-tertiary)">Transcript</span><span>${ti}</span></div>`;
+    setStep(3);
+  }
+}
+function RB(from){setStep(from-1);}
+async function GR(){
+  const cl=document.getElementById('r-client').value, dv=document.getElementById('r-date').value,
+        ty=document.getElementById('r-type').value, se=document.getElementById('r-session').value||'Session One',
+        at=document.getElementById('r-attendees').value.trim();
+  let tx='';
+  if(curSrc==='upload') tx=txText;
+  else if(curSrc==='paste') tx=document.getElementById('r-notes-paste').value.trim();
+  let ds=dv;
+  if(dv){const d=new Date(dv+'T12:00:00'),day=d.getDate(),sfx=['th','st','nd','rd'][(day%100>10&&day%100<14)?0:(day%10<4?day%10:0)]||'th';ds=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}).replace(/(\d+)/,`$1${sfx}`);}
+  document.getElementById('recap-generating').style.display='block';
+  document.getElementById('recap-actions').style.display='none';
+  document.getElementById('recap-status').textContent='';
+  const sys=`You are a meeting recap parser. Return ONLY a raw JSON object with NO markdown, NO preamble, NO explanation - just the JSON object itself starting with { and ending with }.
+
+Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"owner":"string","items":["string"]}],"keyTakeaways":["string"]}
+
+Rules: Always start with Session Overview. End with Next Steps and Key Takeaways. Keep bullets concise. If no transcript use "[To be filled]" stubs. Return ONLY the JSON object.`;
+  const um=tx?`Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\nAttendees: ${at||'Not specified'}\n\nTranscript:\n${tx.slice(0,8000)}`:`Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\n\nNo transcript — generate a stub.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:sys,messages:[{role:'user',content:um}]})});
+    const d=await r.json();
+    const raw=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    let cj;
+    try {
+      // Strip markdown fences, then extract the first {...} JSON object
+      let cleaned = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+      // Find outermost JSON object in case there's preamble/postamble
+      const jsonStart = cleaned.indexOf('{');
+      const jsonEnd = cleaned.lastIndexOf('}');
+      if(jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON object found');
+      cleaned = cleaned.slice(jsonStart, jsonEnd + 1);
+      cj = JSON.parse(cleaned);
+    } catch(e) { throw new Error('AI returned invalid JSON: ' + e.message); }
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    document.getElementById('recap-status').textContent='Recap parsed ✓ — open Claude.ai and paste [GENERATE_RECAP_DOCX] payload to produce the .docx file.';
+    navigator.clipboard.writeText(`[GENERATE_RECAP_DOCX]\n${JSON.stringify({client:cl,dateStr:ds,type:ty,session:se,attendees:at,content:cj})}`).catch(()=>{});
+  }catch(e){
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    document.getElementById('recap-status').textContent='Error: '+(e.message||'Try again.');
+    document.getElementById('recap-status').className='sm err';
+  }
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+async function checkBridge(){
+  const sEl = document.getElementById('settings-status');
+  sEl.className='sm'; sEl.textContent='Checking bridge...';
+  try {
+    const r = await fetch(`${BRIDGE}/set-token`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:'__test__'})});
+    const d = await r.json();
+    sEl.textContent = '✓ Bridge is running on localhost:3847';
+  } catch(e) {
+    sEl.textContent = '✗ Bridge not reachable: ' + e.message + ' — make sure you ran npm install && npm start';
+    sEl.className='sm err';
+  }
+}
+async function saveSettings(){
+  const token = document.getElementById('settings-token').value.trim();
+  if(!token){ document.getElementById('settings-status').textContent='Paste your token above.'; document.getElementById('settings-status').className='sm err'; return; }
+  const sEl = document.getElementById('settings-status'); sEl.className='sm'; sEl.textContent='Saving...';
+  try {
+    const r = await saveToken(token);
+    if(r.ok){
+      sEl.textContent='Token saved ✓ — Notion sync is now active.';
+      document.getElementById('settings-token').value='';
+      document.getElementById('settings-saved').textContent='Token saved ✓';
+    } else { sEl.textContent='Bridge error — is the app running?'; sEl.className='sm err'; }
+  } catch(e) { sEl.textContent='Could not reach bridge server: '+e.message; sEl.className='sm err'; }
+}
+function clearSettings(){
+  localStorage.removeItem('notion_token');
+  document.getElementById('settings-token').value='';
+  document.getElementById('settings-status').textContent='Token cleared.';
+  document.getElementById('settings-saved').textContent='';
+}
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+// ── WEATHER ANIMATION ────────────────────────────────────────────────────────
+// Condition comes from the hardcoded current conditions (Hendersonville, NC)
+// Change WEATHER_CONDITION to: 'snow','rain','cloudy','sunny','partly_cloudy','thunderstorm','fog'
+// Auto-updated from weather API — current condition for Hendersonville, NC
+const WEATHER_CONDITION = 'sunny';
+
+// Condition → emoji map
+const COND_ICON = {
+  sunny:'☀️', clear:'☀️', partly_cloudy:'🌤️', cloudy:'🌥️',
+  overcast:'☁️', rain:'🌧️', drizzle:'🌦️', snow:'🌨️',
+  blizzard:'❄️', thunderstorm:'⛈️', fog:'🌫️', windy:'💨'
+};
+const COND_ANIM = {
+  sunny:'sunny', clear:'sunny', partly_cloudy:'partly_cloudy',
+  cloudy:'cloudy', overcast:'cloudy', rain:'rain', drizzle:'rain',
+  snow:'snow', blizzard:'snow', thunderstorm:'thunderstorm',
+  fog:'fog', windy:'cloudy'
+};
+
+async function refreshWeather(){
+  try {
+    // Use Open-Meteo free API — no key needed, no CORS issues
+    const r = await fetch(
+      'https://api.open-meteo.com/v1/forecast?latitude=35.3173&longitude=-82.4607' +
+      '&current=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_probability_max' +
+      '&temperature_unit=fahrenheit&forecast_days=5&timezone=America%2FNew_York'
+    );
+    const d = await r.json();
+    const wc = d.current.weathercode;
+    const temp = Math.round(d.current.temperature_2m);
+    const cond = wmoToCondition(wc);
+    const icon = COND_ICON[cond] || '🌡️';
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    // Update current
+    const tEl = document.getElementById('w-temp-live');
+    const cEl = document.getElementById('w-cond-live');
+    const iEl = document.getElementById('w-icon-live');
+    if(tEl) tEl.textContent = temp + '°F';
+    if(cEl) cEl.textContent = cond.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase()) + ' · ' + (new Date().getHours()<19?'Day':'Night');
+    if(iEl) iEl.textContent = icon;
+
+    // Update forecast
+    const fc = document.getElementById('w-forecast-live');
+    if(fc && d.daily){
+      fc.innerHTML = d.daily.time.slice(0,5).map((dt,i)=>{
+        const day = days[new Date(dt+'T12:00:00').getDay()];
+        const hi = Math.round(d.daily.temperature_2m_max[i]);
+        const fc_cond = wmoToCondition(d.daily.weathercode[i]);
+        return `<div class="w-fd"><div class="w-fd-name">${day}</div><div class="w-fd-icon">${COND_ICON[fc_cond]||'🌡️'}</div><div class="w-fd-temp">${hi}°</div></div>`;
+      }).join('');
+    }
+
+    // Update animation condition
+    if(typeof updateWeatherAnim === 'function') updateWeatherAnim(cond);
+  } catch(e){ console.log('Weather fetch failed:', e.message); }
+}
+
+function wmoToCondition(code){
+  if(code===0||code===1) return 'sunny';
+  if(code===2) return 'partly_cloudy';
+  if(code===3) return 'cloudy';
+  if(code>=45&&code<=48) return 'fog';
+  if(code>=51&&code<=57) return 'rain';
+  if(code>=61&&code<=67) return 'rain';
+  if(code>=71&&code<=77) return 'snow';
+  if(code>=80&&code<=82) return 'rain';
+  if(code>=85&&code<=86) return 'snow';
+  if(code>=95) return 'thunderstorm';
+  return 'cloudy';
+}
+
+(function initWeather(){
+  const canvas = document.getElementById('weather-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], animId;
+
+  // Background gradients per condition
+  const BG = {
+    snow:          ['#060b18','#0a1628'],
+    rain:          ['#060810','#0a0f1e'],
+    cloudy:        ['#08101e','#0d1830'],
+    partly_cloudy: ['#06101e','#0f2040'],
+    sunny:         ['#061828','#0a2a48'],
+    thunderstorm:  ['#020408','#080c18'],
+    fog:           ['#080e1a','#101828'],
+  };
+
+  function resize(){
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = rect.width  || 400;
+    H = canvas.height = rect.height || 140;
+  }
+
+  function makeParticle(){
+    const cond = WEATHER_CONDITION;
+    if(cond==='snow'){
+      return { x:Math.random()*W, y:Math.random()*H, r:Math.random()*2.5+1,
+               vx:(Math.random()-0.5)*0.4, vy:Math.random()*0.8+0.3,
+               op:Math.random()*0.6+0.4 };
+    }
+    if(cond==='rain'||cond==='thunderstorm'){
+      return { x:Math.random()*W, y:Math.random()*H,
+               len:Math.random()*12+6, vx:-1, vy:Math.random()*8+6,
+               op:Math.random()*0.4+0.3 };
+    }
+    if(cond==='fog'){
+      return { x:Math.random()*W, y:Math.random()*H,
+               r:Math.random()*40+20, vx:(Math.random()-0.5)*0.2, vy:0,
+               op:Math.random()*0.12+0.04 };
+    }
+    if(cond==='cloudy'||cond==='partly_cloudy'){
+      return { x:Math.random()*W+W, y:Math.random()*(H*0.6),
+               w:Math.random()*80+40, h:Math.random()*22+12,
+               vx:-(Math.random()*0.15+0.05), op:Math.random()*0.25+0.1 };
+    }
+    // sunny — light rays
+    return { x:W*0.75, y:0, angle:Math.random()*Math.PI*2,
+             len:Math.random()*H*0.8+H*0.2, op:Math.random()*0.08+0.02,
+             speed:Math.random()*0.003+0.001 };
+  }
+
+  function initParticles(){
+    const count = {snow:120,rain:90,thunderstorm:100,fog:18,cloudy:12,partly_cloudy:8,sunny:10};
+    particles = Array.from({length: count[WEATHER_CONDITION]||80}, makeParticle);
+  }
+
+  function drawBackground(){
+    const bg = BG[WEATHER_CONDITION]||BG.cloudy;
+    // Simple two-tone vertical blend via two rects
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const c1 = isDark ? bg[0] : lighten(bg[0]);
+    const c2 = isDark ? bg[1] : lighten(bg[1]);
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, c1);
+    grad.addColorStop(1, c2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function lighten(hex){
+    // Lighten by adding 0x40 to each channel for light mode
+    const n = parseInt(hex.slice(1),16);
+    const r = Math.min(255, ((n>>16)&0xff)+80);
+    const g = Math.min(255, ((n>>8) &0xff)+80);
+    const b = Math.min(255, ( n     &0xff)+80);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  let lightning = 0;
+  function drawParticles(){
+    const cond = WEATHER_CONDITION;
+
+    if(cond==='thunderstorm' && Math.random()<0.002){
+      ctx.fillStyle = 'rgba(220,220,255,0.18)';
+      ctx.fillRect(0,0,W,H);
+      lightning = 4;
+    }
+    if(lightning>0){ lightning--; }
+
+    particles.forEach(p => {
+      if(cond==='snow'){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${p.op})`;
+        ctx.fill();
+        p.x += p.vx; p.y += p.vy;
+        if(p.y > H){ p.y = -4; p.x = Math.random()*W; }
+        if(p.x < -4) p.x = W+4;
+        if(p.x > W+4) p.x = -4;
+      }
+      else if(cond==='rain'||cond==='thunderstorm'){
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + p.vx * (p.len/p.vy), p.y + p.len);
+        ctx.strokeStyle = `rgba(180,210,255,${p.op})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        p.x += p.vx; p.y += p.vy;
+        if(p.y > H){ p.y = -p.len; p.x = Math.random()*W; }
+      }
+      else if(cond==='fog'){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(200,210,220,${p.op})`;
+        ctx.fill();
+        p.x += p.vx;
+        if(p.x < -p.r*2) p.x = W + p.r*2;
+        if(p.x > W+p.r*2) p.x = -p.r*2;
+      }
+      else if(cond==='cloudy'||cond==='partly_cloudy'){
+        ctx.beginPath();
+        // Rounded rectangle for cloud puff
+        ctx.ellipse(p.x, p.y, p.w/2, p.h/2, 0, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${p.op})`;
+        ctx.fill();
+        p.x += p.vx;
+        if(p.x < -p.w) p.x = W + p.w;
+      }
+      else if(cond==='sunny'){
+        // Rotating sun rays
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.beginPath();
+        ctx.moveTo(0, H*0.1);
+        ctx.lineTo(0, p.len);
+        const grad = ctx.createLinearGradient(0,H*0.1,0,p.len);
+        grad.addColorStop(0,`rgba(255,220,100,${p.op*2})`);
+        grad.addColorStop(1,'rgba(255,200,50,0)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        p.angle += p.speed;
+      }
+    });
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    drawBackground();
+    drawParticles();
+    animId = requestAnimationFrame(frame);
+  }
+
+  resize();
+  initParticles();
+  frame();
+  window.addEventListener('resize', ()=>{ resize(); initParticles(); });
+})();
+
+// Called by refreshWeather to swap animation live
+function updateWeatherAnim(newCond){
+  if(WEATHER_CONDITION === newCond) return;
+  // Can't mutate const — patch via global
+  window._weatherCond = newCond;
+}
+// ── END WEATHER ANIMATION ────────────────────────────────────────────────────
+
+
+// ── POMODORO TIMER ───────────────────────────────────────────────────────────
+const POMO_DURATIONS = {focus:25*60, shortBreak:5*60, longBreak:15*60};
+const POMO_LABELS    = {focus:'Focus', shortBreak:'Short Break', longBreak:'Long Break'};
+const POMO_COLORS    = {focus:'var(--blue)', shortBreak:'var(--green)', longBreak:'var(--purple)'};
+let pomoState = JSON.parse(localStorage.getItem('cdash_pomo') || 'null') || {
+  phase:'focus', session:1, remaining:25*60, running:false, completed:0
+};
+let pomoInterval = null;
+
+function pomoSave(){
+  localStorage.setItem('cdash_pomo', JSON.stringify(pomoState));
+  // Sync to disk every 30 seconds worth of ticks (not every second)
+  if(!pomoState._saveCount) pomoState._saveCount=0;
+  pomoState._saveCount++;
+  if(pomoState._saveCount % 30 === 0){
+    fetch('http://127.0.0.1:3847/save-data',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pomoState})
+    }).catch(()=>{});
+  }
+}
+
+function pomoRender(){
+  const {phase, session, remaining, running, completed} = pomoState;
+  const total = POMO_DURATIONS[phase];
+  const frac  = remaining / total;
+  const circ  = 2 * Math.PI * 88; // r=88 (large ring)
+
+  const tEl=document.getElementById('pomo-time');
+  const rEl=document.getElementById('pomo-ring');
+  const lEl=document.getElementById('pomo-label');
+  const sEl=document.getElementById('pomo-session');
+  const bEl=document.getElementById('pomo-btn');
+  const dEl=document.getElementById('pomo-dots');
+  if(!tEl) return;
+
+  const m=Math.floor(remaining/60), s=remaining%60;
+  tEl.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if(rEl){
+    rEl.style.strokeDashoffset = circ * (1 - frac);
+    rEl.style.stroke = POMO_COLORS[phase];
+  }
+  if(lEl) lEl.textContent = POMO_LABELS[phase];
+  const liEl=document.getElementById('pomo-label-inner');
+  if(liEl) liEl.textContent=POMO_LABELS[phase];
+  const llEl=document.getElementById('pomo-label');
+  if(llEl) llEl.textContent=POMO_LABELS[phase]+' Session';
+  if(sEl) sEl.textContent = 'Session '+session;
+  if(bEl) bEl.textContent = running ? '⏸ Pause' : '▶ Start';
+  if(bEl) bEl.className = running ? 'btn btn-d' : 'btn btn-p';
+  // Dots: 4 sessions shown
+  if(dEl){
+    dEl.innerHTML = Array.from({length:4},(_,i)=>{
+      const done = i < (completed % 4);
+      const cur  = i === (completed % 4) && phase==='focus';
+      return `<div style="width:7px;height:7px;border-radius:50%;background:${done?'var(--blue)':cur?'rgba(77,159,255,0.4)':'rgba(255,255,255,0.1)'};box-shadow:${done?'0 0 6px var(--blue-glow)':'none'};transition:all .3s"></div>`;
+    }).join('');
+  }
+}
+
+function pomodoroToggle(){
+  if(pomoState.running){
+    clearInterval(pomoInterval); pomoInterval=null;
+    pomoState.running=false;
+  } else {
+    pomoState.running=true;
+    pomoInterval=setInterval(()=>{
+      if(pomoState.remaining > 0){
+        pomoState.remaining--;
+      } else {
+        // Phase complete
+        if(pomoState.phase==='focus'){
+          pomoState.completed++;
+          pomoState.phase = (pomoState.completed % 4===0) ? 'longBreak' : 'shortBreak';
+          if(pomoState.completed % 4===0) pomoState.session++;
+        } else {
+          pomoState.phase='focus';
+          pomoState.remaining=POMO_DURATIONS.focus;
+        }
+        pomoState.remaining = POMO_DURATIONS[pomoState.phase];
+        // Brief flash notification
+        const lEl=document.getElementById('pomo-label');
+        if(lEl){ lEl.style.color='var(--cyan)'; setTimeout(()=>lEl.style.color='',600); }
+      }
+      pomoSave(); pomoRender();
+    },1000);
+  }
+  pomoSave(); pomoRender();
+}
+function pomodoroSkip(){
+  clearInterval(pomoInterval); pomoInterval=null;
+  if(pomoState.phase==='focus'){
+    pomoState.completed++;
+    pomoState.phase=(pomoState.completed%4===0)?'longBreak':'shortBreak';
+    if(pomoState.completed%4===0) pomoState.session++;
+  } else { pomoState.phase='focus'; }
+  pomoState.remaining=POMO_DURATIONS[pomoState.phase];
+  pomoState.running=false;
+  pomoSave(); pomoRender();
+}
+function pomodoroReset(){
+  clearInterval(pomoInterval); pomoInterval=null;
+  const dur=parseInt(document.getElementById('pomo-duration-sel')?.value||25);
+  POMO_DURATIONS.focus=dur*60;
+  pomoState={phase:'focus',session:1,remaining:dur*60,running:false,completed:0};
+  pomoSave(); pomoRender();
+}
+function pomodoroSetDuration(val){
+  if(pomoState.running) return;
+  const dur=parseInt(val);
+  POMO_DURATIONS.focus=dur*60;
+  pomoState.remaining=dur*60;
+  pomoState.phase='focus';
+  pomoSave(); pomoRender();
+}
+// Restore running state if app was closed mid-session
+if(pomoState.running){ pomoState.running=false; pomoRender(); }
+else { pomoRender(); }
+// ── END POMODORO ──────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Load persisted data from disk first, then refresh UI
+  loadPersistedData();
+  // Live weather — fetch now and refresh every 30 minutes
+  refreshWeather();
+  setInterval(refreshWeather, 30 * 60 * 1000);
+  RT(); RW(); renderHomeWidgets(); setStep(1);
+  ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
+  if(localStorage.getItem('notion_token')) document.getElementById('settings-saved').textContent='Token saved ✓';
+});
+</script>
+</body>
+</html>

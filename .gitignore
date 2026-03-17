@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# Electron builder cache
+.cache/
+
+# macOS
+.DS_Store
+*.dmg
+
+# Windows
+*.exe
+*.msi
+
+# Data file — contains your personal tasks, schedule, Notion token
+# This lives in ~/Library/Application Support/connor-dashboard/ at runtime
+# NOT in the project folder, so nothing to ignore here — just documenting it
+# connor-dashboard-data.json
+
+# Temp files
+*.tmp
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
