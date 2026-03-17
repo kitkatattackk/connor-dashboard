@@ -1010,6 +1010,7 @@ async function notionCreateTask(payload){
   return data;
 }
 async function saveToken(token){
+  localStorage.setItem('notion_token', token);
   try {
     const resp = await fetch(`${BRIDGE}/set-token`, {
       method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
@@ -1018,13 +1019,6 @@ async function saveToken(token){
   } catch(e) {
     throw new Error('Cannot reach bridge server.');
   }
-}
-async function saveToken(token){
-  localStorage.setItem('notion_token', token);
-  const resp = await fetch(`${BRIDGE}/set-token`, {
-    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
-  });
-  return resp.json();
 }
 
 // ─── TASKS ────────────────────────────────────────────────────────────────────
@@ -2128,6 +2122,7 @@ async function notionCreateTask(payload){
   return data;
 }
 async function saveToken(token){
+  localStorage.setItem('notion_token', token);
   try {
     const resp = await fetch(`${BRIDGE}/set-token`, {
       method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
@@ -2136,13 +2131,6 @@ async function saveToken(token){
   } catch(e) {
     throw new Error('Cannot reach bridge server.');
   }
-}
-async function saveToken(token){
-  localStorage.setItem('notion_token', token);
-  const resp = await fetch(`${BRIDGE}/set-token`, {
-    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({token}),
-  });
-  return resp.json();
 }
 
 // ─── TASKS ────────────────────────────────────────────────────────────────────
