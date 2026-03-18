@@ -500,7 +500,7 @@ body {
 <div class="titlebar" style="position:relative;z-index:10"></div>
 <div class="layout" style="position:relative;z-index:1">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="logo-dot"></span>Meridian</div>
+    <div class="sidebar-logo"><span class="logo-dot"></span>Meridian<span style="margin-left:auto;font-size:9px;font-weight:700;letter-spacing:0.08em;color:#c9a830;background:rgba(120,100,0,0.22);border:1px solid rgba(255,200,50,0.3);border-radius:4px;padding:2px 6px;line-height:1">EARLY ACCESS</span></div>
     <div class="nav-section">Overview</div>
     <div class="nav-item active" data-pane="home">Home</div>
     <div class="nav-item" data-pane="tasks">Tasks</div>
@@ -830,12 +830,13 @@ body {
     </div>
     <!-- SETTINGS -->
     <div class="pane" id="pane-settings">
-      <div class="card" style="max-width:500px">
+      <div style="position:relative;max-width:500px">
+        <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">Notion integration</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
           To sync tasks and Jira stories to Notion, you need an integration token.
           <br><br>
-          1. Go to <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://www.notion.so/my-integrations')">notion.so/my-integrations</span><br>
+          1. Go to <span style="color:var(--blue);cursor:pointer">notion.so/my-integrations</span><br>
           2. Click <strong>+ New integration</strong><br>
           3. Name it "Dashboard", select your workspace, click Save<br>
           4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
@@ -848,29 +849,34 @@ body {
           <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="saveSettings()">Save token</button>
-          <button class="btn btn-d btn-sm" onclick="clearSettings()">Clear</button>
-          <button class="btn btn-sm" onclick="checkBridge()">Test connection</button>
+          <button class="btn btn-p">Save token</button>
+          <button class="btn btn-d btn-sm">Clear</button>
+          <button class="btn btn-sm">Test connection</button>
           <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
         </div>
         <div id="settings-status" class="sm" style="margin-top:12px"></div>
+        </div>
+        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
       </div>
-      <div class="card" style="max-width:500px;margin-top:16px">
+      <div style="position:relative;max-width:500px;margin-top:16px">
+        <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">AI recap generation</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
           Required to generate recap documents from transcripts.<br><br>
-          Get your API key at <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://console.anthropic.com/')">console.anthropic.com</span>
+          Get your API key at <span style="color:var(--blue);cursor:pointer">console.anthropic.com</span>
         </p>
         <div class="fg">
           <div class="fl">Anthropic API key</div>
           <input class="inp fi" id="settings-anthropic-key" type="password" placeholder="sk-ant-..." style="font-family:var(--font-mono);font-size:12px" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="saveAnthropicKey()">Save key</button>
-          <button class="btn btn-d btn-sm" onclick="clearAnthropicKey()">Clear</button>
+          <button class="btn btn-p">Save key</button>
+          <button class="btn btn-d btn-sm">Clear</button>
           <span style="font-size:12px;color:var(--text-tertiary)" id="anthropic-key-saved"></span>
         </div>
         <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
+        </div>
+        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
       </div>
       <div class="card" style="max-width:500px;margin-top:16px">
         <div class="sl" style="margin-bottom:16px">Weather location</div>
@@ -1653,7 +1659,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
 <div class="titlebar" style="position:relative;z-index:10"></div>
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="logo-dot"></span>Meridian</div>
+    <div class="sidebar-logo"><span class="logo-dot"></span>Meridian<span style="margin-left:auto;font-size:9px;font-weight:700;letter-spacing:0.08em;color:#c9a830;background:rgba(120,100,0,0.22);border:1px solid rgba(255,200,50,0.3);border-radius:4px;padding:2px 6px;line-height:1">EARLY ACCESS</span></div>
     <div class="nav-section">Overview</div>
     <div class="nav-item active" data-pane="home">Home</div>
     <div class="nav-item" data-pane="tasks">Tasks</div>
@@ -1983,12 +1989,13 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     </div>
     <!-- SETTINGS -->
     <div class="pane" id="pane-settings">
-      <div class="card" style="max-width:500px">
+      <div style="position:relative;max-width:500px">
+        <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">Notion integration</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
           To sync tasks and Jira stories to Notion, you need an integration token.
           <br><br>
-          1. Go to <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://www.notion.so/my-integrations')">notion.so/my-integrations</span><br>
+          1. Go to <span style="color:var(--blue);cursor:pointer">notion.so/my-integrations</span><br>
           2. Click <strong>+ New integration</strong><br>
           3. Name it "Dashboard", select your workspace, click Save<br>
           4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
@@ -2001,29 +2008,34 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="saveSettings()">Save token</button>
-          <button class="btn btn-d btn-sm" onclick="clearSettings()">Clear</button>
-          <button class="btn btn-sm" onclick="checkBridge()">Test connection</button>
+          <button class="btn btn-p">Save token</button>
+          <button class="btn btn-d btn-sm">Clear</button>
+          <button class="btn btn-sm">Test connection</button>
           <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
         </div>
         <div id="settings-status" class="sm" style="margin-top:12px"></div>
+        </div>
+        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
       </div>
-      <div class="card" style="max-width:500px;margin-top:16px">
+      <div style="position:relative;max-width:500px;margin-top:16px">
+        <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">AI recap generation</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
           Required to generate recap documents from transcripts.<br><br>
-          Get your API key at <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://console.anthropic.com/')">console.anthropic.com</span>
+          Get your API key at <span style="color:var(--blue);cursor:pointer">console.anthropic.com</span>
         </p>
         <div class="fg">
           <div class="fl">Anthropic API key</div>
           <input class="inp fi" id="settings-anthropic-key" type="password" placeholder="sk-ant-..." style="font-family:var(--font-mono);font-size:12px" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p" onclick="saveAnthropicKey()">Save key</button>
-          <button class="btn btn-d btn-sm" onclick="clearAnthropicKey()">Clear</button>
+          <button class="btn btn-p">Save key</button>
+          <button class="btn btn-d btn-sm">Clear</button>
           <span style="font-size:12px;color:var(--text-tertiary)" id="anthropic-key-saved"></span>
         </div>
         <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
+        </div>
+        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
       </div>
       <div class="card" style="max-width:500px;margin-top:16px">
         <div class="sl" style="margin-bottom:16px">Weather location</div>
