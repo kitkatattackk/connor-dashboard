@@ -11,6 +11,10 @@
   },
   "author": "Connor Calfee",
   "license": "MIT",
+  "dependencies": {
+    "docxtemplater": "^3.49.0",
+    "pizzip": "^3.1.7"
+  },
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.0.0"

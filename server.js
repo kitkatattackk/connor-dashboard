@@ -8,6 +8,8 @@ const https = require('https');
 const fs    = require('fs');
 const path  = require('path');
 const os    = require('os');
+const PizZip       = require('pizzip');
+const Docxtemplater = require('docxtemplater');
 
 const PORT     = 3847;
 const TASKS_DB = '2e79d4f5-f2c7-810b-a0af-e24208cde12b';
@@ -45,12 +47,14 @@ const PROJECT_IDS = {
   'Client = N/A':        '2e79d4f5-f2c7-809e-bac9-ea41462a8fcf',
 };
 
-let notionToken = null;
+let notionToken  = null;
+let anthropicKey = null;
 
-// Restore token from disk on startup
+// Restore tokens from disk on startup
 try {
   const d = readData();
-  if (d.notionToken) { notionToken = d.notionToken; console.log('[notion] token restored'); }
+  if (d.notionToken)  { notionToken  = d.notionToken;  console.log('[notion] token restored'); }
+  if (d.anthropicKey) { anthropicKey = d.anthropicKey; console.log('[anthropic] key restored'); }
 } catch(e){}
 
 // ── Notion helpers ────────────────────────────────────────────────────────────
@@ -78,6 +82,73 @@ function notionRequest(method, urlPath, body, token) {
     });
     req.on('error', reject);
     if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+// ── Anthropic helper ─────────────────────────────────────────────────────────
+function callClaude(apiKey, transcript, meta) {
+  return new Promise((resolve, reject) => {
+    const sys = `You are a meeting recap parser for GaugeQuality (GQ). Return ONLY a compact JSON object on a single line. No markdown fences, no pretty-printing, no explanation, nothing outside the JSON. String values must not contain literal newlines.
+
+Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"owner":"string","items":["string"]}],"keyTakeaways":["string"]}
+
+- First section must be "Session Overview" with participant info, session description, duration
+- Include all topics covered as separate sections
+- nextSteps: group by owner (e.g. "Client to:", "GQ team to:")
+- End with Key Takeaways
+- If no transcript: use "[To be filled]" placeholders
+- Response must be a single-line compact JSON object`;
+
+    const userMsg = transcript
+      ? `Client: ${meta.client}\nSession: ${meta.session_type} ${meta.session_label}\nDate: ${meta.date}\nAttendees: ${meta.attendees || 'Not specified'}\n\nTranscript:\n${transcript.slice(0, 15000)}`
+      : `Client: ${meta.client}\nSession: ${meta.session_type} ${meta.session_label}\nDate: ${meta.date}\n\nNo transcript provided.`;
+
+    const body = JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      system: sys,
+      messages: [
+        { role: 'user', content: userMsg },
+      ],
+    });
+
+    const req = https.request({
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (res.statusCode >= 400) {
+            return reject(new Error(parsed.error?.message || `Anthropic ${res.statusCode}`));
+          }
+          const text = (parsed.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+          console.log('[claude] raw response:', text.slice(0, 300));
+          const start = text.indexOf('{');
+          const end = text.lastIndexOf('}');
+          if (start === -1 || end === -1) return reject(new Error('No JSON found in Claude response'));
+          let raw = text.slice(start, end + 1);
+          // Fix unescaped newlines inside JSON string values only
+          raw = raw.replace(/"((?:[^"\\]|\\[\s\S])*)"/g, m =>
+            m.replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+          );
+          const json = JSON.parse(raw);
+          resolve(json);
+        } catch(e) { reject(new Error('Failed to parse Claude response: ' + e.message)); }
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
     req.end();
   });
 }
@@ -125,6 +196,40 @@ const server = http.createServer((req, res) => {
         notionToken = payload.token;
         const d = readData(); d.notionToken = payload.token; writeData(d);
         return send(200, { ok: true });
+      }
+
+      if (req.url === '/set-anthropic-key') {
+        anthropicKey = payload.key || null;
+        const d = readData(); d.anthropicKey = payload.key || null; writeData(d);
+        return send(200, { ok: true });
+      }
+
+      if (req.url === '/generate-recap') {
+        if (!anthropicKey) throw new Error('No Anthropic API key — go to ⚙ Settings.');
+        const { client, date, session_type, session_label, attendees, transcript } = payload;
+        const meta = { client, date, session_type, session_label, attendees };
+
+        // Call Claude to extract structured JSON
+        const recapData = await callClaude(anthropicKey, transcript || '', meta);
+
+        // Attach metadata for template rendering
+        recapData.session_type  = session_type  || 'Onboarding';
+        recapData.session_label = session_label || 'Session One';
+        recapData.client        = client        || '';
+        recapData.date          = date          || '';
+
+        // Load template
+        const templatePath = path.join(__dirname, 'assets', 'recap-template.docx');
+        const templateBuf  = fs.readFileSync(templatePath);
+        const zip          = new PizZip(templateBuf);
+        const doc          = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks:    true,
+        });
+
+        doc.render(recapData);
+        const outBuf = doc.getZip().generate({ type: 'nodebuffer', compression: 'DEFLATE' });
+        return send(200, { ok: true, docx: outBuf.toString('base64') });
       }
 
       if (req.url === '/save-data') {

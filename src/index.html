@@ -840,6 +840,23 @@ body {
         </div>
         <div id="settings-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px">
+        <div class="sl" style="margin-bottom:16px">AI recap generation</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          Required to generate recap documents from transcripts.<br><br>
+          Get your API key at <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://console.anthropic.com/')">console.anthropic.com</span>
+        </p>
+        <div class="fg">
+          <div class="fl">Anthropic API key</div>
+          <input class="inp fi" id="settings-anthropic-key" type="password" placeholder="sk-ant-..." style="font-family:var(--font-mono);font-size:12px" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveAnthropicKey()">Save key</button>
+          <button class="btn btn-d btn-sm" onclick="clearAnthropicKey()">Clear</button>
+          <span style="font-size:12px;color:var(--text-tertiary)" id="anthropic-key-saved"></span>
+        </div>
+        <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
+      </div>
     </div>
 
     </div>
@@ -1953,6 +1970,23 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
         </div>
         <div id="settings-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px">
+        <div class="sl" style="margin-bottom:16px">AI recap generation</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          Required to generate recap documents from transcripts.<br><br>
+          Get your API key at <span style="color:var(--blue);cursor:pointer" onclick="openExt('https://console.anthropic.com/')">console.anthropic.com</span>
+        </p>
+        <div class="fg">
+          <div class="fl">Anthropic API key</div>
+          <input class="inp fi" id="settings-anthropic-key" type="password" placeholder="sk-ant-..." style="font-family:var(--font-mono);font-size:12px" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveAnthropicKey()">Save key</button>
+          <button class="btn btn-d btn-sm" onclick="clearAnthropicKey()">Clear</button>
+          <span style="font-size:12px;color:var(--text-tertiary)" id="anthropic-key-saved"></span>
+        </div>
+        <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
+      </div>
     </div>
 
     </div>
@@ -2400,47 +2434,60 @@ function RN(from){
 }
 function RB(from){setStep(from-1);}
 async function GR(){
-  const cl=document.getElementById('r-client').value, dv=document.getElementById('r-date').value,
-        ty=document.getElementById('r-type').value, se=document.getElementById('r-session').value||'Session One',
+  const cl=document.getElementById('r-client').value,
+        dv=document.getElementById('r-date').value,
+        ty=document.getElementById('r-type').value,
+        se=document.getElementById('r-session').value||'Session One',
         at=document.getElementById('r-attendees').value.trim();
   let tx='';
   if(curSrc==='upload') tx=txText;
   else if(curSrc==='paste') tx=document.getElementById('r-notes-paste').value.trim();
   let ds=dv;
   if(dv){const d=new Date(dv+'T12:00:00'),day=d.getDate(),sfx=['th','st','nd','rd'][(day%100>10&&day%100<14)?0:(day%10<4?day%10:0)]||'th';ds=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}).replace(/(\d+)/,`$1${sfx}`);}
+
+  const showErr=(msg)=>{
+    document.getElementById('recap-generating').style.display='none';
+    document.getElementById('recap-actions').style.display='flex';
+    document.getElementById('recap-status').textContent='Error: '+msg;
+    document.getElementById('recap-status').className='sm err';
+  };
+
   document.getElementById('recap-generating').style.display='block';
   document.getElementById('recap-actions').style.display='none';
   document.getElementById('recap-status').textContent='';
-  const sys=`You are a meeting recap parser. Return ONLY a raw JSON object with NO markdown, NO preamble, NO explanation - just the JSON object itself starting with { and ending with }.
+  document.getElementById('recap-gen-msg').textContent='Generating recap...';
 
-Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"owner":"string","items":["string"]}],"keyTakeaways":["string"]}
-
-Rules: Always start with Session Overview. End with Next Steps and Key Takeaways. Keep bullets concise. If no transcript use "[To be filled]" stubs. Return ONLY the JSON object.`;
-  const um=tx?`Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\nAttendees: ${at||'Not specified'}\n\nTranscript:\n${tx.slice(0,8000)}`:`Client: ${cl}\nSession: ${ty} ${se}\nDate: ${ds}\n\nNo transcript — generate a stub.`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:sys,messages:[{role:'user',content:um}]})});
-    const d=await r.json();
-    const raw=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    let cj;
-    try {
-      // Strip markdown fences, then extract the first {...} JSON object
-      let cleaned = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
-      // Find outermost JSON object in case there's preamble/postamble
-      const jsonStart = cleaned.indexOf('{');
-      const jsonEnd = cleaned.lastIndexOf('}');
-      if(jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON object found');
-      cleaned = cleaned.slice(jsonStart, jsonEnd + 1);
-      cj = JSON.parse(cleaned);
-    } catch(e) { throw new Error('AI returned invalid JSON: ' + e.message); }
+    const r = await fetch(`${BRIDGE}/generate-recap`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        client: cl,
+        date: ds,
+        session_type: ty,
+        session_label: se,
+        attendees: at || 'Not specified',
+        transcript: tx,
+      })
+    });
+    const d = await r.json();
+    if(!d.ok) throw new Error(d.error || 'Server error');
+
+    // Decode base64 docx and trigger download
+    const bytes = Uint8Array.from(atob(d.docx), c => c.charCodeAt(0));
+    const blob  = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    const fname = `${cl}_${ty}_${se}`.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_-]/g,'') + '.docx';
+    a.href = url; a.download = fname; document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();}, 1000);
+
     document.getElementById('recap-generating').style.display='none';
     document.getElementById('recap-actions').style.display='flex';
-    document.getElementById('recap-status').textContent='Recap parsed ✓ — open Claude.ai and paste [GENERATE_RECAP_DOCX] payload to produce the .docx file.';
-    navigator.clipboard.writeText(`[GENERATE_RECAP_DOCX]\n${JSON.stringify({client:cl,dateStr:ds,type:ty,session:se,attendees:at,content:cj})}`).catch(()=>{});
+    document.getElementById('recap-status').textContent='✓ Recap downloaded';
+    document.getElementById('recap-status').className='sm';
   }catch(e){
-    document.getElementById('recap-generating').style.display='none';
-    document.getElementById('recap-actions').style.display='flex';
-    document.getElementById('recap-status').textContent='Error: '+(e.message||'Try again.');
-    document.getElementById('recap-status').className='sm err';
+    showErr(e.message||'Try again.');
   }
 }
 
@@ -2475,6 +2522,23 @@ function clearSettings(){
   document.getElementById('settings-token').value='';
   document.getElementById('settings-status').textContent='Token cleared.';
   document.getElementById('settings-saved').textContent='';
+}
+async function saveAnthropicKey(){
+  const key = document.getElementById('settings-anthropic-key').value.trim();
+  if(!key){ document.getElementById('anthropic-key-status').textContent='Paste your API key above.'; document.getElementById('anthropic-key-status').className='sm err'; return; }
+  const sEl = document.getElementById('anthropic-key-status'); sEl.className='sm'; sEl.textContent='Saving...';
+  try {
+    const r = await fetch(`${BRIDGE}/set-anthropic-key`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    const d = await r.json();
+    if(d.ok){ sEl.textContent='Key saved \u2713'; document.getElementById('settings-anthropic-key').value=''; document.getElementById('anthropic-key-saved').textContent='Key saved \u2713'; }
+    else { sEl.textContent='Bridge error.'; sEl.className='sm err'; }
+  } catch(e){ sEl.textContent='Cannot reach bridge.'; sEl.className='sm err'; }
+}
+function clearAnthropicKey(){
+  document.getElementById('settings-anthropic-key').value='';
+  document.getElementById('anthropic-key-status').textContent='Key cleared.';
+  document.getElementById('anthropic-key-saved').textContent='';
+  fetch(`${BRIDGE}/set-anthropic-key`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:null})}).catch(()=>{});
 }
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
