@@ -234,9 +234,10 @@ const server = http.createServer((req, res) => {
 
       if (req.url === '/save-data') {
         const d = readData();
-        if (payload.tasks    !== undefined) d.tasks     = payload.tasks;
-        if (payload.wBlocks  !== undefined) d.wBlocks   = payload.wBlocks;
-        if (payload.pomoState!== undefined) d.pomoState = payload.pomoState;
+        if (payload.tasks          !== undefined) d.tasks          = payload.tasks;
+        if (payload.wBlocks        !== undefined) d.wBlocks        = payload.wBlocks;
+        if (payload.pomoState      !== undefined) d.pomoState      = payload.pomoState;
+        if (payload.weatherLocation!== undefined) d.weatherLocation= payload.weatherLocation;
         writeData(d);
         return send(200, { ok: true });
       }

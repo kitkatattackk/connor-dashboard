@@ -555,7 +555,7 @@ body {
           <div style="position:relative;z-index:2;padding:20px 22px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
             <div style="display:flex;align-items:flex-start;justify-content:space-between">
               <div>
-                <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
+                <div class="w-location-label" style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
                 <div style="display:flex;align-items:baseline;gap:6px">
                   <div class="w-temp" id="w-temp-live" style="font-size:44px;font-weight:300;line-height:1;text-shadow:0 0 30px rgba(255,255,255,0.15)">38°F</div>
                 </div>
@@ -872,6 +872,19 @@ body {
         </div>
         <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px">
+        <div class="sl" style="margin-bottom:16px">Weather location</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">Enter a city name to update the weather widget on the home screen.</p>
+        <div class="fg">
+          <div class="fl">City</div>
+          <input class="inp fi" id="settings-weather-city" type="text" placeholder="e.g. Nashville, TN" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveWeatherLocation()">Update location</button>
+          <button class="btn btn-sm" onclick="clearWeatherLocation()">Reset to default</button>
+        </div>
+        <div id="weather-location-status" class="sm" style="margin-top:12px"></div>
+      </div>
     </div>
 
     </div>
@@ -946,6 +959,11 @@ function loadPersistedData(){
         pomoState = { ...d.pomoState, running: false };
         localStorage.setItem('cdash_pomo', JSON.stringify(pomoState));
         pomoRender();
+      }
+      if(d.weatherLocation && d.weatherLocation.lat){
+        weatherConfig = d.weatherLocation;
+        localStorage.setItem('cdash_weather', JSON.stringify(weatherConfig));
+        document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
       }
       if(changed){ RT(); renderHomeWidgets(); RW(); }
       console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
@@ -1690,7 +1708,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           <div style="position:relative;z-index:2;padding:20px 22px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
             <div style="display:flex;align-items:flex-start;justify-content:space-between">
               <div>
-                <div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
+                <div class="w-location-label" style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Hendersonville, NC</div>
                 <div style="display:flex;align-items:baseline;gap:6px">
                   <div class="w-temp" id="w-temp-live" style="font-size:44px;font-weight:300;line-height:1;text-shadow:0 0 30px rgba(255,255,255,0.15)">38°F</div>
                 </div>
@@ -2007,6 +2025,19 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
         </div>
         <div id="anthropic-key-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px">
+        <div class="sl" style="margin-bottom:16px">Weather location</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">Enter a city name to update the weather widget on the home screen.</p>
+        <div class="fg">
+          <div class="fl">City</div>
+          <input class="inp fi" id="settings-weather-city" type="text" placeholder="e.g. Nashville, TN" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="saveWeatherLocation()">Update location</button>
+          <button class="btn btn-sm" onclick="clearWeatherLocation()">Reset to default</button>
+        </div>
+        <div id="weather-location-status" class="sm" style="margin-top:12px"></div>
+      </div>
     </div>
 
     </div>
@@ -2081,6 +2112,11 @@ function loadPersistedData(){
         pomoState = { ...d.pomoState, running: false };
         localStorage.setItem('cdash_pomo', JSON.stringify(pomoState));
         pomoRender();
+      }
+      if(d.weatherLocation && d.weatherLocation.lat){
+        weatherConfig = d.weatherLocation;
+        localStorage.setItem('cdash_weather', JSON.stringify(weatherConfig));
+        document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
       }
       if(changed){ RT(); renderHomeWidgets(); RW(); }
       console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
@@ -2563,9 +2599,41 @@ function clearAnthropicKey(){
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 // ── WEATHER ANIMATION ────────────────────────────────────────────────────────
-// Condition comes from the hardcoded current conditions (Hendersonville, NC)
-// Change WEATHER_CONDITION to: 'snow','rain','cloudy','sunny','partly_cloudy','thunderstorm','fog'
-// Auto-updated from weather API — current condition for Hendersonville, NC
+// Weather location config — updated via Settings
+let weatherConfig = { city:'Hendersonville, NC', lat:35.3173, lng:-82.4607, tz:'America/New_York' };
+try { const s=JSON.parse(localStorage.getItem('cdash_weather')||'null'); if(s&&s.lat) weatherConfig=s; } catch(e){}
+
+async function saveWeatherLocation(){
+  const input = document.getElementById('settings-weather-city').value.trim();
+  const status = document.getElementById('weather-location-status');
+  if(!input){ status.textContent='Please enter a city name.'; return; }
+  status.textContent = 'Searching...'; status.className='sm';
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input)}&count=1&language=en&format=json`);
+    const d = await r.json();
+    if(!d.results||!d.results.length) throw new Error('Location not found — try a different name');
+    const loc = d.results[0];
+    weatherConfig = {
+      city: loc.name + (loc.admin1?', '+loc.admin1:'') + (loc.country_code?', '+loc.country_code:''),
+      lat: loc.latitude, lng: loc.longitude, tz: loc.timezone||'auto'
+    };
+    localStorage.setItem('cdash_weather', JSON.stringify(weatherConfig));
+    document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
+    fetch('http://127.0.0.1:3847/save-data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weatherLocation:weatherConfig})}).catch(()=>{});
+    await refreshWeather();
+    status.textContent = '✓ Updated to ' + weatherConfig.city;
+  } catch(e){ status.textContent='Error: '+e.message; status.className='sm err'; }
+}
+function clearWeatherLocation(){
+  weatherConfig = { city:'Hendersonville, NC', lat:35.3173, lng:-82.4607, tz:'America/New_York' };
+  localStorage.removeItem('cdash_weather');
+  document.getElementById('settings-weather-city').value='';
+  document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
+  fetch('http://127.0.0.1:3847/save-data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weatherLocation:null})}).catch(()=>{});
+  refreshWeather();
+  document.getElementById('weather-location-status').textContent='Reset to default';
+}
+
 const WEATHER_CONDITION = 'sunny';
 
 // Condition → emoji map
@@ -2585,9 +2653,9 @@ async function refreshWeather(){
   try {
     // Use Open-Meteo free API — no key needed, no CORS issues
     const r = await fetch(
-      'https://api.open-meteo.com/v1/forecast?latitude=35.3173&longitude=-82.4607' +
-      '&current=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_probability_max' +
-      '&temperature_unit=fahrenheit&forecast_days=5&timezone=America%2FNew_York'
+      `https://api.open-meteo.com/v1/forecast?latitude=${weatherConfig.lat}&longitude=${weatherConfig.lng}` +
+      `&current=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_probability_max` +
+      `&temperature_unit=fahrenheit&forecast_days=5&timezone=${encodeURIComponent(weatherConfig.tz)}`
     );
     const d = await r.json();
     const wc = d.current.weathercode;
