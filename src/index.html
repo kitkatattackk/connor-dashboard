@@ -471,6 +471,7 @@ body {
 .bf2 { background: rgba(167,139,250,0.18); color: #fff; }
 .bw2 { background: rgba(255,179,71,0.18); color: #fff; }
 .bp3 { background: rgba(0,229,160,0.14); color: #fff; }
+.ol-ev { background: rgba(0,120,212,0.18); border-left: 3px solid #2196f3; border-radius: 6px; padding: 5px 8px; margin-bottom: 4px; color: #fff; }
 .w-empty { font-size: 12px; color: var(--text-muted); padding: 4px 0; }
 .clickable { cursor: pointer; }
 .clickable:hover { opacity: 0.85; }
@@ -864,6 +865,24 @@ body {
         </div>
         <div id="weather-location-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px;opacity:0.45;pointer-events:none;user-select:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div class="sl">Outlook Calendar</div>
+          <span style="font-size:11px;background:rgba(255,255,255,0.1);color:var(--text-secondary);padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.04em">COMING SOON</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          Connect your work Outlook calendar to see events in the schedule view.
+        </p>
+        <div class="fg">
+          <div class="fl">Client ID</div>
+          <input class="inp fi" id="outlook-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" disabled />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px">
+          <button class="btn btn-p" id="outlook-connect-btn" disabled>Connect Outlook</button>
+          <button class="btn btn-d btn-sm" id="outlook-disconnect-btn" style="display:none" disabled>Disconnect</button>
+          <span class="sm" id="outlook-status" style="font-size:12px"></span>
+        </div>
+      </div>
     </div>
 
     </div>
@@ -904,6 +923,8 @@ let wOff=0, pendDay=null, selBT='meeting';
 let selPri=null, selTags=new Set(), subReqs=[];
 let selBlockColor='default';
 let pendEditRealIdx=null;
+let outlookEvents = [];
+let outlookConnected = false;
 let generatedStory='';
 
 function save(){
@@ -1101,7 +1122,7 @@ function RW(){
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(d.getDate()+i);
     const k=dKey(d), isTd=k===tk, blks=wBlocks[k]||[];
-    const col=document.createElement('div'); col.className='dc'+(isTd?' today':'');
+    const col=document.createElement('div'); col.className='dc'+(isTd?' today':''); col.dataset.key=k;
     const hdr=document.createElement('div'); hdr.className='dh';
     hdr.innerHTML=`<div class="dn">${DAYS[d.getDay()]}</div><div class="dd${isTd?' tn':''}">${d.getDate()}</div>`;
     col.appendChild(hdr);
@@ -1123,8 +1144,86 @@ function RW(){
     const ab=document.createElement('button'); ab.className='ab'; ab.textContent='+ add block'; ab.onclick=()=>OBM(k,d);
     col.appendChild(ab); grid.appendChild(col);
   }
+  if(outlookConnected)renderOutlookEvents();
 }
-function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();}
+function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();if(outlookConnected)fetchOutlookEvents();}
+
+// ─── OUTLOOK CALENDAR ─────────────────────────────────────────────────────────
+async function checkOutlookStatus(){
+  try{
+    const r=await fetch(`${BRIDGE}/outlook-status`);
+    const d=await r.json();
+    outlookConnected=d.connected;
+    _updateOutlookUI();
+    if(outlookConnected)fetchOutlookEvents();
+  }catch(e){}
+}
+function _updateOutlookUI(){
+  const status=document.getElementById('outlook-status');
+  const conn=document.getElementById('outlook-connect-btn');
+  const disc=document.getElementById('outlook-disconnect-btn');
+  if(!status)return;
+  if(outlookConnected){
+    status.textContent='✓ Connected';status.style.color='#00c4a7';
+    if(conn)conn.style.display='none';if(disc)disc.style.display='';
+  } else {
+    if(status.textContent==='✓ Connected')status.textContent='';
+    status.style.color='';if(conn)conn.style.display='';if(disc)disc.style.display='none';
+  }
+}
+async function connectOutlook(){
+  const clientIdEl=document.getElementById('outlook-client-id');
+  if(!clientIdEl)return;
+  const clientId=clientIdEl.value.trim();
+  if(!clientId)return;
+  const status=document.getElementById('outlook-status');
+  status.textContent='Opening sign-in...';
+  try{
+    const r=await fetch(`${BRIDGE}/oauth/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId})});
+    const d=await r.json();
+    if(!d.ok)throw new Error(d.error);
+    localStorage.setItem('cdash_outlook_cid',clientId);
+    openExt(d.authUrl);
+    status.textContent='Complete sign-in in your browser...';
+    let attempts=0;
+    const poll=setInterval(async()=>{
+      if(++attempts>30){clearInterval(poll);status.textContent='Timed out — try again';return;}
+      try{
+        const sr=await fetch(`${BRIDGE}/outlook-status`);
+        const sd=await sr.json();
+        if(sd.connected){clearInterval(poll);outlookConnected=true;_updateOutlookUI();fetchOutlookEvents();}
+      }catch(e){}
+    },2000);
+  }catch(e){document.getElementById('outlook-status').textContent='Error: '+e.message;}
+}
+async function disconnectOutlook(){
+  try{await fetch(`${BRIDGE}/outlook-disconnect`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});}catch(e){}
+  outlookConnected=false;outlookEvents=[];_updateOutlookUI();RW();
+}
+async function fetchOutlookEvents(){
+  if(!outlookConnected)return;
+  const ws=GWS(wOff),we=new Date(ws);we.setDate(we.getDate()+7);
+  try{
+    const r=await fetch(`${BRIDGE}/outlook-events?start=${encodeURIComponent(ws.toISOString())}&end=${encodeURIComponent(we.toISOString())}`);
+    const d=await r.json();
+    if(d.ok){outlookEvents=d.events||[];renderOutlookEvents();}
+  }catch(e){}
+}
+function renderOutlookEvents(){
+  document.querySelectorAll('#week-grid .dc[data-key]').forEach(col=>{
+    const k=col.dataset.key;
+    col.querySelectorAll('.ol-ev').forEach(el=>el.remove());
+    const dayEvts=outlookEvents.filter(e=>e.start.dateTime.slice(0,10)===k).sort((a,b)=>a.start.dateTime.localeCompare(b.start.dateTime));
+    const bd=col.querySelector('.db3');
+    if(!bd||!dayEvts.length)return;
+    dayEvts.forEach(ev=>{
+      const p=document.createElement('div');p.className='ol-ev';
+      const time=ev.isAllDay?'All day':new Date(ev.start.dateTime+'Z').toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+      p.innerHTML=`<div class="bpt" style="opacity:.85">${time}</div><div class="bptl" style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.subject||'(No title)'}</div>`;
+      bd.appendChild(p);
+    });
+  });
+}
 function OBM(k,dt){
   pendDay=k; pendEditRealIdx=null; selBT='meeting';
   document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -1642,6 +1741,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .w-btag{font-size:10px;padding:1px 6px;border-radius:99px;flex-shrink:0;}
   .bm2{background:var(--blue-light);color:#fff;}.bf2{background:var(--purple-light);color:#fff;}
   .bw2{background:var(--amber-light);color:#fff;}.bp3{background:var(--green-light);color:#fff;}
+  .ol-ev{background:rgba(0,120,212,0.2);border-left:3px solid #2196f3;border-radius:6px;padding:5px 8px;margin-bottom:4px;color:#fff;}
   .w-empty{font-size:12px;color:var(--text-tertiary);padding:4px 0;}
   .clickable{cursor:pointer;}.clickable:hover{opacity:.85;}
 </style>
@@ -2021,6 +2121,24 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
         </div>
         <div id="weather-location-status" class="sm" style="margin-top:12px"></div>
       </div>
+      <div class="card" style="max-width:500px;margin-top:16px;opacity:0.45;pointer-events:none;user-select:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div class="sl">Outlook Calendar</div>
+          <span style="font-size:11px;background:rgba(255,255,255,0.1);color:var(--text-secondary);padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.04em">COMING SOON</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
+          Connect your work Outlook calendar to see events in the schedule view.
+        </p>
+        <div class="fg">
+          <div class="fl">Client ID</div>
+          <input class="inp fi" id="outlook-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" disabled />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px">
+          <button class="btn btn-p" id="outlook-connect-btn" disabled>Connect Outlook</button>
+          <button class="btn btn-d btn-sm" id="outlook-disconnect-btn" style="display:none" disabled>Disconnect</button>
+          <span class="sm" id="outlook-status" style="font-size:12px"></span>
+        </div>
+      </div>
     </div>
 
     </div>
@@ -2061,6 +2179,8 @@ let wOff=0, pendDay=null, selBT='meeting';
 let selPri=null, selTags=new Set(), subReqs=[];
 let selBlockColor='default';
 let pendEditRealIdx=null;
+let outlookEvents = [];
+let outlookConnected = false;
 let generatedStory='';
 
 function save(){
@@ -2258,7 +2378,7 @@ function RW(){
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(d.getDate()+i);
     const k=dKey(d), isTd=k===tk, blks=wBlocks[k]||[];
-    const col=document.createElement('div'); col.className='dc'+(isTd?' today':'');
+    const col=document.createElement('div'); col.className='dc'+(isTd?' today':''); col.dataset.key=k;
     const hdr=document.createElement('div'); hdr.className='dh';
     hdr.innerHTML=`<div class="dn">${DAYS[d.getDay()]}</div><div class="dd${isTd?' tn':''}">${d.getDate()}</div>`;
     col.appendChild(hdr);
@@ -2280,8 +2400,86 @@ function RW(){
     const ab=document.createElement('button'); ab.className='ab'; ab.textContent='+ add block'; ab.onclick=()=>OBM(k,d);
     col.appendChild(ab); grid.appendChild(col);
   }
+  if(outlookConnected)renderOutlookEvents();
 }
-function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();}
+function shiftW(dir,reset){if(reset)wOff=0;else wOff+=dir;RW();if(outlookConnected)fetchOutlookEvents();}
+
+// ─── OUTLOOK CALENDAR ─────────────────────────────────────────────────────────
+async function checkOutlookStatus(){
+  try{
+    const r=await fetch(`${BRIDGE}/outlook-status`);
+    const d=await r.json();
+    outlookConnected=d.connected;
+    _updateOutlookUI();
+    if(outlookConnected)fetchOutlookEvents();
+  }catch(e){}
+}
+function _updateOutlookUI(){
+  const status=document.getElementById('outlook-status');
+  const conn=document.getElementById('outlook-connect-btn');
+  const disc=document.getElementById('outlook-disconnect-btn');
+  if(!status)return;
+  if(outlookConnected){
+    status.textContent='✓ Connected';status.style.color='#00c4a7';
+    if(conn)conn.style.display='none';if(disc)disc.style.display='';
+  } else {
+    if(status.textContent==='✓ Connected')status.textContent='';
+    status.style.color='';if(conn)conn.style.display='';if(disc)disc.style.display='none';
+  }
+}
+async function connectOutlook(){
+  const clientIdEl=document.getElementById('outlook-client-id');
+  if(!clientIdEl)return;
+  const clientId=clientIdEl.value.trim();
+  if(!clientId)return;
+  const status=document.getElementById('outlook-status');
+  status.textContent='Opening sign-in...';
+  try{
+    const r=await fetch(`${BRIDGE}/oauth/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId})});
+    const d=await r.json();
+    if(!d.ok)throw new Error(d.error);
+    localStorage.setItem('cdash_outlook_cid',clientId);
+    openExt(d.authUrl);
+    status.textContent='Complete sign-in in your browser...';
+    let attempts=0;
+    const poll=setInterval(async()=>{
+      if(++attempts>30){clearInterval(poll);status.textContent='Timed out — try again';return;}
+      try{
+        const sr=await fetch(`${BRIDGE}/outlook-status`);
+        const sd=await sr.json();
+        if(sd.connected){clearInterval(poll);outlookConnected=true;_updateOutlookUI();fetchOutlookEvents();}
+      }catch(e){}
+    },2000);
+  }catch(e){document.getElementById('outlook-status').textContent='Error: '+e.message;}
+}
+async function disconnectOutlook(){
+  try{await fetch(`${BRIDGE}/outlook-disconnect`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});}catch(e){}
+  outlookConnected=false;outlookEvents=[];_updateOutlookUI();RW();
+}
+async function fetchOutlookEvents(){
+  if(!outlookConnected)return;
+  const ws=GWS(wOff),we=new Date(ws);we.setDate(we.getDate()+7);
+  try{
+    const r=await fetch(`${BRIDGE}/outlook-events?start=${encodeURIComponent(ws.toISOString())}&end=${encodeURIComponent(we.toISOString())}`);
+    const d=await r.json();
+    if(d.ok){outlookEvents=d.events||[];renderOutlookEvents();}
+  }catch(e){}
+}
+function renderOutlookEvents(){
+  document.querySelectorAll('#week-grid .dc[data-key]').forEach(col=>{
+    const k=col.dataset.key;
+    col.querySelectorAll('.ol-ev').forEach(el=>el.remove());
+    const dayEvts=outlookEvents.filter(e=>e.start.dateTime.slice(0,10)===k).sort((a,b)=>a.start.dateTime.localeCompare(b.start.dateTime));
+    const bd=col.querySelector('.db3');
+    if(!bd||!dayEvts.length)return;
+    dayEvts.forEach(ev=>{
+      const p=document.createElement('div');p.className='ol-ev';
+      const time=ev.isAllDay?'All day':new Date(ev.start.dateTime+'Z').toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+      p.innerHTML=`<div class="bpt" style="opacity:.85">${time}</div><div class="bptl" style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.subject||'(No title)'}</div>`;
+      bd.appendChild(p);
+    });
+  });
+}
 function OBM(k,dt){
   pendDay=k; pendEditRealIdx=null; selBT='meeting';
   document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -3028,6 +3226,9 @@ document.addEventListener('DOMContentLoaded', () => {
   RT(); RW(); renderHomeWidgets(); setStep(1);
   ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
   if(localStorage.getItem('notion_token')) document.getElementById('settings-saved').textContent='Token saved ✓';
+  const savedCid=localStorage.getItem('cdash_outlook_cid');
+  if(savedCid){const el=document.getElementById('outlook-client-id');if(el)el.value=savedCid;}
+  checkOutlookStatus();
 });
 </script>
 </body>
