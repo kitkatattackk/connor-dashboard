@@ -138,11 +138,24 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           const end = text.lastIndexOf('}');
           if (start === -1 || end === -1) return reject(new Error('No JSON found in Claude response'));
           let raw = text.slice(start, end + 1);
-          // Fix unescaped newlines inside JSON string values only
+          // Fix unescaped control characters inside JSON string values
           raw = raw.replace(/"((?:[^"\\]|\\[\s\S])*)"/g, m =>
-            m.replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+            m.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
+             .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
           );
-          const json = JSON.parse(raw);
+          let json;
+          try {
+            json = JSON.parse(raw);
+          } catch (e1) {
+            // Fallback: strip all control characters globally and retry
+            const cleaned = text.slice(start, end + 1).replace(/[\x00-\x1F]/g, c => {
+              if (c === '\n') return '\\n';
+              if (c === '\r') return '\\r';
+              if (c === '\t') return '\\t';
+              return '';
+            });
+            json = JSON.parse(cleaned);
+          }
           resolve(json);
         } catch(e) { reject(new Error('Failed to parse Claude response: ' + e.message)); }
       });
