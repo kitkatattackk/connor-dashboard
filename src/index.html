@@ -274,7 +274,7 @@ body {
 .tck:hover { border-color: var(--green); box-shadow: 0 0 8px var(--green-glow); }
 .tck.done { background: var(--green); border-color: var(--green); box-shadow: 0 0 10px var(--green-glow); }
 .tck.done::after { content: ''; display: block; width: 8px; height: 5px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
-.ttxt { font-size: 13px; line-height: 1.45; flex: 1; }
+.ttxt { font-size: 13px; line-height: 1.45; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ttxt.done { color: var(--text-muted); text-decoration: line-through; }
 .ttag { font-size: 10px; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; font-weight: 500; }
 .tg-work { background: rgba(77,159,255,0.12); color: var(--blue-bright); border: 1px solid rgba(77,159,255,0.2); }
@@ -1507,7 +1507,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .tck{width:16px;height:16px;border:0.5px solid var(--border-hover);border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .tck.done{background:var(--green);border-color:var(--green);}
   .tck.done::after{content:'';display:block;width:8px;height:5px;border-left:1.5px solid white;border-bottom:1.5px solid white;transform:rotate(-45deg) translateY(-1px);}
-  .ttxt{font-size:13px;line-height:1.4;flex:1;}.ttxt.done{color:var(--text-tertiary);text-decoration:line-through;}
+  .ttxt{font-size:13px;line-height:1.4;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}.ttxt.done{color:var(--text-tertiary);text-decoration:line-through;}
   .ttag{font-size:11px;padding:2px 7px;border-radius:99px;flex-shrink:0;}
   .tg-work{background:var(--blue-light);color:#0C447C;}.tg-stream{background:var(--purple-light);color:var(--purple);}.tg-home{background:var(--green-light);color:#085041;}
   .nb{font-size:10px;padding:2px 6px;border-radius:99px;background:var(--gray-light);color:var(--gray);flex-shrink:0;}
