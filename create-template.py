@@ -71,11 +71,14 @@ print(f'Total paragraphs found: {len(paras)}')
 # ── template XML for each paragraph style ────────────────────────────────────
 # These are taken verbatim from the extracted XML snippets in the spec.
 
-SECTION_HEADING_XML = '<w:p w14:paraId="44000001" w14:textId="44000002" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00371342"><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>Session Overview</w:t></w:r></w:p>'
+# Section heading: larger (16pt), bold, dark navy color, generous spacing above/below
+SECTION_HEADING_XML = '<w:p w14:paraId="44000001" w14:textId="44000002" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00371342"><w:pPr><w:spacing w:before="320" w:after="100" w:line="276" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="1B3A6B"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="1B3A6B"/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr><w:t>Session Overview</w:t></w:r></w:p>'
 
-BULLET_XML = '<w:p w14:paraId="4400000E" w14:textId="4400000F" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00FF0008"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="89"/></w:numPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>Target score confirmed and adjustable at any time</w:t></w:r></w:p>'
+# Bullet: normal weight (not bold), 12pt, relaxed line + item spacing
+BULLET_XML = '<w:p w14:paraId="4400000E" w14:textId="4400000F" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00FF0008"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="89"/></w:numPr><w:spacing w:before="40" w:after="100" w:line="276" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>Target score confirmed and adjustable at any time</w:t></w:r></w:p>'
 
-OWNER_XML = '<w:p w14:paraId="440000A3" w14:textId="440000A4" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00FF0008"><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="89"/></w:numPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="auto"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>Christopher to:</w:t></w:r></w:p>'
+# Owner label: bold, 13pt, dark navy, space above to separate groups
+OWNER_XML = '<w:p w14:paraId="440000A3" w14:textId="440000A4" w:rsidR="00FF0008" w:rsidRDefault="00FF0008" w:rsidP="00FF0008"><w:pPr><w:spacing w:before="200" w:after="60" w:line="276" w:lineRule="auto"/><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="1B3A6B"/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Barlow" w:eastAsia="Times New Roman" w:hAnsi="Barlow" w:cs="Times New Roman"/><w:b/><w:bCs/><w:color w:val="1B3A6B"/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr><w:t>Christopher to:</w:t></w:r></w:p>'
 
 # ── build template paragraph list ─────────────────────────────────────────────
 # Paragraph indices are 0-based per the spec.
@@ -94,7 +97,7 @@ for i in range(15):
     out.append(p(i))
 
 # 15 → title
-out.append(set_para_text(p(15), '{session_type}  | {session_label}'))
+out.append(set_para_text(p(15), '{session_type}  Overview  |  {session_label}'))
 
 # 16 → client
 out.append(set_para_text(p(16), '{client}'))
