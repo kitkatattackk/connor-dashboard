@@ -2,7 +2,7 @@ const { app, BrowserWindow, shell, nativeTheme, Tray, Menu, nativeImage } = requ
 const path = require('path');
 
 // Pass Electron's userData dir to the bridge server before requiring it
-// This ensures data is saved to ~/Library/Application Support/connor-dashboard/
+// This ensures data is saved to ~/Library/Application Support/meridian/
 process.env.CDASH_USER_DATA = app.getPath('userData');
 
 // Start bridge server
@@ -22,7 +22,7 @@ function createWindow() {
     height: 860,
     minWidth: 900,
     minHeight: 650,
-    title: 'Connor Dashboard',
+    title: 'Meridian',
     backgroundColor: '#060b18',
     webPreferences: {
       nodeIntegration: false,
@@ -58,7 +58,7 @@ function createWindow() {
 function createTray() {
   const icon = nativeImage.createEmpty();
   tray = new Tray(icon);
-  tray.setToolTip('Connor Dashboard');
+  tray.setToolTip('Meridian');
   const menu = Menu.buildFromTemplate([
     { label: 'Open Dashboard', click: () => { if (mainWindow) mainWindow.show(); else createWindow(); } },
     { type: 'separator' },
