@@ -1,7 +1,7 @@
 {
-  "name": "connor-dashboard",
+  "name": "meridian",
   "version": "1.0.0",
-  "description": "Connor's personal command center",
+  "description": "Personal command center",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -20,9 +20,9 @@
     "electron-builder": "^24.0.0"
   },
   "build": {
-    "appId": "com.connorcalfee.dashboard",
-    "productName": "Connor Dashboard",
-    "copyright": "Connor Calfee",
+    "appId": "com.meridian.dashboard",
+    "productName": "Meridian",
+    "copyright": "Meridian",
     "directories": { "output": "dist" },
     "files": [
       "main.js",
@@ -46,7 +46,7 @@
       "icon": "assets/icon.ico"
     },
     "dmg": {
-      "title": "Connor Dashboard",
+      "title": "Meridian",
       "contents": [
         { "x": 410, "y": 150, "type": "link", "path": "/Applications" },
         { "x": 130, "y": 150, "type": "file" }
@@ -58,7 +58,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Connor Dashboard"
+      "shortcutName": "Meridian"
     }
   }
 }

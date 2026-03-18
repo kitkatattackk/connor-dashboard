@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Connor Dashboard</title>
+<title>Meridian</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -492,10 +492,10 @@ body {
 <style>
 @keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
 </style>
-<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">CONNOR · DASHBOARD</span></div>
+<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">MERIDIAN</span></div>
 <div class="layout" style="position:relative;z-index:1">
   <div class="sidebar">
-    <div class="sidebar-logo">Dashboard</div>
+    <div class="sidebar-logo">Meridian</div>
     <div class="nav-section">Overview</div>
     <div class="nav-item active" data-pane="home">Home</div>
     <div class="nav-item" data-pane="tasks">Tasks</div>
@@ -771,7 +771,7 @@ body {
           <div class="fg"><div class="fl">Status</div><select class="sel fi" id="cr-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>Archived</option></select></div>
         </div>
         <div class="fg"><div class="fl">Priority</div><div class="po2"><div class="prp" id="pri-Low" onclick="SP('Low')">Low</div><div class="prp" id="pri-Medium" onclick="SP('Medium')">Medium</div><div class="prp" id="pri-High" onclick="SP('High')">High</div><div class="prp" id="pri-FRD" onclick="SP('FRD Done')">FRD Done</div></div></div>
-        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Dashboard</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
+        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Meridian</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
         <div class="cr2"><div class="fg"><div class="fl">Due date</div><input class="inp fi" id="cr-due" type="date" /></div><div class="fg"><div class="fl">Jira ticket</div><input class="inp fi" id="cr-jira" placeholder="e.g. GQ-412" /></div></div>
         <div class="cr2"><div class="fg"><div class="fl">Dev points</div><input class="inp fi" id="cr-devpoints" placeholder="e.g. 3" /></div><div class="fg" style="visibility:hidden"></div></div>
         <div class="fg"><div class="fl">Notes</div><textarea class="inp fta" id="cr-notes" placeholder="Any additional context..."></textarea></div>
@@ -951,7 +951,7 @@ function openExt(url){window.open(url,'_blank');}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 const now = new Date(), hh = now.getHours();
-document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + ', Connor';
+document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + '';
 document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
 document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
@@ -1403,7 +1403,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   }
 }" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Connor Dashboard</title>
+<title>Meridian</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
   :root {
@@ -1626,10 +1626,10 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
 <style>
 @keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
 </style>
-<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">CONNOR · DASHBOARD</span></div>
+<div class="titlebar" style="position:relative;z-index:10"><span class="titlebar-title">MERIDIAN</span></div>
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebar-logo">Dashboard</div>
+    <div class="sidebar-logo">Meridian</div>
     <div class="nav-section">Overview</div>
     <div class="nav-item active" data-pane="home">Home</div>
     <div class="nav-item" data-pane="tasks">Tasks</div>
@@ -1905,7 +1905,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           <div class="fg"><div class="fl">Status</div><select class="sel fi" id="cr-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>Archived</option></select></div>
         </div>
         <div class="fg"><div class="fl">Priority</div><div class="po2"><div class="prp" id="pri-Low" onclick="SP('Low')">Low</div><div class="prp" id="pri-Medium" onclick="SP('Medium')">Medium</div><div class="prp" id="pri-High" onclick="SP('High')">High</div><div class="prp" id="pri-FRD" onclick="SP('FRD Done')">FRD Done</div></div></div>
-        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Dashboard</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
+        <div class="fg"><div class="fl">Tags</div><div class="to"><div class="tc2 c-bl" data-tag="Backlog" onclick="TT(this)">Backlog</div><div class="tc2 c-ip" data-tag="In Progress" onclick="TT(this)">In Progress</div><div class="tc2 c-co" data-tag="Completed" onclick="TT(this)">Completed</div><div class="tc2 c-rd" data-tag="Reporting/Dashboard" onclick="TT(this)">Reporting/Meridian</div><div class="tc2 c-rf" data-tag="Ready for Dev" onclick="TT(this)">Ready for Dev</div><div class="tc2 c-di" data-tag="Dev In Progress" onclick="TT(this)">Dev In Progress</div><div class="tc2 c-ni" data-tag="Need More Info" onclick="TT(this)">Need More Info</div></div></div>
         <div class="cr2"><div class="fg"><div class="fl">Due date</div><input class="inp fi" id="cr-due" type="date" /></div><div class="fg"><div class="fl">Jira ticket</div><input class="inp fi" id="cr-jira" placeholder="e.g. GQ-412" /></div></div>
         <div class="cr2"><div class="fg"><div class="fl">Dev points</div><input class="inp fi" id="cr-devpoints" placeholder="e.g. 3" /></div><div class="fg" style="visibility:hidden"></div></div>
         <div class="fg"><div class="fl">Notes</div><textarea class="inp fta" id="cr-notes" placeholder="Any additional context..."></textarea></div>
@@ -2085,7 +2085,7 @@ function openExt(url){window.open(url,'_blank');}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 const now = new Date(), hh = now.getHours();
-document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + ', Connor';
+document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + '';
 document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
 document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
