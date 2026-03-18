@@ -831,34 +831,6 @@ body {
     </div>
     <!-- SETTINGS -->
     <div class="pane" id="pane-settings">
-      <div style="position:relative;max-width:500px">
-        <div class="card" style="opacity:0.38;pointer-events:none">
-        <div class="sl" style="margin-bottom:16px">Notion integration</div>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
-          To sync tasks and Jira stories to Notion, you need an integration token.
-          <br><br>
-          1. Go to <span style="color:var(--blue);cursor:pointer">notion.so/my-integrations</span><br>
-          2. Click <strong>+ New integration</strong><br>
-          3. Name it "Dashboard", select your workspace, click Save<br>
-          4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
-          5. Paste it below<br><br>
-          You'll also need to share each database with the integration:<br>
-          Open the database in Notion → ··· menu → Connections → add your integration.
-        </p>
-        <div class="fg">
-          <div class="fl">Notion token</div>
-          <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p">Save token</button>
-          <button class="btn btn-d btn-sm">Clear</button>
-          <button class="btn btn-sm">Test connection</button>
-          <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
-        </div>
-        <div id="settings-status" class="sm" style="margin-top:12px"></div>
-        </div>
-        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
-      </div>
       <div style="position:relative;max-width:500px;margin-top:16px">
         <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">AI recap generation</div>
@@ -973,6 +945,7 @@ function loadPersistedData(){
         localStorage.setItem('cdash_weather', JSON.stringify(weatherConfig));
         document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
       }
+      if(d.notionToken) localStorage.setItem('notion_token', d.notionToken);
       if(changed){ RT(); renderHomeWidgets(); RW(); }
       console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
     })
@@ -2015,34 +1988,6 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     </div>
     <!-- SETTINGS -->
     <div class="pane" id="pane-settings">
-      <div style="position:relative;max-width:500px">
-        <div class="card" style="opacity:0.38;pointer-events:none">
-        <div class="sl" style="margin-bottom:16px">Notion integration</div>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">
-          To sync tasks and Jira stories to Notion, you need an integration token.
-          <br><br>
-          1. Go to <span style="color:var(--blue);cursor:pointer">notion.so/my-integrations</span><br>
-          2. Click <strong>+ New integration</strong><br>
-          3. Name it "Dashboard", select your workspace, click Save<br>
-          4. Copy the <strong>Internal Integration Token</strong> (starts with <code>ntn_</code> or <code>secret_</code>)<br>
-          5. Paste it below<br><br>
-          You'll also need to share each database with the integration:<br>
-          Open the database in Notion → ··· menu → Connections → add your integration.
-        </p>
-        <div class="fg">
-          <div class="fl">Notion token</div>
-          <input class="inp fi" id="settings-token" type="password" placeholder="ntn_xxxxxxxxxxxxxxxx" style="font-family:var(--font-mono);font-size:12px" />
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-p">Save token</button>
-          <button class="btn btn-d btn-sm">Clear</button>
-          <button class="btn btn-sm">Test connection</button>
-          <span style="font-size:12px;color:var(--text-tertiary)" id="settings-saved"></span>
-        </div>
-        <div id="settings-status" class="sm" style="margin-top:12px"></div>
-        </div>
-        <div style="position:absolute;top:12px;right:12px;background:rgba(120,100,0,0.25);border:1px solid rgba(255,200,50,0.35);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;color:#c9a830;letter-spacing:0.06em">Coming in full release</div>
-      </div>
       <div style="position:relative;max-width:500px;margin-top:16px">
         <div class="card" style="opacity:0.38;pointer-events:none">
         <div class="sl" style="margin-bottom:16px">AI recap generation</div>
@@ -2157,6 +2102,7 @@ function loadPersistedData(){
         localStorage.setItem('cdash_weather', JSON.stringify(weatherConfig));
         document.querySelectorAll('.w-location-label').forEach(el=>el.textContent=weatherConfig.city);
       }
+      if(d.notionToken) localStorage.setItem('notion_token', d.notionToken);
       if(changed){ RT(); renderHomeWidgets(); RW(); }
       console.log('[data] loaded from disk ✓', {tasks: tasks.length, wDays: Object.keys(wBlocks).length});
     })
