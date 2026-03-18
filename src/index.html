@@ -296,11 +296,11 @@ body {
   transition: border-color 0.15s;
 }
 .dc:hover { border-color: var(--glass-border-bright); }
-.dc.today { border-color: rgba(77,159,255,0.4); box-shadow: 0 0 20px rgba(77,159,255,0.08); }
+.dc.today { border-color: rgba(0,196,167,0.55); box-shadow: 0 0 20px rgba(0,196,167,0.08); }
 .dh { padding: 8px 8px 6px; border-bottom: 1px solid var(--glass-border); }
 .dn { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .dd { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-top: 1px; }
-.dd.tn { color: var(--blue); text-shadow: 0 0 10px var(--blue-glow); }
+.dd.tn { color: #00c4a7; text-shadow: 0 0 10px rgba(0,196,167,0.5); }
 .db3 { padding: 4px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; max-height: calc(100% - 46px); }
 .db3::-webkit-scrollbar { width: 3px; }
 .db3::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 2px; }
@@ -504,7 +504,7 @@ body {
     <div class="nav-item" data-pane="request">Client request</div>
     <div class="nav-item" data-pane="recap">Recap</div>
     <div class="nav-section">Quick</div>
-    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Notion tracker</div>
+    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')">Notion tracker</div>
     <div style="flex:1"></div>
     <div class="nav-item" data-pane="settings">Settings</div>
   </div>
@@ -660,7 +660,7 @@ body {
           </div>
 
           <!-- Notion tracker -->
-          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
             <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Notion Tracker</div>
             <div style="display:flex;align-items:flex-end;justify-content:space-between">
               <div style="font-size:22px;font-weight:700;color:var(--text-secondary);letter-spacing:-0.03em">N ↗</div>
@@ -761,7 +761,7 @@ body {
     <div class="pane" id="pane-request">
       <div class="notion-bar">
         <div class="nbl"><div class="nbi">N</div><div><div class="nbt">Client Request and Project Tracker</div><div class="nbs">View all requests, projects, and task statuses</div></div></div>
-        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Open in Notion ↗</button>
+        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')">Open in Notion ↗</button>
       </div>
       <div class="card">
         <div class="sl" style="margin-bottom:14px">new task</div>
@@ -1488,10 +1488,10 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .wnb{background:var(--bg-secondary);border:0.5px solid var(--border-hover);border-radius:var(--radius-md);padding:4px 12px;font-size:15px;cursor:pointer;color:var(--text-primary);}
   .wg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;height:calc(100vh - 200px);align-items:stretch;}.dc{display:flex;flex-direction:column;}
   .dc{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-md);min-height:120px;overflow:hidden;}
-  .dc.today{border-color:var(--blue-mid);border-width:1.5px;}
+  .dc.today{border-color:rgba(0,196,167,0.55);border-width:1.5px;box-shadow:0 0 20px rgba(0,196,167,0.08);}
   .dh{padding:6px 8px;border-bottom:0.5px solid var(--border);}
   .dn{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;}
-  .dd{font-size:14px;font-weight:500;}.dd.tn{color:var(--blue);}
+  .dd{font-size:14px;font-weight:500;}.dd.tn{color:#00c4a7;}
   .db3{padding:4px;display:flex;flex-direction:column;gap:3px;}
   .bp{border-radius:6px;padding:6px 8px;font-size:12px;line-height:1.4;display:flex;flex-direction:column;gap:2px;transition:filter .15s,box-shadow .15s;cursor:default;}
   .bp:hover{filter:brightness(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
@@ -1638,7 +1638,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     <div class="nav-item" data-pane="request">Client request</div>
     <div class="nav-item" data-pane="recap">Recap</div>
     <div class="nav-section">Quick</div>
-    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Notion tracker</div>
+    <div class="nav-item" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')">Notion tracker</div>
     <div style="flex:1"></div>
     <div class="nav-item" data-pane="settings">Settings</div>
   </div>
@@ -1794,7 +1794,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           </div>
 
           <!-- Notion tracker -->
-          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
+          <div class="widget clickable" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0">
             <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Notion Tracker</div>
             <div style="display:flex;align-items:flex-end;justify-content:space-between">
               <div style="font-size:22px;font-weight:700;color:var(--text-secondary);letter-spacing:-0.03em">N ↗</div>
@@ -1895,7 +1895,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     <div class="pane" id="pane-request">
       <div class="notion-bar">
         <div class="nbl"><div class="nbi">N</div><div><div class="nbt">Client Request and Project Tracker</div><div class="nbs">View all requests, projects, and task statuses</div></div></div>
-        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/IAT-2e79d4f5f2c780a5b8b6feef5ec479c6?pvs=74')">Open in Notion ↗</button>
+        <button class="obtn" onclick="openExt('https://carnelian-viburnum-77e.notion.site/2e79d4f5f2c7810ba0afe24208cde12b?v=2e79d4f5f2c7818396d1000c15fe477e')">Open in Notion ↗</button>
       </div>
       <div class="card">
         <div class="sl" style="margin-bottom:14px">new task</div>
