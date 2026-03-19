@@ -92,16 +92,21 @@ function notionRequest(method, urlPath, body, token) {
 // ── Anthropic helper ─────────────────────────────────────────────────────────
 function callClaude(apiKey, transcript, meta) {
   return new Promise((resolve, reject) => {
-    const sys = `You are a meeting recap parser for GaugeQuality (GQ). Return ONLY a compact JSON object on a single line. No markdown fences, no pretty-printing, no explanation, nothing outside the JSON. String values must not contain literal newlines.
+    const sys = `You are a meeting recap parser for GaugeQuality (GQ). Return ONLY a compact JSON object on a single line. No markdown fences, no pretty-printing, no explanation, nothing outside the JSON.
 
 Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"owner":"string","items":["string"]}],"keyTakeaways":["string"]}
 
+STRICT RULES for valid JSON output:
+- NO literal newlines anywhere in the response
+- NO double-quote characters (") inside string values — use single quotes (') instead
+- NO backslashes inside string values
+- NO trailing commas
+- Response must be one single line of compact JSON, nothing else
 - First section must be "Session Overview" with participant info, session description, duration
 - Include all topics covered as separate sections
 - nextSteps: group by owner (e.g. "Client to:", "GQ team to:")
 - End with Key Takeaways
-- If no transcript: use "[To be filled]" placeholders
-- Response must be a single-line compact JSON object`;
+- If no transcript: use "[To be filled]" placeholders`;
 
     const userMsg = transcript
       ? `Client: ${meta.client}\nSession: ${meta.session_type} ${meta.session_label}\nDate: ${meta.date}\nAttendees: ${meta.attendees || 'Not specified'}\n\nTranscript:\n${transcript.slice(0, 15000)}`
@@ -140,24 +145,46 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
           const start = text.indexOf('{');
           const end = text.lastIndexOf('}');
           if (start === -1 || end === -1) return reject(new Error('No JSON found in Claude response'));
-          let raw = text.slice(start, end + 1);
-          // Fix unescaped control characters inside JSON string values
-          raw = raw.replace(/"((?:[^"\\]|\\[\s\S])*)"/g, m =>
-            m.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')
-             .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
-          );
+          const raw = text.slice(start, end + 1);
           let json;
           try {
             json = JSON.parse(raw);
           } catch (e1) {
-            // Fallback: strip all control characters globally and retry
-            const cleaned = text.slice(start, end + 1).replace(/[\x00-\x1F]/g, c => {
-              if (c === '\n') return '\\n';
-              if (c === '\r') return '\\r';
-              if (c === '\t') return '\\t';
-              return '';
-            });
-            json = JSON.parse(cleaned);
+            // Robust char-by-char sanitizer: fix control chars and unescaped quotes inside strings
+            const chars = [];
+            let inStr = false;
+            let i = 0;
+            while (i < raw.length) {
+              const ch = raw[i];
+              if (!inStr) {
+                chars.push(ch);
+                if (ch === '"') inStr = true;
+                i++;
+              } else if (ch === '\\') {
+                const nx = raw[i + 1] || '';
+                if ('"\\/bfnrtu'.includes(nx)) { chars.push(ch, nx); i += 2; }
+                else if (nx === '\n') { chars.push('\\', 'n'); i += 2; }
+                else if (nx === '\r') { chars.push('\\', 'r'); i += 2; }
+                else if (nx === '\t') { chars.push('\\', 't'); i += 2; }
+                else { i++; } // drop invalid backslash
+              } else if (ch === '"') {
+                // Heuristic: if next non-space char is a JSON structural char, this ends the string
+                let j = i + 1;
+                while (j < raw.length && raw[j] === ' ') j++;
+                const nxt = raw[j] || '';
+                if (!nxt || ',]}'.includes(nxt) || nxt === ':' || nxt === '"') {
+                  chars.push('"'); inStr = false;
+                } else {
+                  chars.push('\\', '"'); // escape embedded quote
+                }
+                i++;
+              } else if (ch === '\n') { chars.push('\\', 'n'); i++; }
+              else if (ch === '\r') { chars.push('\\', 'r'); i++; }
+              else if (ch === '\t') { chars.push('\\', 't'); i++; }
+              else if (ch.charCodeAt(0) < 0x20) { i++; } // drop other control chars
+              else { chars.push(ch); i++; }
+            }
+            json = JSON.parse(chars.join(''));
           }
           resolve(json);
         } catch(e) { reject(new Error('Failed to parse Claude response: ' + e.message)); }
