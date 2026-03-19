@@ -10,6 +10,9 @@ const path  = require('path');
 const os    = require('os');
 const PizZip       = require('pizzip');
 const Docxtemplater = require('docxtemplater');
+const crypto = require('crypto');
+function b64url(buf){ return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+let pendingOAuth = null;
 
 const PORT     = 3847;
 const TASKS_DB = '2e79d4f5-f2c7-810b-a0af-e24208cde12b';
@@ -195,8 +198,63 @@ const server = http.createServer((req, res) => {
     res.end(s);
   };
 
-  if (req.method === 'GET' && req.url === '/load-data') {
-    return send(200, readData());
+  if (req.method === 'GET') {
+    if (req.url === '/load-data') return send(200, readData());
+
+    if (req.url === '/outlook-status') {
+      const d = readData();
+      return send(200, { connected: !!(d.outlookTokens) });
+    }
+
+    if (req.url.startsWith('/outlook-events')) {
+      (async () => {
+        const d = readData();
+        if (!d.outlookTokens) return send(401, { ok: false, error: 'Not connected' });
+        let { accessToken, refreshToken, expiresAt, clientId } = d.outlookTokens;
+        if (Date.now() > expiresAt - 300000) {
+          const rb = new URLSearchParams({ client_id: clientId, grant_type: 'refresh_token', refresh_token: refreshToken, scope: 'https://graph.microsoft.com/Calendars.Read offline_access' });
+          const tr = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: rb.toString() });
+          const tj = await tr.json();
+          if (tj.error) return send(401, { ok: false, error: 'Token refresh failed' });
+          accessToken = tj.access_token;
+          d.outlookTokens = { ...d.outlookTokens, accessToken, expiresAt: Date.now() + tj.expires_in * 1000, ...(tj.refresh_token ? { refreshToken: tj.refresh_token } : {}) };
+          writeData(d);
+        }
+        const u = new URL(req.url, 'http://localhost');
+        const start = u.searchParams.get('start');
+        const end = u.searchParams.get('end');
+        const er = await fetch(`https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$select=subject,start,end,isAllDay&$top=200&$orderby=start/dateTime`, { headers: { 'Authorization': `Bearer ${accessToken}`, 'Prefer': 'outlook.timezone="UTC"' } });
+        const ej = await er.json();
+        if (ej.error) return send(400, { ok: false, error: ej.error.message });
+        return send(200, { ok: true, events: ej.value || [] });
+      })().catch(e => send(500, { ok: false, error: e.message }));
+      return;
+    }
+
+    if (req.url.startsWith('/oauth/callback')) {
+      (async () => {
+        const u = new URL(req.url, 'http://localhost:3847');
+        const code = u.searchParams.get('code');
+        const state = u.searchParams.get('state');
+        const err = u.searchParams.get('error');
+        const html = (body) => { res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(body); };
+        if (err) return html(`<html><body style="font-family:sans-serif;padding:40px;background:#07101a;color:#fff"><h2>Sign-in error</h2><p>${err}</p></body></html>`);
+        if (!pendingOAuth || state !== pendingOAuth.state) return html('<html><body style="font-family:sans-serif;padding:40px;background:#07101a;color:#fff"><h2>Invalid state — please try again.</h2></body></html>');
+        const tb = new URLSearchParams({ client_id: pendingOAuth.clientId, code, redirect_uri: 'http://localhost:3847/oauth/callback', grant_type: 'authorization_code', code_verifier: pendingOAuth.verifier });
+        const tr = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: tb.toString() });
+        const tokens = await tr.json();
+        if (tokens.error) return html(`<html><body style="font-family:sans-serif;padding:40px;background:#07101a;color:#fff"><h2>Error</h2><p>${tokens.error_description}</p></body></html>`);
+        const d = readData();
+        d.outlookTokens = { accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiresAt: Date.now() + tokens.expires_in * 1000, clientId: pendingOAuth.clientId };
+        writeData(d);
+        pendingOAuth = null;
+        console.log('[outlook] connected');
+        html('<html><body style="font-family:sans-serif;padding:40px;background:#07101a;color:#00c4a7;text-align:center"><h2>&#10003; Connected to Outlook!</h2><p style="color:#aaa">You can close this window and return to Meridian.</p></body></html>');
+      })().catch(e => { res.writeHead(500, { 'Content-Type': 'text/html' }); res.end(`<html><body><h2>${e.message}</h2></body></html>`); });
+      return;
+    }
+
+    return send(404, { ok: false, error: 'Not found' });
   }
 
   let body = '';
@@ -266,6 +324,24 @@ const server = http.createServer((req, res) => {
           properties: buildProperties(payload),
         }, notionToken);
         return send(200, { ok: true, url: page.url, id: page.id });
+      }
+
+      if (req.url === '/oauth/start') {
+        const { clientId } = payload;
+        if (!clientId) return send(400, { ok: false, error: 'clientId required' });
+        const verifier = b64url(crypto.randomBytes(32));
+        const challenge = b64url(crypto.createHash('sha256').update(verifier).digest());
+        const state = b64url(crypto.randomBytes(16));
+        pendingOAuth = { verifier, clientId, state };
+        const params = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: 'http://localhost:3847/oauth/callback', scope: 'https://graph.microsoft.com/Calendars.Read offline_access', code_challenge: challenge, code_challenge_method: 'S256', state, response_mode: 'query', prompt: 'select_account' });
+        return send(200, { ok: true, authUrl: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params}` });
+      }
+
+      if (req.url === '/outlook-disconnect') {
+        const d = readData();
+        delete d.outlookTokens;
+        writeData(d);
+        return send(200, { ok: true });
       }
 
       send(404, { ok: false, error: 'Unknown route' });
