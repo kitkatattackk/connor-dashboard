@@ -10,6 +10,7 @@ const path  = require('path');
 const os    = require('os');
 const PizZip       = require('pizzip');
 const Docxtemplater = require('docxtemplater');
+const { jsonrepair } = require('jsonrepair');
 const crypto = require('crypto');
 function b64url(buf){ return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
 let pendingOAuth = null;
@@ -114,7 +115,7 @@ STRICT RULES for valid JSON output:
 
     const body = JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: 8192,
       system: sys,
       messages: [
         { role: 'user', content: userMsg },
@@ -150,42 +151,8 @@ STRICT RULES for valid JSON output:
           try {
             json = JSON.parse(raw);
           } catch (e1) {
-            console.log('[claude] parse error at pos', e1.message, '— running sanitizer');
-            // Robust char-by-char sanitizer: fix control chars and unescaped quotes inside strings
-            const chars = [];
-            let inStr = false;
-            let i = 0;
-            while (i < raw.length) {
-              const ch = raw[i];
-              if (!inStr) {
-                chars.push(ch);
-                if (ch === '"') inStr = true;
-                i++;
-              } else if (ch === '\\') {
-                const nx = raw[i + 1] || '';
-                if ('"\\/bfnrtu'.includes(nx)) { chars.push(ch, nx); i += 2; }
-                else if (nx === '\n') { chars.push('\\', 'n'); i += 2; }
-                else if (nx === '\r') { chars.push('\\', 'r'); i += 2; }
-                else if (nx === '\t') { chars.push('\\', 't'); i += 2; }
-                else { i++; } // drop invalid backslash
-              } else if (ch === '"') {
-                // Heuristic: if next non-space char is a JSON structural char, this ends the string
-                let j = i + 1;
-                while (j < raw.length && raw[j] === ' ') j++;
-                const nxt = raw[j] || '';
-                if (!nxt || ',]}'.includes(nxt) || nxt === ':' || nxt === '"') {
-                  chars.push('"'); inStr = false;
-                } else {
-                  chars.push('\\', '"'); // escape embedded quote
-                }
-                i++;
-              } else if (ch === '\n') { chars.push('\\', 'n'); i++; }
-              else if (ch === '\r') { chars.push('\\', 'r'); i++; }
-              else if (ch === '\t') { chars.push('\\', 't'); i++; }
-              else if (ch.charCodeAt(0) < 0x20) { i++; } // drop other control chars
-              else { chars.push(ch); i++; }
-            }
-            json = JSON.parse(chars.join(''));
+            console.log('[claude] parse error:', e1.message, '— running jsonrepair');
+            json = JSON.parse(jsonrepair(raw));
           }
           resolve(json);
         } catch(e) { reject(new Error('Failed to parse Claude response: ' + e.message)); }
@@ -310,6 +277,13 @@ const server = http.createServer((req, res) => {
 
         // Call Claude to extract structured JSON
         const recapData = await callClaude(anthropicKey, transcript || '', meta);
+
+        // Normalise Claude output — drop sections with no heading, coerce undefined → ''
+        if (Array.isArray(recapData.sections)) {
+          recapData.sections = recapData.sections
+            .filter(s => s && s.heading)
+            .map(s => ({ heading: String(s.heading), bullets: (s.bullets || []).map(String) }));
+        }
 
         // Attach metadata for template rendering
         recapData.session_type  = session_type  || 'Onboarding';

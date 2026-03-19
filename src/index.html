@@ -173,20 +173,17 @@ body {
 
 /* ── Glass cards ───────────────────────────────────────────────────────── */
 .card {
-  background: var(--glass-02);
-  border: 1px solid var(--glass-border);
+  background: transparent;
+  border: none;
   border-radius: var(--radius-lg);
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s;
+  padding: 0;
+  margin-bottom: 24px;
 }
-.card:hover { border-color: var(--glass-border-bright); }
 
 /* ── Inputs ────────────────────────────────────────────────────────────── */
 .inp {
-  background: rgba(6,11,24,0.6);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
   padding: 8px 12px;
   font-size: 13px; color: var(--text-primary);
@@ -208,8 +205,8 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .inp:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,196,167,0.12); }
 .inp::placeholder { color: var(--text-muted); }
 .sel {
-  background: rgba(6,11,24,0.6);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
   padding: 8px 10px;
   font-size: 12px; color: var(--text-secondary);
@@ -219,15 +216,15 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 
 /* ── Buttons ───────────────────────────────────────────────────────────── */
 .btn {
-  background: var(--glass-02);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border);
   border-radius: var(--radius-md);
   padding: 8px 16px;
   font-size: 13px; color: var(--text-primary);
   cursor: pointer; font-family: var(--font); white-space: nowrap;
   transition: all 0.15s;
 }
-.btn:hover { background: var(--glass-03); border-color: var(--glass-border-bright); }
+.btn:hover { background: var(--navy-700); border-color: var(--border-hover); }
 .btn-p {
   background: linear-gradient(90deg, #00c8b4 0%, #0096a8 100%);
   border-color: rgba(0,196,167,0.3);
@@ -265,7 +262,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .mt { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
 .pg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
 .po {
-  border: 1px solid var(--glass-border);
+  border: 0.5px solid var(--border);
   border-radius: var(--radius-md); padding: 8px 10px;
   font-size: 12px; cursor: pointer; color: var(--text-secondary); text-align: center;
   transition: all 0.15s;
@@ -274,7 +271,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .ma { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
 /* ── Tasks ─────────────────────────────────────────────────────────────── */
-.trow { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--glass-border); }
+.trow { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--border); }
 .trow:last-child { border-bottom: none; }
 .tck {
   width: 16px; height: 16px;
@@ -299,35 +296,36 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .wn { display: flex; align-items: center; gap: 8px; }
 .wl { font-size: 13px; font-weight: 500; min-width: 160px; text-align: center; }
 .wnb {
-  background: var(--glass-02); border: 1px solid var(--glass-border);
+  background: var(--bg-secondary); border: 0.5px solid var(--border);
   border-radius: var(--radius-md); padding: 5px 14px;
   font-size: 16px; cursor: pointer; color: var(--text-primary);
   transition: all 0.15s;
 }
-.wnb:hover { border-color: var(--glass-border-bright); }
+.wnb:hover { border-color: var(--border-hover); }
 /* Calendar */
 .wg { height: calc(100vh - 160px); overflow: hidden; display: flex; flex-direction: column; }
 .cal-container { display: flex; flex-direction: column; height: 100%; }
-.cal-header-row { display: flex; flex-shrink: 0; border-bottom: 1px solid var(--glass-border); background: var(--glass-01); }
+.cal-header-row { display: flex; flex-shrink: 0; border-bottom: 0.5px solid var(--border); background: var(--bg-primary); }
 .cal-gutter { width: 54px; flex-shrink: 0; }
 .cal-day-headers { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: 1; }
-.cal-dh { padding: 8px 6px; text-align: center; border-left: 1px solid var(--glass-border); cursor: pointer; transition: background 0.15s; }
-.cal-dh:hover { background: var(--glass-02); }
+.cal-dh { padding: 8px 6px; text-align: center; border-left: 0.5px solid var(--border); cursor: pointer; transition: background 0.15s; }
+.cal-dh:hover { background: var(--bg-secondary); }
 .cal-dh.today { background: rgba(0,196,167,0.06); }
 .dn { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .dd { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-top: 2px; }
 .dd.tn { color: #00c4a7; text-shadow: 0 0 10px rgba(0,196,167,0.5); }
-.cal-scroll { flex: 1; overflow-y: auto; display: flex; }
+.cal-scroll { flex: 1; overflow-y: scroll; display: flex; }
 .cal-scroll::-webkit-scrollbar { width: 4px; }
-.cal-scroll::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 2px; }
-.cal-time-col { width: 54px; flex-shrink: 0; border-right: 1px solid var(--glass-border); position: relative; }
+.cal-header-row { padding-right: 4px; }
+.cal-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.cal-time-col { width: 54px; flex-shrink: 0; border-right: 0.5px solid var(--border); position: relative; }
 .cal-time-label { position: absolute; right: 6px; font-size: 10px; color: var(--text-muted); transform: translateY(-50%); white-space: nowrap; font-family: var(--font-mono); }
 .cal-grid-body { flex: 1; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); position: relative; }
-.cal-hour-line { position: absolute; left: 0; right: 0; border-top: 1px solid var(--glass-border); pointer-events: none; }
+.cal-hour-line { position: absolute; left: 0; right: 0; border-top: 0.5px solid var(--border); pointer-events: none; }
 .cal-hour-line-half { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,255,255,0.03); pointer-events: none; }
 .cal-now-line { position: absolute; left: 0; right: 0; border-top: 2px solid #00c4a7; pointer-events: none; z-index: 10; }
 .cal-now-dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #00c4a7; }
-.dc { position: relative; border-left: 1px solid var(--glass-border); }
+.dc { position: relative; border-left: 0.5px solid var(--border); }
 .dc.today { background: rgba(0,196,167,0.02); }
 .bp { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 3px 6px; font-size: 11px; overflow: hidden; cursor: pointer; box-sizing: border-box; display: flex; flex-direction: column; gap: 1px; transition: filter .15s; z-index: 2; }
 .bp:hover { filter: brightness(1.15); z-index: 3; }
@@ -351,18 +349,18 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .color-swatch.selected { border-color: white; transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.3); }
 
 /* ── Jira ──────────────────────────────────────────────────────────────── */
-.js { border: 1px solid var(--glass-border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s; }
-.js:hover { border-color: var(--glass-border-bright); }
-.jsh { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--glass-01); cursor: pointer; user-select: none; }
+.js { border: 0.5px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s; }
+.js:hover { border-color: var(--border-hover); }
+.jsh { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-primary); cursor: pointer; user-select: none; }
 .jst { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 .jsb { font-size: 10px; padding: 2px 8px; border-radius: 99px; background: rgba(77,159,255,0.1); color: var(--blue-bright); border: 1px solid rgba(77,159,255,0.15); }
 .jsb.filled { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.2); }
 .jsc { font-size: 10px; color: var(--text-muted); transition: transform .15s; display: inline-block; }
 .jsc.open { transform: rotate(180deg); }
-.jsbd { padding: 14px; border-top: 1px solid var(--glass-border); display: none; }
+.jsbd { padding: 14px; border-top: 0.5px solid var(--border); display: none; }
 .jsbd.open { display: block; }
 .bl { list-style: none; margin-bottom: 8px; }
-.bi { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); }
+.bi { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid var(--border); }
 .bi:last-child { border-bottom: none; }
 .bd2 { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-dim); flex-shrink: 0; margin-top: 8px; }
 .bit { flex: 1; font-size: 13px; line-height: 1.5; }
@@ -370,7 +368,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .bix:hover { color: var(--red); }
 .bar { display: flex; gap: 6px; margin-top: 6px; }
 .story-out {
-  background: rgba(6,11,24,0.8); border: 1px solid var(--glass-border);
+  background: var(--bg-secondary); border: 0.5px solid var(--border);
   border-radius: var(--radius-md); padding: 16px;
   font-size: 12px; line-height: 1.8; white-space: pre-wrap; word-break: break-word;
   max-height: 340px; overflow-y: auto;
@@ -380,25 +378,25 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .pl { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
 
 /* ── Recap ─────────────────────────────────────────────────────────────── */
-.st { display: flex; margin-bottom: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); overflow: hidden; }
-.sta { flex: 1; text-align: center; padding: 7px; font-size: 12px; cursor: pointer; color: var(--text-secondary); background: var(--glass-01); border: none; font-family: var(--font); transition: all 0.15s; }
+.st { display: flex; margin-bottom: 12px; border: 0.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.sta { flex: 1; text-align: center; padding: 7px; font-size: 12px; cursor: pointer; color: var(--text-secondary); background: var(--bg-primary); border: none; font-family: var(--font); transition: all 0.15s; }
 .sta.active { background: var(--blue-light); color: var(--blue-bright); font-weight: 500; }
-.uz { border: 1.5px dashed var(--glass-border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; }
+.uz { border: 1.5px dashed var(--border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; }
 .uz:hover, .uz.dv { border-color: var(--blue); background: rgba(77,159,255,0.05); }
 .uz.hf { border-color: var(--green); background: rgba(0,229,160,0.05); border-style: solid; }
 .um { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
 .us { font-size: 12px; color: var(--text-secondary); }
-.tp { background: rgba(6,11,24,0.6); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--text-secondary); max-height: 120px; overflow-y: auto; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+.tp { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; color: var(--text-secondary); max-height: 120px; overflow-y: auto; margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
 .si { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
 .st2 { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
 .st2.active { color: #00dbbf; font-weight: 500; }
 .st2.done { color: var(--green); }
-.sd { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+.sd { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
 .st2.active .sd { border-color: #00c4a7; background: rgba(0,196,167,0.12); color: #00c4a7; box-shadow: 0 0 8px rgba(0,196,167,0.4); }
 .st2.done .sd { border-color: var(--green); background: var(--green); color: #000; box-shadow: 0 0 8px var(--green-glow); }
-.sl2 { flex: 1; height: 1px; background: var(--glass-border); max-width: 28px; }
-.rg { background: var(--glass-01); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 16px; text-align: center; margin: 10px 0; }
-.spn { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--glass-border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 8px; }
+.sl2 { flex: 1; height: 1px; background: var(--border); max-width: 28px; }
+.rg { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; margin: 10px 0; }
+.spn { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 6px var(--green-glow)} 50%{opacity:0.5;box-shadow:0 0 12px var(--green-glow)} }
 
@@ -505,7 +503,6 @@ input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) 
 ::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 4px; }
 
 /* ── Notion integration card ───────────────────────────────────────────── */
-#pane-settings .card { border-color: var(--glass-border-bright); }
 #pane-settings code { font-family: var(--font-mono); font-size: 11px; background: var(--glass-03); padding: 1px 5px; border-radius: 3px; }
 </style>
 </head>
@@ -725,17 +722,10 @@ input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) 
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
           <input class="inp" id="task-input" placeholder="Add a task..." style="flex:1;min-width:120px" onkeydown="if(event.key==='Enter') addTask()" />
           <select class="sel" id="task-tag"><option value="work">work</option><option value="stream">stream</option><option value="home">home</option></select>
-          <button class="btn" onclick="addTask()">Add + sync to Notion ↗</button>
         </div>
-      </div>
-      <div class="mw" id="notion-modal">
-        <div class="mb">
-          <div class="mt">Choose Notion project</div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Task: <span id="modal-task-preview"></span></div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-top:10px;margin-bottom:4px">Project</div>
-          <div class="pg" id="project-grid"></div>
-          <div class="ma"><button class="btn btn-sm" onclick="closeNM()">Cancel</button><button class="btn btn-p btn-sm" onclick="confirmNT()">Add to Notion ↗</button></div>
-          <div class="sm" id="modal-status"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-p" onclick="addTask()" style="flex:1">Add task →</button>
+          <button class="btn btn-d btn-sm" onclick="clearTasks()">Clear all</button>
         </div>
       </div>
     </div>
@@ -845,7 +835,7 @@ input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) 
     <!-- RECAP -->
     <div class="pane" id="pane-recap">
       <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
-      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants Claims</option><option>Merchants UW</option><option>Markel Claims</option><option>MSI</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>IAT</option><option>Branch</option><option>IPG</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
       <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
       <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
     </div>
@@ -1004,10 +994,9 @@ function tick(){
   const t=new Date();
   let h=t.getHours(), m=t.getMinutes(), ampm=h>=12?'PM':'AM';
   h=h%12||12;
-  const tEl=document.getElementById('w-time');
-  const aEl=document.getElementById('w-ampm');
-  if(tEl) tEl.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-  if(aEl) aEl.textContent=ampm;
+  const time=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  document.querySelectorAll('#w-time').forEach(el=>el.textContent=time);
+  document.querySelectorAll('#w-ampm').forEach(el=>el.textContent=ampm);
 }
 tick(); setInterval(tick, 1000);
 
@@ -1097,37 +1086,17 @@ async function saveToken(token){
 function RT(){
   const el=document.getElementById('task-list');
   if(!tasks.length){el.innerHTML='<div style="font-size:13px;color:var(--text-tertiary);padding:8px 0">No tasks yet.</div>';return;}
-  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span>${t.notion?'<span class="nb">Notion ✓</span>':''}<span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
+  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span><span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
 }
 function tog(i){tasks[i].done=!tasks[i].done;save();RT();renderHomeWidgets();}
 function remT(i){tasks.splice(i,1);save();RT();renderHomeWidgets();}
+function clearTasks(){if(!tasks.length)return;if(confirm('Clear all tasks?')){tasks=[];save();RT();renderHomeWidgets();}}
 function addTask(){
   const inp=document.getElementById('task-input'), tag=document.getElementById('task-tag').value, text=inp.value.trim();
-  if(!text)return; pendTask={text,tag,done:false,notion:false}; inp.value=''; openNM(text);
-}
-function openNM(p){
-  selProj=null;
-  document.getElementById('modal-task-preview').textContent=p;
-  document.getElementById('modal-status').textContent='';
-  document.getElementById('project-grid').innerHTML=PROJS.map(p=>`<div class="po" onclick="selP(this,'${p}')">${p}</div>`).join('');
-  document.getElementById('notion-modal').classList.add('open');
-}
-function selP(el,p){document.querySelectorAll('.po').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');selProj=p;}
-function closeNM(){document.getElementById('notion-modal').classList.remove('open');if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}}
-async function confirmNT(){
-  if(!selProj){document.getElementById('modal-status').textContent='Pick a project first.';document.getElementById('modal-status').className='sm err';return;}
-  if(!requireToken(document.getElementById('modal-status'))) return;
-  const sEl=document.getElementById('modal-status'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
-  try{
-    const page = await notionCreateTask({taskName:pendTask.text, project:selProj, status:'Not Started'});
-    sEl.textContent='Added to Notion ✓';
-    if(pendTask) pendTask.notion=true;
-    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
-    setTimeout(()=>document.getElementById('notion-modal').classList.remove('open'),1200);
-  }catch(e){
-    sEl.textContent='Notion error: '+e.message;sEl.className='sm err';
-    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
-  }
+  if(!text)return;
+  tasks.unshift({text,tag,done:false});
+  inp.value='';
+  save();RT();renderHomeWidgets();
 }
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
@@ -1631,7 +1600,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .dateline{font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
   .pane{display:none;}.pane.active{display:block;}
   .sl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px;}
-  .card{background:var(--bg-primary);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px;}
+  .card{background:transparent;border:none;border-radius:var(--radius-lg);padding:0;margin-bottom:24px;}
   .inp{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:7px 10px;font-size:13px;color:var(--text-primary);font-family:var(--font);outline:none;appearance:none;-webkit-appearance:none;}
   .inp:focus{border-color:var(--blue-mid);}
   .inp::placeholder{color:var(--text-tertiary);}
@@ -1688,8 +1657,9 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .dn{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;}
   .dd{font-size:15px;font-weight:600;color:var(--text-secondary);margin-top:2px;}
   .dd.tn{color:#00c4a7;text-shadow:0 0 10px rgba(0,196,167,0.5);}
-  .cal-scroll{flex:1;overflow-y:auto;display:flex;}
+  .cal-scroll{flex:1;overflow-y:scroll;display:flex;}
   .cal-scroll::-webkit-scrollbar{width:4px;}
+  .cal-header-row{padding-right:4px;}
   .cal-scroll::-webkit-scrollbar-thumb{background:var(--glass-03);border-radius:2px;}
   .cal-time-col{width:54px;flex-shrink:0;border-right:1px solid var(--glass-border);position:relative;}
   .cal-time-label{position:absolute;right:6px;font-size:10px;color:var(--text-muted);transform:translateY(-50%);white-space:nowrap;font-family:var(--font-mono);}
@@ -2042,17 +2012,10 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
           <input class="inp" id="task-input" placeholder="Add a task..." style="flex:1;min-width:120px" onkeydown="if(event.key==='Enter') addTask()" />
           <select class="sel" id="task-tag"><option value="work">work</option><option value="stream">stream</option><option value="home">home</option></select>
-          <button class="btn" onclick="addTask()">Add + sync to Notion ↗</button>
         </div>
-      </div>
-      <div class="mw" id="notion-modal">
-        <div class="mb">
-          <div class="mt">Choose Notion project</div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Task: <span id="modal-task-preview"></span></div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-top:10px;margin-bottom:4px">Project</div>
-          <div class="pg" id="project-grid"></div>
-          <div class="ma"><button class="btn btn-sm" onclick="closeNM()">Cancel</button><button class="btn btn-p btn-sm" onclick="confirmNT()">Add to Notion ↗</button></div>
-          <div class="sm" id="modal-status"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-p" onclick="addTask()" style="flex:1">Add task →</button>
+          <button class="btn btn-d btn-sm" onclick="clearTasks()">Clear all</button>
         </div>
       </div>
     </div>
@@ -2162,7 +2125,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     <!-- RECAP -->
     <div class="pane" id="pane-recap">
       <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
-      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants Claims</option><option>Merchants UW</option><option>Markel Claims</option><option>MSI</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>IAT</option><option>Branch</option><option>IPG</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
       <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
       <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
     </div>
@@ -2321,10 +2284,9 @@ function tick(){
   const t=new Date();
   let h=t.getHours(), m=t.getMinutes(), ampm=h>=12?'PM':'AM';
   h=h%12||12;
-  const tEl=document.getElementById('w-time');
-  const aEl=document.getElementById('w-ampm');
-  if(tEl) tEl.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
-  if(aEl) aEl.textContent=ampm;
+  const time=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  document.querySelectorAll('#w-time').forEach(el=>el.textContent=time);
+  document.querySelectorAll('#w-ampm').forEach(el=>el.textContent=ampm);
 }
 tick(); setInterval(tick, 1000);
 
@@ -2414,37 +2376,17 @@ async function saveToken(token){
 function RT(){
   const el=document.getElementById('task-list');
   if(!tasks.length){el.innerHTML='<div style="font-size:13px;color:var(--text-tertiary);padding:8px 0">No tasks yet.</div>';return;}
-  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span>${t.notion?'<span class="nb">Notion ✓</span>':''}<span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
+  el.innerHTML=tasks.map((t,i)=>`<div class="trow"><div class="tck ${t.done?'done':''}" onclick="tog(${i})"></div><span class="ttxt ${t.done?'done':''}">${t.text}</span><span class="ttag tg-${t.tag}">${t.tag}</span><span class="rb" onclick="remT(${i})">✕</span></div>`).join('');
 }
 function tog(i){tasks[i].done=!tasks[i].done;save();RT();renderHomeWidgets();}
 function remT(i){tasks.splice(i,1);save();RT();renderHomeWidgets();}
+function clearTasks(){if(!tasks.length)return;if(confirm('Clear all tasks?')){tasks=[];save();RT();renderHomeWidgets();}}
 function addTask(){
   const inp=document.getElementById('task-input'), tag=document.getElementById('task-tag').value, text=inp.value.trim();
-  if(!text)return; pendTask={text,tag,done:false,notion:false}; inp.value=''; openNM(text);
-}
-function openNM(p){
-  selProj=null;
-  document.getElementById('modal-task-preview').textContent=p;
-  document.getElementById('modal-status').textContent='';
-  document.getElementById('project-grid').innerHTML=PROJS.map(p=>`<div class="po" onclick="selP(this,'${p}')">${p}</div>`).join('');
-  document.getElementById('notion-modal').classList.add('open');
-}
-function selP(el,p){document.querySelectorAll('.po').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');selProj=p;}
-function closeNM(){document.getElementById('notion-modal').classList.remove('open');if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}}
-async function confirmNT(){
-  if(!selProj){document.getElementById('modal-status').textContent='Pick a project first.';document.getElementById('modal-status').className='sm err';return;}
-  if(!requireToken(document.getElementById('modal-status'))) return;
-  const sEl=document.getElementById('modal-status'); sEl.className='sm'; sEl.textContent='Creating in Notion...';
-  try{
-    const page = await notionCreateTask({taskName:pendTask.text, project:selProj, status:'Not Started'});
-    sEl.textContent='Added to Notion ✓';
-    if(pendTask) pendTask.notion=true;
-    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
-    setTimeout(()=>document.getElementById('notion-modal').classList.remove('open'),1200);
-  }catch(e){
-    sEl.textContent='Notion error: '+e.message;sEl.className='sm err';
-    if(pendTask){tasks.unshift(pendTask);save();RT();renderHomeWidgets();pendTask=null;}
-  }
+  if(!text)return;
+  tasks.unshift({text,tag,done:false});
+  inp.value='';
+  save();RT();renderHomeWidgets();
 }
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
