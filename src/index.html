@@ -3315,7 +3315,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(refreshWeather, 30 * 60 * 1000);
   RT(); RW(); renderHomeWidgets(); setStep(1);
   ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
-  if(localStorage.getItem('notion_token')) document.getElementById('settings-saved').textContent='Token saved ✓';
+  const savedEl=document.getElementById('settings-saved'); if(savedEl&&localStorage.getItem('notion_token')) savedEl.textContent='Token saved ✓';
   const savedCid=localStorage.getItem('cdash_outlook_cid');
   if(savedCid){const el=document.getElementById('outlook-client-id');if(el)el.value=savedCid;}
   checkOutlookStatus();
