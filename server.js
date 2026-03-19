@@ -141,7 +141,7 @@ STRICT RULES for valid JSON output:
             return reject(new Error(parsed.error?.message || `Anthropic ${res.statusCode}`));
           }
           const text = (parsed.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-          console.log('[claude] raw response:', text.slice(0, 300));
+          console.log('[claude] raw response:', text.slice(0, 600));
           const start = text.indexOf('{');
           const end = text.lastIndexOf('}');
           if (start === -1 || end === -1) return reject(new Error('No JSON found in Claude response'));
@@ -150,6 +150,7 @@ STRICT RULES for valid JSON output:
           try {
             json = JSON.parse(raw);
           } catch (e1) {
+            console.log('[claude] parse error at pos', e1.message, '— running sanitizer');
             // Robust char-by-char sanitizer: fix control chars and unescaped quotes inside strings
             const chars = [];
             let inStr = false;
