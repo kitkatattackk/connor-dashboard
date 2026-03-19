@@ -415,7 +415,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .c-ni.sc { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.2); }
 .po2 { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 .prp { font-size: 11px; padding: 4px 12px; border-radius: 99px; border: 1px solid var(--glass-border); cursor: pointer; color: var(--text-secondary); background: var(--glass-01); transition: all 0.15s; }
-.prp.sl { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.25); }
+.prp.sp-lo { background: rgba(0,229,160,0.1); color: var(--green); border-color: rgba(0,229,160,0.25); }
 .prp.sm2 { background: rgba(255,179,71,0.12); color: var(--amber); border-color: rgba(255,179,71,0.25); }
 .prp.sh { background: rgba(255,107,107,0.1); color: var(--red); border-color: rgba(255,107,107,0.25); }
 .prp.sf { background: rgba(0,212,255,0.1); color: var(--cyan); border-color: rgba(0,212,255,0.2); }
@@ -438,8 +438,10 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .nbi { width: 30px; height: 30px; background: var(--glass-03); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
 .nbt { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .nbs { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-.obtn { background: var(--glass-02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 7px 16px; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
-.obtn:hover { border-color: var(--glass-border-bright); color: var(--text-primary); }
+.obtn { background: var(--glass-02); border: 1px solid var(--glass-border-bright); border-radius: var(--radius-md); padding: 7px 16px; font-size: 12px; font-weight: 500; color: var(--blue-bright); cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.obtn:hover { background: var(--glass-03); color: #fff; }
+input[type="date"].inp { color-scheme: dark; }
+input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(3) hue-rotate(130deg); cursor: pointer; }
 
 /* ── Home widgets ──────────────────────────────────────────────────────── */
 .wgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -472,7 +474,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .w-sl { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .w-ss { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
 .w-section { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
-.w-trow { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); }
+.w-trow { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--glass-border); min-width: 0; overflow: hidden; }
 .w-trow:last-child { border-bottom: none; }
 .w-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .dot-work { background: var(--blue); box-shadow: 0 0 6px var(--blue-glow); }
@@ -843,7 +845,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
     <!-- RECAP -->
     <div class="pane" id="pane-recap">
       <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
-      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees</div><input class="inp fi" id="r-attendees" placeholder="e.g. John Smith" /></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
       <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
       <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
     </div>
@@ -1038,7 +1040,7 @@ function renderHomeWidgets(){
   document.getElementById('stat-week-sub').textContent = weekTotal + ' this week';
   document.getElementById('w-sched-list').innerHTML = todayBlocks.length
     ? todayBlocks.map(b=>{
-        const style=b.color?`background:${b.color};color:#fff;border:1px solid rgba(255,255,255,0.15)`:'';
+        const style=b.color?`background:${b.color};color:${getTextColor(b.color)};border:1px solid rgba(0,0,0,0.12)`:'';
         const cls=b.color?'':TMAP2[b.type]||'bm2';
         return `<div class="w-brow"><span class="w-btime">${b.time}</span><span class="w-btitle">${b.title}</span><span class="w-btag ${cls}" style="${style}">${b.type}</span></div>`;
       }).join('')
@@ -1132,6 +1134,7 @@ async function confirmNT(){
 function dKey(d){return d.toISOString().split('T')[0];}
 function GWS(off){const d=new Date();d.setDate(d.getDate()-d.getDay()+off*7);d.setHours(0,0,0,0);return d;}
 const HOUR_H=64,CAL_START=6,CAL_END=22;
+function getTextColor(hex){if(!hex||!hex.startsWith('#'))return'#fff';const c=hex.replace('#','');const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return(r*299+g*587+b*114)/1000>140?'#111':'#fff';}
 function parseTime(s){if(!s)return null;const m=s.match(/(\d+):(\d+)\s*(am|pm)/i);if(!m)return null;let h=parseInt(m[1]),min=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+min;}
 function timeToTop(s){const mins=parseTime(s);if(mins===null)return null;return(mins-CAL_START*60)/60*HOUR_H;}
 function minsToTimeStr(mins){const h=Math.floor(mins/60),m=mins%60,ap=h>=12?'PM':'AM',h12=h===0?12:h>12?h-12:h;return`${h12}:${m.toString().padStart(2,'0')} ${ap}`;}
@@ -1180,7 +1183,7 @@ function RW(){
     });
     [...blks].sort((a,b)=>a.time.localeCompare(b.time)).forEach((b,bi)=>{
       const top=timeToTop(b.time),p=document.createElement('div');
-      if(b.color){p.className='bp';p.style.cssText=`background:${b.color};color:#fff;border:1px solid rgba(255,255,255,0.15);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
+      if(b.color){p.className='bp';const tc=getTextColor(b.color);p.style.cssText=`background:${b.color};color:${tc};border:1px solid rgba(0,0,0,0.12);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
       else{p.className='bp '+(TMAP[b.type]||'mp');p.style.top=(top!==null?top:4)+'px';p.style.height=(b.duration||60)/60*HOUR_H+'px';}
       const doneClass=b.done?' done-block':'';
       p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
@@ -1345,7 +1348,7 @@ function editBlock(k,idx,e){
 // ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
 function SP(p){
   selPri=p;
-  const m={Low:'sl',Medium:'sm2',High:'sh','FRD Done':'sf'};
+  const m={Low:'sp-lo',Medium:'sm2',High:'sh','FRD Done':'sf'};
   document.querySelectorAll('.prp').forEach(el=>{
     el.className='prp';
     const k=el.id.replace('pri-','').replace('FRD','FRD Done');
@@ -1765,7 +1768,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .c-ni.sc{background:var(--red-light);color:var(--red);}
   .po2{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
   .prp{font-size:12px;padding:4px 12px;border-radius:99px;border:0.5px solid var(--border);cursor:pointer;color:var(--text-secondary);background:var(--bg-secondary);}
-  .prp.sl{background:var(--green-light);color:#27500A;border-color:transparent;}
+  .prp.sp-lo{background:var(--green-light);color:#27500A;border-color:transparent;}
   .prp.sm2{background:var(--amber-light);color:var(--amber);border-color:transparent;}
   .prp.sh{background:var(--red-light);color:var(--red);border-color:transparent;}
   .prp.sf{background:var(--amber-light);color:var(--amber);border-color:transparent;}
@@ -1777,8 +1780,10 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .nbl{display:flex;align-items:center;gap:10px;}
   .nbi{width:28px;height:28px;background:var(--gray-light);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--gray);flex-shrink:0;}
   .nbt{font-size:13px;font-weight:500;}.nbs{font-size:11px;color:var(--text-tertiary);margin-top:1px;}
-  .obtn{background:var(--gray-light);border:0.5px solid var(--border-hover);border-radius:var(--radius-md);padding:6px 14px;font-size:12px;font-weight:500;color:var(--gray);cursor:pointer;font-family:var(--font);}
-  .obtn:hover{background:#D3D1C7;}
+  .obtn{background:var(--glass-02);border:0.5px solid var(--glass-border-bright);border-radius:var(--radius-md);padding:6px 14px;font-size:12px;font-weight:500;color:var(--blue-bright);cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+  .obtn:hover{background:var(--glass-03);color:#fff;}
+  input[type="date"].inp{color-scheme:dark;}
+  input[type="date"].inp::-webkit-calendar-picker-indicator{filter:invert(0.7) sepia(1) saturate(3) hue-rotate(130deg);cursor:pointer;}
   /* Home widgets */
   .wgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
   .wgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
@@ -1804,7 +1809,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .w-sl{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;}
   .w-ss{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
   .w-section{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
-  .w-trow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);}
+  .w-trow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);min-width:0;overflow:hidden;}
   .w-trow:last-child{border-bottom:none;}
   .w-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
   .dot-work{background:var(--blue-mid);}.dot-stream{background:#7F77DD;}.dot-home{background:var(--green);}
@@ -2157,7 +2162,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
     <!-- RECAP -->
     <div class="pane" id="pane-recap">
       <div class="si"><div class="st2 active" id="step1"><div class="sd">1</div><span>Details</span></div><div class="sl2"></div><div class="st2" id="step2"><div class="sd">2</div><span>Transcript</span></div><div class="sl2"></div><div class="st2" id="step3"><div class="sd">3</div><span>Generate</span></div></div>
-      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees</div><input class="inp fi" id="r-attendees" placeholder="e.g. John Smith" /></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
+      <div id="recap-step-1"><div class="card"><div class="sl" style="margin-bottom:12px">meeting details</div><div class="fg"><div class="fl">Client</div><select class="sel fi" id="r-client"><option>Harford Claims</option><option>Harford UW</option><option>Frankenmuth UW</option><option>Merchants UW</option><option>Merchants Claims</option><option>Markel Claims</option><option>MSI Claims</option><option>Emerald Bay UW</option><option>Other</option></select></div><div class="cr2"><div class="fg"><div class="fl">Date</div><input class="inp fi" id="r-date" type="date" /></div><div class="fg"><div class="fl">Session type</div><select class="sel fi" id="r-type"><option>Onboarding</option><option>Check-in</option><option>Training</option><option>Review</option><option>Kickoff</option></select></div></div><div class="cr2"><div class="fg"><div class="fl">Session number / name</div><input class="inp fi" id="r-session" placeholder="e.g. Session One" /></div><div class="fg"><div class="fl">Attendees <span style="font-size:10px;opacity:0.6">(one per line or comma-separated)</span></div><textarea class="inp fi" id="r-attendees" placeholder="e.g. John Smith&#10;Jane Doe" rows="3" style="resize:none;line-height:1.5"></textarea></div></div><button class="btn btn-p" onclick="RN(1)" style="margin-top:4px">Next: add transcript →</button></div></div>
       <div id="recap-step-2" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">transcript</div><div class="st"><div class="sta active" id="src-tab-upload" onclick="SS('upload')">Import .docx</div><div class="sta" id="src-tab-paste" onclick="SS('paste')">Paste text</div><div class="sta" id="src-tab-none" onclick="SS('none')">No transcript</div></div><div id="src-upload"><div class="uz" id="upload-zone" onclick="document.getElementById('docx-file-input').click()" ondragover="event.preventDefault();this.classList.add('dv')" ondragleave="this.classList.remove('dv')" ondrop="HD(event)"><div id="upload-inner"><div style="font-size:20px;margin-bottom:6px">📂</div><div class="um">Click to upload or drag and drop</div><div class="us">.docx transcript file</div></div></div><input type="file" id="docx-file-input" accept=".docx" style="display:none" onchange="HF(event)" /><div id="transcript-preview-wrap" style="display:none"><div class="tp" id="transcript-preview"></div><button class="btn btn-d btn-sm" onclick="CT()" style="margin-bottom:8px">Remove file</button></div><div class="sm" id="upload-status"></div></div><div id="src-paste" style="display:none"><textarea class="inp fta" id="r-notes-paste" placeholder="Paste transcript or notes..." style="min-height:100px;width:100%"></textarea></div><div id="src-none" style="display:none"><div style="font-size:13px;color:var(--text-secondary);padding:8px 0">A structured stub will be generated.</div></div></div><div style="display:flex;gap:8px"><button class="btn" onclick="RB(2)">← Back</button><button class="btn btn-p" onclick="RN(2)">Next: generate →</button></div></div>
       <div id="recap-step-3" style="display:none"><div class="card"><div class="sl" style="margin-bottom:10px">ready to generate</div><div id="recap-summary" style="font-size:13px;color:var(--text-secondary);line-height:1.7"></div></div><div id="recap-generating" style="display:none" class="rg"><span class="spn"></span><span style="font-size:13px;color:var(--text-secondary)" id="recap-gen-msg">Parsing transcript...</span></div><div style="display:flex;gap:8px" id="recap-actions"><button class="btn" onclick="RB(3)">← Back</button><button class="btn btn-p" onclick="GR()">Generate .docx ↗</button></div><div class="sm" id="recap-status"></div></div>
     </div>
@@ -2352,7 +2357,7 @@ function renderHomeWidgets(){
   document.getElementById('stat-week-sub').textContent = weekTotal + ' this week';
   document.getElementById('w-sched-list').innerHTML = todayBlocks.length
     ? todayBlocks.map(b=>{
-        const style=b.color?`background:${b.color};color:#fff;border:1px solid rgba(255,255,255,0.15)`:'';
+        const style=b.color?`background:${b.color};color:${getTextColor(b.color)};border:1px solid rgba(0,0,0,0.12)`:'';
         const cls=b.color?'':TMAP2[b.type]||'bm2';
         return `<div class="w-brow"><span class="w-btime">${b.time}</span><span class="w-btitle">${b.title}</span><span class="w-btag ${cls}" style="${style}">${b.type}</span></div>`;
       }).join('')
@@ -2446,6 +2451,7 @@ async function confirmNT(){
 function dKey(d){return d.toISOString().split('T')[0];}
 function GWS(off){const d=new Date();d.setDate(d.getDate()-d.getDay()+off*7);d.setHours(0,0,0,0);return d;}
 const HOUR_H=64,CAL_START=6,CAL_END=22;
+function getTextColor(hex){if(!hex||!hex.startsWith('#'))return'#fff';const c=hex.replace('#','');const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return(r*299+g*587+b*114)/1000>140?'#111':'#fff';}
 function parseTime(s){if(!s)return null;const m=s.match(/(\d+):(\d+)\s*(am|pm)/i);if(!m)return null;let h=parseInt(m[1]),min=parseInt(m[2]),ap=m[3].toUpperCase();if(ap==='PM'&&h!==12)h+=12;if(ap==='AM'&&h===12)h=0;return h*60+min;}
 function timeToTop(s){const mins=parseTime(s);if(mins===null)return null;return(mins-CAL_START*60)/60*HOUR_H;}
 function minsToTimeStr(mins){const h=Math.floor(mins/60),m=mins%60,ap=h>=12?'PM':'AM',h12=h===0?12:h>12?h-12:h;return`${h12}:${m.toString().padStart(2,'0')} ${ap}`;}
@@ -2494,7 +2500,7 @@ function RW(){
     });
     [...blks].sort((a,b)=>a.time.localeCompare(b.time)).forEach((b,bi)=>{
       const top=timeToTop(b.time),p=document.createElement('div');
-      if(b.color){p.className='bp';p.style.cssText=`background:${b.color};color:#fff;border:1px solid rgba(255,255,255,0.15);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
+      if(b.color){p.className='bp';const tc=getTextColor(b.color);p.style.cssText=`background:${b.color};color:${tc};border:1px solid rgba(0,0,0,0.12);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
       else{p.className='bp '+(TMAP[b.type]||'mp');p.style.top=(top!==null?top:4)+'px';p.style.height=(b.duration||60)/60*HOUR_H+'px';}
       const doneClass=b.done?' done-block':'';
       p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
@@ -2659,7 +2665,7 @@ function editBlock(k,idx,e){
 // ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
 function SP(p){
   selPri=p;
-  const m={Low:'sl',Medium:'sm2',High:'sh','FRD Done':'sf'};
+  const m={Low:'sp-lo',Medium:'sm2',High:'sh','FRD Done':'sf'};
   document.querySelectorAll('.prp').forEach(el=>{
     el.className='prp';
     const k=el.id.replace('pri-','').replace('FRD','FRD Done');
