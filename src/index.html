@@ -41,9 +41,9 @@
 
   /* Text */
   --text-primary: #e8f0ff;
-  --text-secondary: rgba(180,200,255,0.7);
-  --text-tertiary: rgba(120,150,210,0.5);
-  --text-muted: rgba(80,110,170,0.4);
+  --text-secondary: rgba(190,210,255,0.82);
+  --text-tertiary: rgba(160,185,235,0.7);
+  --text-muted: rgba(140,165,220,0.55);
 
   /* Radius */
   --radius-sm: 6px;
@@ -165,8 +165,17 @@ body {
 .main::-webkit-scrollbar-thumb { background: var(--glass-03); border-radius: 4px; }
 
 .greeting { font-size: 24px; font-weight: 600; margin-bottom: 2px; letter-spacing: -0.02em; }
+.type-cursor { color: #00c4a7; animation: type-blink 0.7s step-end infinite; }
+@keyframes type-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.type-cursor-fade { animation: type-cursor-out 0.5s ease forwards; }
+@keyframes type-cursor-out { to { opacity: 0; } }
 .dateline { font-size: 12px; color: var(--text-tertiary); margin-bottom: 22px; letter-spacing: 0.02em; }
-.pane { display: none; } .pane.active { display: block; }
+.pane { display: none; }
+.pane.active { display: block; animation: pane-in 0.22s ease; }
+@keyframes pane-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* ── Section label ─────────────────────────────────────────────────────── */
 .sl { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
@@ -453,6 +462,64 @@ input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) 
 }
 .widget:hover { border-color: rgba(0,196,167,0.22); box-shadow: 0 4px 24px rgba(0,196,167,0.06); }
 .widget-weather { background: transparent !important; border-color: transparent !important; }
+/* Widget hover — shine, tiles, lines */
+.widget { position: relative; overflow: hidden; }
+.widget > *:not(.w-bg):not(.w-shine) { position: relative; z-index: 2; }
+.widget .w-shine {
+  position: absolute; inset: 0; z-index: 3; border-radius: inherit;
+  padding: 1px; opacity: 0; transition: opacity 0.4s; pointer-events: none;
+  background: radial-gradient(
+    350px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(0, 220, 190, 0.9),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.widget:hover .w-shine { opacity: 1; }
+.widget .w-bg {
+  position: absolute; inset: 0; z-index: 0; border-radius: inherit;
+  overflow: hidden; pointer-events: none;
+}
+.widget .w-tiles { opacity: 0; transition: opacity .25s; width: 100%; height: 100%; position: relative; }
+.widget:hover .w-tiles { opacity: 1; transition-delay: .25s; }
+.widget .w-tile {
+  position: absolute; background-color: rgba(0,196,167,0.07);
+  animation-duration: 8s; animation-iteration-count: infinite; opacity: 0;
+}
+.widget:hover .w-tile { animation-name: w-tile-anim; }
+.widget .w-tile:nth-child(4),.widget .w-tile:nth-child(6),.widget .w-tile:nth-child(10){animation-delay:-2s}
+.widget .w-tile:nth-child(3),.widget .w-tile:nth-child(5),.widget .w-tile:nth-child(8){animation-delay:-4s}
+.widget .w-tile:nth-child(2),.widget .w-tile:nth-child(9){animation-delay:-6s}
+.widget .w-tile:nth-child(1){top:0;left:0;height:10%;width:22.5%}
+.widget .w-tile:nth-child(2){top:0;left:22.5%;height:10%;width:27.5%}
+.widget .w-tile:nth-child(3){top:0;left:50%;height:10%;width:27.5%}
+.widget .w-tile:nth-child(4){top:0;left:77.5%;height:10%;width:22.5%}
+.widget .w-tile:nth-child(5){top:10%;left:0;height:22.5%;width:22.5%}
+.widget .w-tile:nth-child(6){top:10%;left:22.5%;height:22.5%;width:27.5%}
+.widget .w-tile:nth-child(7){top:10%;left:50%;height:22.5%;width:27.5%}
+.widget .w-tile:nth-child(8){top:10%;left:77.5%;height:22.5%;width:22.5%}
+.widget .w-tile:nth-child(9){top:32.5%;left:50%;height:22.5%;width:27.5%}
+.widget .w-tile:nth-child(10){top:32.5%;left:77.5%;height:22.5%;width:22.5%}
+@keyframes w-tile-anim{0%,12.5%,100%{opacity:1}25%,82.5%{opacity:0}}
+.widget .w-line { position: absolute; inset: 0; opacity: 0; transition: opacity .35s; }
+.widget:hover .w-line { opacity: 1; transition-duration: .15s; }
+.widget .w-line::before,.widget .w-line::after {
+  content: ''; position: absolute; background: rgba(0,196,167,0.2); transition: transform .35s;
+}
+.widget .w-line::before { left:0; right:0; height:1px; transform-origin:0 50%; transform:scaleX(0); }
+.widget .w-line::after  { top:0; bottom:0; width:1px; transform-origin:50% 0; transform:scaleY(0); }
+.widget:hover .w-line::before { transform: scaleX(1); }
+.widget:hover .w-line::after  { transform: scaleY(1); }
+.widget .w-line-1::before{top:10%} .widget .w-line-1::after{left:22.5%}
+.widget .w-line-1::before,.widget .w-line-1::after{transition-delay:.3s}
+.widget .w-line-2::before{top:32.5%} .widget .w-line-2::after{left:50%}
+.widget .w-line-2::before,.widget .w-line-2::after{transition-delay:.15s}
+.widget .w-line-3::before{top:55%} .widget .w-line-3::after{right:22.5%;left:auto}
+.widget:hover .w-line-1::before,.widget:hover .w-line-1::after{transition-delay:0s}
+.widget:hover .w-line-2::before,.widget:hover .w-line-2::after{transition-delay:.15s}
+.widget:hover .w-line-3::before,.widget:hover .w-line-3::after{transition-delay:.3s}
 .w-dt { display: flex; align-items: center; justify-content: space-between; }
 .w-day { font-size: 22px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
 .w-month { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
@@ -504,17 +571,166 @@ input[type="date"].inp::-webkit-calendar-picker-indicator { filter: invert(0.7) 
 
 /* ── Notion integration card ───────────────────────────────────────────── */
 #pane-settings code { font-family: var(--font-mono); font-size: 11px; background: var(--glass-03); padding: 1px 5px; border-radius: 3px; }
+
+/* ── Background aurora ────────────────────────────────────────────── */
+@property --bg-sweep {
+  syntax: '<angle>'; inherits: false; initial-value: 0deg;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: conic-gradient(
+    from var(--bg-sweep) at 25% 70%,
+    transparent 0deg, rgba(0,196,167,0.04) 50deg, transparent 100deg,
+    transparent 260deg, rgba(0,196,167,0.025) 310deg, transparent 360deg
+  );
+  animation: bg-sweep 55s linear infinite;
+}
+@keyframes bg-sweep { to { --bg-sweep: 360deg; } }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+.orb-1 {
+  width: 900px; height: 900px;
+  background: radial-gradient(circle, rgba(0,140,115,0.38) 0%, transparent 70%);
+  top: -300px; left: -200px;
+  animation: orb1 24s ease-in-out infinite alternate;
+}
+.orb-2 {
+  width: 650px; height: 650px;
+  background: radial-gradient(circle, rgba(0,200,170,0.2) 0%, transparent 70%);
+  bottom: -180px; right: -80px;
+  animation: orb2 31s ease-in-out infinite alternate;
+}
+.orb-3 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(80,60,200,0.13) 0%, transparent 70%);
+  top: 20%; right: -80px;
+  animation: orb3 19s ease-in-out infinite alternate;
+}
+.orb-4 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(0,180,150,0.13) 0%, transparent 70%);
+  bottom: 10%; left: 18%;
+  animation: orb4 27s ease-in-out infinite alternate;
+}
+.orb-5 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(0,230,200,0.08) 0%, transparent 70%);
+  top: 50%; left: 42%;
+  animation: orb5 35s ease-in-out infinite alternate;
+}
+@keyframes orb1 { to { transform: translate(100px, -130px) scale(1.08); } }
+@keyframes orb2 { to { transform: translate(-90px,  110px) scale(1.1);  } }
+@keyframes orb3 { to { transform: translate(-120px,  85px) scale(1.15); } }
+@keyframes orb4 { to { transform: translate( 75px,  -70px) scale(0.9);  } }
+@keyframes orb5 { to { transform: translate(-95px, -110px) scale(1.1);  } }
+/* Sonar pulse canvas */
+#sonar-bg { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+
+/* ── Toast notifications ────────────────────────────────────────────────── */
+#toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast {
+  background: linear-gradient(135deg, rgba(5,15,25,0.97), rgba(4,12,20,0.99));
+  border: 1px solid rgba(0,196,167,0.28);
+  border-radius: 10px; padding: 11px 16px;
+  font-size: 13px; color: var(--text-primary);
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 24px rgba(0,196,167,0.06);
+  backdrop-filter: blur(16px);
+  animation: toast-in 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  pointer-events: auto; min-width: 200px;
+}
+.toast.out { animation: toast-out 0.22s ease forwards; }
+.toast-icon { font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.toast.toast-error { border-color: rgba(255,107,107,0.32); }
+@keyframes toast-in { from { opacity:0; transform:translateX(20px) scale(0.94); } to { opacity:1; transform:translateX(0) scale(1); } }
+@keyframes toast-out { to { opacity:0; transform:translateX(16px) scale(0.94); } }
+
+/* ── Pomo ring pulse when running ──────────────────────────────────────── */
+@keyframes pomo-pulse { 0%,100% { filter:drop-shadow(0 0 10px rgba(0,196,167,0.75)); } 50% { filter:drop-shadow(0 0 22px rgba(0,196,167,1)) drop-shadow(0 0 8px rgba(0,230,200,0.6)); } }
+#pomo-ring.running { animation: pomo-pulse 2s ease-in-out infinite; }
+
+/* ── Greeting parallax ──────────────────────────────────────────────────── */
+.greeting, .dateline { transition: transform 0.12s ease-out; will-change: transform; }
+
+/* ── Non-home tab design refresh ───────────────────────────────────────── */
+/* Cards get a real glass treatment */
+.card {
+  background: linear-gradient(145deg, rgba(0,196,167,0.04) 0%, rgba(5,13,20,0.75) 60%, rgba(4,10,16,0.85) 100%);
+  border: 1px solid rgba(0,196,167,0.1);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+/* Section labels — teal accent divider */
+.sl {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(0,210,180,0.65);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0,196,167,0.1);
+}
+/* Inputs — lighter, more glass */
+.inp {
+  background: rgba(0,196,167,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+}
+.inp:focus {
+  border-color: rgba(0,196,167,0.4);
+  background: rgba(0,196,167,0.05);
+  box-shadow: 0 0 0 3px rgba(0,196,167,0.08);
+}
+/* Selects */
+.sel {
+  background: rgba(0,196,167,0.03);
+  border: 1px solid rgba(255,255,255,0.09);
+}
+/* Default buttons */
+.btn {
+  background: rgba(0,196,167,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+}
+.btn:hover {
+  background: rgba(0,196,167,0.09);
+  border-color: rgba(0,196,167,0.25);
+}
+/* Jira accordion sections */
+.js {
+  border: 1px solid rgba(0,196,167,0.1);
+  background: linear-gradient(145deg, rgba(0,196,167,0.03) 0%, rgba(5,13,20,0.6) 100%);
+  border-radius: var(--radius-md);
+}
+.js:hover { border-color: rgba(0,196,167,0.2); }
+.jsh { background: transparent; }
+.jsbd { border-top: 1px solid rgba(0,196,167,0.08); }
+/* Recap source tabs */
+.st { border: 1px solid rgba(0,196,167,0.1); background: rgba(0,0,0,0.2); }
+.sta { background: transparent; }
+.sta.active { background: rgba(0,196,167,0.12); color: #00c4a7; }
+/* Recap status / generating box */
+.rg { background: rgba(0,196,167,0.03); border: 1px solid rgba(0,196,167,0.1); }
+/* Transcript preview */
+.tp { background: rgba(0,0,0,0.25); border: 1px solid rgba(0,196,167,0.08); }
+/* Generated story output */
+.story-out { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,196,167,0.1); }
+/* Schedule nav buttons */
+.wnb { background: rgba(0,196,167,0.04); border: 1px solid rgba(0,196,167,0.1); color: var(--text-primary); }
+.wnb:hover { background: rgba(0,196,167,0.09); border-color: rgba(0,196,167,0.28); }
+/* Schedule calendar header */
+.cal-header-row { background: transparent; border-bottom: 1px solid rgba(0,196,167,0.1); }
+/* Notion bar polish */
+.notion-bar { border-color: rgba(0,196,167,0.18); }
 </style>
 </head>
 <body>
-<!-- Ambient background orbs -->
+<!-- Ambient aurora background -->
+<canvas id="sonar-bg"></canvas>
 <div style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
-  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,100,85,0.3) 0%,transparent 70%);top:-200px;left:-100px;animation:orbFloat 18s ease-in-out infinite alternate"></div>
-  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,150,0.15) 0%,transparent 70%);bottom:-100px;right:100px;animation:orbFloat 22s ease-in-out infinite alternate-reverse"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
 </div>
-<style>
-@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
-</style>
 <div class="titlebar" style="position:relative;z-index:10"></div>
 <div class="layout" style="position:relative;z-index:1">
   <div class="sidebar">
@@ -985,7 +1201,18 @@ function openExt(url){window.open(url,'_blank');}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 const now = new Date(), hh = now.getHours();
-document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + '';
+(function(){
+  const text = hh<12?'Good morning':hh<17?'Good afternoon':'Good evening';
+  const els = document.querySelectorAll('#greeting');
+  els.forEach(el => el.innerHTML = '');
+  let i = 0;
+  function tick() {
+    els.forEach(el => el.innerHTML = text.slice(0, i) + '<span class="type-cursor">|</span>');
+    if (i < text.length) { i++; setTimeout(tick, 65); }
+    else { setTimeout(() => els.forEach(el => { const c = el.querySelector('.type-cursor'); if (c) c.classList.add('type-cursor-fade'); }), 1800); }
+  }
+  tick();
+})();
 document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
 document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
@@ -1097,6 +1324,7 @@ function addTask(){
   tasks.unshift({text,tag,done:false});
   inp.value='';
   save();RT();renderHomeWidgets();
+  showToast('Task added');
 }
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
@@ -1280,6 +1508,7 @@ function saveBlock(){
     wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor});
   }
   save(); closeBM(); RW(); renderHomeWidgets();
+  showToast(pendEditRealIdx!==null ? 'Block updated' : 'Block added');
 }
 function toggleBlock(k,idx,e){
   e.stopPropagation(); if(!wBlocks[k])return;
@@ -1598,7 +1827,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .main{flex:1;overflow-y:auto;padding:24px 28px;}
   .greeting{font-size:22px;font-weight:500;margin-bottom:4px;}
   .dateline{font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
-  .pane{display:none;}.pane.active{display:block;}
+  .pane{display:none;}.pane.active{display:block;animation:pane-in 0.22s ease;}@keyframes pane-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
   .sl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px;}
   .card{background:transparent;border:none;border-radius:var(--radius-lg);padding:0;margin-bottom:24px;}
   .inp{background:var(--bg-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:7px 10px;font-size:13px;color:var(--text-primary);font-family:var(--font);outline:none;appearance:none;-webkit-appearance:none;}
@@ -1794,17 +2023,54 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .ol-ev{background:rgba(0,120,212,0.2);border-left:3px solid #2196f3;border-radius:6px;padding:5px 8px;margin-bottom:4px;color:#fff;}
   .w-empty{font-size:12px;color:var(--text-tertiary);padding:4px 0;}
   .clickable{cursor:pointer;}.clickable:hover{opacity:.85;}
+
+  /* ── Toast + pomo + parallax ────────────────────────────────────────────── */
+  #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+  .toast{background:linear-gradient(135deg,rgba(5,15,25,0.97),rgba(4,12,20,0.99));border:1px solid rgba(0,196,167,0.28);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 24px rgba(0,196,167,0.06);backdrop-filter:blur(16px);animation:toast-in 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards;pointer-events:auto;min-width:200px;}
+  .toast.out{animation:toast-out 0.22s ease forwards;}
+  .toast-icon{font-size:13px;font-weight:700;flex-shrink:0;}
+  .toast.toast-error{border-color:rgba(255,107,107,0.32);}
+  @keyframes toast-in{from{opacity:0;transform:translateX(20px) scale(0.94);}to{opacity:1;transform:translateX(0) scale(1);}}
+  @keyframes toast-out{to{opacity:0;transform:translateX(16px) scale(0.94);}}
+  @keyframes pomo-pulse{0%,100%{filter:drop-shadow(0 0 10px rgba(0,196,167,0.75));}50%{filter:drop-shadow(0 0 22px rgba(0,196,167,1)) drop-shadow(0 0 8px rgba(0,230,200,0.6));}}
+  #pomo-ring.running{animation:pomo-pulse 2s ease-in-out infinite;}
+  .greeting,.dateline{transition:transform 0.12s ease-out;will-change:transform;}
+
+  /* ── Non-home tab design refresh ───────────────────────────────────────── */
+  .card{background:linear-gradient(145deg,rgba(0,196,167,0.04) 0%,rgba(5,13,20,0.92) 55%,rgba(4,10,16,0.96) 100%);border:1px solid rgba(0,196,167,0.1);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:18px;backdrop-filter:blur(12px);}
+  .sl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(0,210,180,0.65);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(0,196,167,0.1);}
+  .inp{background:rgba(0,196,167,0.03);border:1px solid rgba(255,255,255,0.09);}
+  .inp::placeholder{color:rgba(140,165,220,0.55);}
+  .inp:focus{border-color:rgba(0,196,167,0.4);background:rgba(0,196,167,0.05);box-shadow:0 0 0 3px rgba(0,196,167,0.08);}
+  .sel{background:rgba(0,196,167,0.03);border:1px solid rgba(255,255,255,0.09);}
+  .btn{background:rgba(0,196,167,0.04);border:1px solid rgba(255,255,255,0.09);}
+  .btn:hover{background:rgba(0,196,167,0.09);border-color:rgba(0,196,167,0.25);}
+  .js{border:1px solid rgba(0,196,167,0.1);background:linear-gradient(145deg,rgba(0,196,167,0.03) 0%,rgba(5,13,20,0.6) 100%);border-radius:var(--radius-md);}
+  .js:hover{border-color:rgba(0,196,167,0.2);}
+  .jsh{background:transparent;}
+  .jsbd{border-top:1px solid rgba(0,196,167,0.08);}
+  .st{border:1px solid rgba(0,196,167,0.1);background:rgba(0,0,0,0.2);}
+  .sta{background:transparent;}
+  .sta.active{background:rgba(0,196,167,0.12);color:#00c4a7;}
+  .rg{background:rgba(0,196,167,0.03);border:1px solid rgba(0,196,167,0.1);}
+  .tp{background:rgba(0,0,0,0.25);border:1px solid rgba(0,196,167,0.08);}
+  .story-out{background:rgba(0,0,0,0.3);border:1px solid rgba(0,196,167,0.1);}
+  .wnb{background:rgba(0,196,167,0.04);border:1px solid rgba(0,196,167,0.1);color:var(--text-primary);}
+  .wnb:hover{background:rgba(0,196,167,0.09);border-color:rgba(0,196,167,0.28);}
+  .cal-header-row{background:transparent;border-bottom:1px solid rgba(0,196,167,0.1);}
+  .notion-bar{border-color:rgba(0,196,167,0.18);}
 </style>
 </head>
 <body>
-<!-- Ambient background orbs -->
+<!-- Ambient aurora background -->
+<canvas id="sonar-bg"></canvas>
 <div style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
-  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,100,85,0.3) 0%,transparent 70%);top:-200px;left:-100px;animation:orbFloat 18s ease-in-out infinite alternate"></div>
-  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,150,0.15) 0%,transparent 70%);bottom:-100px;right:100px;animation:orbFloat 22s ease-in-out infinite alternate-reverse"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
 </div>
-<style>
-@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.1)}}
-</style>
 <div class="titlebar" style="position:relative;z-index:10"></div>
 <div class="layout">
   <div class="sidebar">
@@ -2275,7 +2541,18 @@ function openExt(url){window.open(url,'_blank');}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 const now = new Date(), hh = now.getHours();
-document.getElementById('greeting').textContent = (hh<12?'Good morning':hh<17?'Good afternoon':'Good evening') + '';
+(function(){
+  const text = hh<12?'Good morning':hh<17?'Good afternoon':'Good evening';
+  const els = document.querySelectorAll('#greeting');
+  els.forEach(el => el.innerHTML = '');
+  let i = 0;
+  function tick() {
+    els.forEach(el => el.innerHTML = text.slice(0, i) + '<span class="type-cursor">|</span>');
+    if (i < text.length) { i++; setTimeout(tick, 65); }
+    else { setTimeout(() => els.forEach(el => { const c = el.querySelector('.type-cursor'); if (c) c.classList.add('type-cursor-fade'); }), 1800); }
+  }
+  tick();
+})();
 document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 try{document.getElementById('r-date').value = now.toISOString().split('T')[0];}catch(e){}
 document.getElementById('w-day').textContent = DAYS_FULL[now.getDay()];
@@ -2387,6 +2664,7 @@ function addTask(){
   tasks.unshift({text,tag,done:false});
   inp.value='';
   save();RT();renderHomeWidgets();
+  showToast('Task added');
 }
 
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
@@ -2570,6 +2848,7 @@ function saveBlock(){
     wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor});
   }
   save(); closeBM(); RW(); renderHomeWidgets();
+  showToast(pendEditRealIdx!==null ? 'Block updated' : 'Block added');
 }
 function toggleBlock(k,idx,e){
   e.stopPropagation(); if(!wBlocks[k])return;
@@ -2888,7 +3167,8 @@ async function saveWeatherLocation(){
     fetch('http://127.0.0.1:3847/save-data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weatherLocation:weatherConfig})}).catch(()=>{});
     await refreshWeather();
     status.textContent = '✓ Updated to ' + weatherConfig.city;
-  } catch(e){ status.textContent='Error: '+e.message; status.className='sm err'; }
+    showToast('Location updated to ' + weatherConfig.city);
+  } catch(e){ status.textContent='Error: '+e.message; status.className='sm err'; showToast(e.message,'error'); }
 }
 function clearWeatherLocation(){
   weatherConfig = { city:'Hendersonville, NC', lat:35.3173, lng:-82.4607, tz:'America/New_York' };
@@ -3179,6 +3459,19 @@ function pomoRender(){
   if(rEl){
     rEl.style.strokeDashoffset = circ * (1 - frac);
     rEl.style.stroke = POMO_COLORS[phase];
+    rEl.classList.toggle('running', running);
+    // Tip dot — inject once, then update position
+    const svg = rEl.closest('svg');
+    if(svg){
+      let tip = svg.querySelector('#pomo-tip');
+      if(!tip){ tip=document.createElementNS('http://www.w3.org/2000/svg','circle'); tip.id='pomo-tip'; tip.setAttribute('r','6'); tip.style.transition='opacity 0.3s'; svg.appendChild(tip); }
+      const angle = frac * 2 * Math.PI;
+      tip.setAttribute('cx', (100 + 88 * Math.cos(angle)).toFixed(2));
+      tip.setAttribute('cy', (100 + 88 * Math.sin(angle)).toFixed(2));
+      tip.setAttribute('fill', POMO_COLORS[phase]);
+      tip.style.filter = `drop-shadow(0 0 5px ${POMO_COLORS[phase]})`;
+      tip.style.opacity = (frac > 0.01 && frac < 0.999) ? '1' : '0';
+    }
   }
   if(lEl) lEl.textContent = POMO_LABELS[phase];
   const liEl=document.getElementById('pomo-label-inner');
@@ -3276,6 +3569,19 @@ if(pomoState.running){ pomoState.running=false; pomoRender(); }
 else { pomoRender(); }
 // ── END POMODORO ──────────────────────────────────────────────────────────────
 
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type='success'){
+  let c=document.getElementById('toast-container');
+  if(!c){c=document.createElement('div');c.id='toast-container';document.body.appendChild(c);}
+  const icon = type==='error'?'✕':'✓';
+  const color = type==='error'?'var(--red)':'#00c4a7';
+  const t=document.createElement('div');
+  t.className='toast'+(type==='error'?' toast-error':'');
+  t.innerHTML=`<span class="toast-icon" style="color:${color}">${icon}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); t.addEventListener('animationend',()=>t.remove(),{once:true}); },3000);
+}
+
 function populateTimeSelect(){
   const drop=document.getElementById('tp-drop');
   if(!drop||drop.children.length>0)return;
@@ -3306,13 +3612,119 @@ function setBlockTime(val){
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.tp-wrap'))document.getElementById('tp-drop')&&document.getElementById('tp-drop').classList.remove('open');});
 
+function initSonar() {
+  const canvas = document.getElementById('sonar-bg');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let rings = [];
+  const SPEED = 52;
+  const SPAWN_INTERVAL = 3200;
+  const COLOR = '0, 196, 167';
+  let lastSpawn = 0;
+  let lastFrame = null;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function origin() {
+    return { x: canvas.width * 0.12, y: canvas.height * 0.88 };
+  }
+
+  function spawnRing(ts) {
+    const o = origin();
+    rings.push({ x: o.x, y: o.y, r: 0, born: ts });
+  }
+
+  function frame(ts) {
+    if (lastFrame === null) lastFrame = ts;
+    const dt = (ts - lastFrame) / 1000;
+    lastFrame = ts;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (ts - lastSpawn > SPAWN_INTERVAL) {
+      spawnRing(ts);
+      lastSpawn = ts;
+    }
+
+    const maxR = Math.hypot(canvas.width, canvas.height) * 0.75;
+
+    rings = rings.filter(ring => ring.r < maxR);
+    rings.forEach(ring => {
+      ring.r += SPEED * dt;
+      const progress = ring.r / maxR;
+      const alpha = progress < 0.12
+        ? (progress / 0.12) * 0.35
+        : 0.35 * (1 - (progress - 0.12) / 0.88);
+
+      ctx.beginPath();
+      ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${COLOR}, ${Math.max(0, alpha).toFixed(3)})`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  spawnRing(0);
+  lastSpawn = 0;
+  requestAnimationFrame(frame);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initSonar();
+
+  // ── Greeting parallax ────────────────────────────────────────────────────
+  const mainEl = document.querySelector('.main');
+  if(mainEl){
+    let ticking = false;
+    mainEl.addEventListener('mousemove', e => {
+      if(ticking) return; ticking=true; requestAnimationFrame(()=>{
+        const r = mainEl.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+        const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+        document.querySelectorAll('#greeting, #dateline').forEach(el => {
+          el.style.transform = `translate(${(dx*11).toFixed(1)}px, ${(dy*7).toFixed(1)}px)`;
+        });
+        ticking=false;
+      });
+    });
+    mainEl.addEventListener('mouseleave', () => {
+      document.querySelectorAll('#greeting, #dateline').forEach(el => {
+        el.style.transition = 'transform 0.9s cubic-bezier(0.22,1,0.36,1)';
+        el.style.transform = 'translate(0,0)';
+        setTimeout(()=>{ el.style.transition='transform 0.12s ease-out'; },900);
+      });
+    });
+  }
+
   // Load persisted data from disk first, then refresh UI
   loadPersistedData();
   populateTimeSelect();
   // Live weather — fetch now and refresh every 30 minutes
   refreshWeather();
   setInterval(refreshWeather, 30 * 60 * 1000);
+  // Inject widget hover decoration into all home pane widgets
+  document.querySelectorAll('#pane-home .widget:not(.widget-weather)').forEach(w => {
+    if (w.querySelector('.w-bg')) return; // already injected
+    const shine = document.createElement('div'); shine.className = 'w-shine';
+    const bg = document.createElement('div'); bg.className = 'w-bg';
+    const tiles = document.createElement('div'); tiles.className = 'w-tiles';
+    for (let i = 0; i < 10; i++) { const t = document.createElement('div'); t.className = 'w-tile'; tiles.appendChild(t); }
+    bg.appendChild(tiles);
+    ['w-line-1','w-line-2','w-line-3'].forEach(c => { const l = document.createElement('div'); l.className = 'w-line '+c; bg.appendChild(l); });
+    w.prepend(bg, shine);
+    w.addEventListener('mousemove', e => {
+      const r = w.getBoundingClientRect();
+      w.style.setProperty('--mouse-x', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+      w.style.setProperty('--mouse-y', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+    });
+  });
   RT(); RW(); renderHomeWidgets(); setStep(1);
   ['behavior','permissions','technical','edge','acceptance'].forEach(s=>RB2(s));
   const savedEl=document.getElementById('settings-saved'); if(savedEl&&localStorage.getItem('notion_token')) savedEl.textContent='Token saved ✓';
