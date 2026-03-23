@@ -336,7 +336,7 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .cal-now-dot { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #00c4a7; }
 .dc { position: relative; border-left: 0.5px solid var(--border); }
 .dc.today { background: rgba(0,196,167,0.02); }
-.bp { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 3px 6px; font-size: 11px; overflow: hidden; cursor: pointer; box-sizing: border-box; display: flex; flex-direction: column; gap: 1px; transition: filter .15s; z-index: 2; }
+.bp { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 3px 6px; font-size: 11px; overflow: hidden; cursor: pointer; box-sizing: border-box; display: flex; flex-direction: column; gap: 1px; transition: filter .15s; z-index: 2; min-height: 30px; }
 .bp:hover { filter: brightness(1.15); z-index: 3; }
 .bp-header { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .bpt { font-size: 9px; opacity: 0.85; white-space: nowrap; font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.04em; flex-shrink: 0; }
@@ -346,6 +346,8 @@ select.inp option { background: #0d1d2b; color: var(--text-primary); }
 .bp:hover .bp-actions { opacity: 1; }
 .bp-btn { font-size: 10px; cursor: pointer; padding: 2px 4px; border-radius: 3px; line-height: 1; border: none; background: rgba(255,255,255,0.12); color: inherit; font-family: var(--font); transition: background .1s; }
 .bp-btn:hover { background: rgba(255,255,255,0.25); }
+.bp-resize { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; cursor: ns-resize; border-radius: 0 0 5px 5px; opacity: 0; transition: opacity .15s; }
+.bp:hover .bp-resize { opacity: 1; background: rgba(255,255,255,0.18); }
 .mp { background: rgba(77,159,255,0.18); color: #6db5ff; }
 .fp { background: rgba(167,139,250,0.18); color: var(--purple); }
 .wp { background: rgba(255,179,71,0.18); color: var(--amber); }
@@ -957,6 +959,7 @@ body::before {
         <div class="mb">
           <div class="mt" id="block-modal-title">Add block</div>
           <div class="fg"><div class="fl">Time</div><div class="tp-wrap"><button type="button" class="inp fi tp-btn" id="block-time-btn" onclick="toggleTP()"><span id="block-time-display">Select time</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></button><div class="tp-drop" id="tp-drop"></div></div><input type="hidden" id="block-time" /></div>
+          <div class="fg"><div class="fl">Duration</div><select class="inp" id="block-duration" style="width:auto"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hr</option><option value="90">1.5 hr</option><option value="120">2 hr</option><option value="180">3 hr</option><option value="240">4 hr</option></select></div>
           <div class="fg"><div class="fl">Title</div><input class="inp fi" id="block-title" onkeydown="if(event.key==='Enter') saveBlock()" placeholder="e.g. Harford onboarding call" /></div>
           <div class="fg"><div class="fl">Type</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
@@ -1383,7 +1386,7 @@ function RW(){
       if(b.color){p.className='bp';const tc=getTextColor(b.color);p.style.cssText=`background:${b.color};color:${tc};border:1px solid rgba(0,0,0,0.12);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
       else{p.className='bp '+(TMAP[b.type]||'mp');p.style.top=(top!==null?top:4)+'px';p.style.height=(b.duration||60)/60*HOUR_H+'px';}
       const doneClass=b.done?' done-block':'';
-      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
+      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span><div class="bp-resize" onmousedown="startBlockResize(event,'${k}',${bi})"></div>`;
       col.appendChild(p);
     });
     gBody.appendChild(col);
@@ -1481,6 +1484,7 @@ function OBM(k,dt,prefillTime){
   pendDay=k; pendEditRealIdx=null; selBT='meeting';
   document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   setBlockTime(prefillTime||null); document.getElementById('block-title').value='';
+  const durElO=document.getElementById('block-duration');if(durElO)durElO.value=60;
   document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
   document.getElementById('btype-meeting').classList.add('sel');
   selBlockColor='default';
@@ -1501,11 +1505,12 @@ function SBC(el,color){
 function saveBlock(){
   const time=document.getElementById('block-time').value.trim(), title=document.getElementById('block-title').value.trim();
   if(!time||!title||!pendDay)return;
+  const dur=parseInt(document.getElementById('block-duration')?.value)||60;
   if(!wBlocks[pendDay])wBlocks[pendDay]=[];
   if(pendEditRealIdx!==null){
-    wBlocks[pendDay][pendEditRealIdx]={...wBlocks[pendDay][pendEditRealIdx],time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor};
+    wBlocks[pendDay][pendEditRealIdx]={...wBlocks[pendDay][pendEditRealIdx],time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor,duration:dur};
   } else {
-    wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor});
+    wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor,duration:dur});
   }
   save(); closeBM(); RW(); renderHomeWidgets();
   showToast(pendEditRealIdx!==null ? 'Block updated' : 'Block added');
@@ -1532,6 +1537,7 @@ function editBlock(k,idx,e){
   const dt=new Date(k+'T12:00:00');
   document.getElementById('block-modal-title').textContent='Edit block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   setBlockTime(bl.time);
+  const durElE=document.getElementById('block-duration');if(durElE)durElE.value=bl.duration||60;
   document.getElementById('block-title').value=bl.title;
   selBT=bl.type||'meeting';
   document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
@@ -1541,6 +1547,31 @@ function editBlock(k,idx,e){
   document.querySelector('#block-modal .btn-p').textContent='Save changes';
   document.getElementById('block-modal').classList.add('open');
   setTimeout(()=>document.getElementById('block-title').focus(),50);
+}
+var resizeDrag=null;
+function startBlockResize(e,k,bi){
+  e.stopPropagation();e.preventDefault();
+  const blocks=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)),bl=blocks[bi];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri===-1)return;
+  const el=e.target.parentElement;
+  resizeDrag={k,ri,startY:e.clientY,origDur:bl.duration||60,el};
+  const onMove=ev=>{
+    const dy=ev.clientY-resizeDrag.startY;
+    const newDur=Math.max(30,Math.round((resizeDrag.origDur+dy/HOUR_H*60)/15)*15);
+    resizeDrag.el.style.height=(newDur/60*HOUR_H)+'px';
+  };
+  const onUp=ev=>{
+    const dy=ev.clientY-resizeDrag.startY;
+    const newDur=Math.max(30,Math.round((resizeDrag.origDur+dy/HOUR_H*60)/15)*15);
+    wBlocks[resizeDrag.k][resizeDrag.ri].duration=newDur;
+    save();RW();renderHomeWidgets();
+    resizeDrag=null;
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+  };
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
 }
 
 // ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
@@ -1899,7 +1930,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .cal-now-dot{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:#00c4a7;}
   .dc{position:relative;border-left:1px solid var(--glass-border);}
   .dc.today{background:rgba(0,196,167,0.02);}
-  .bp{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 6px;font-size:11px;overflow:hidden;cursor:pointer;box-sizing:border-box;display:flex;flex-direction:column;gap:1px;transition:filter .15s;z-index:2;}
+  .bp{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 6px;font-size:11px;overflow:hidden;cursor:pointer;box-sizing:border-box;display:flex;flex-direction:column;gap:1px;transition:filter .15s;z-index:2;min-height:30px;}
   .bp:hover{filter:brightness(1.15);z-index:3;}
   .bp-header{display:flex;align-items:center;justify-content:space-between;gap:4px;}
   .bpt{font-size:9px;opacity:0.85;white-space:nowrap;font-family:var(--font-mono);font-weight:600;letter-spacing:0.04em;flex-shrink:0;}
@@ -1909,6 +1940,8 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
   .bp:hover .bp-actions{opacity:1;}
   .bp-btn{font-size:10px;cursor:pointer;padding:2px 4px;border-radius:3px;line-height:1;border:none;background:rgba(255,255,255,0.12);color:inherit;font-family:var(--font);transition:background .1s;}
   .bp-btn:hover{background:rgba(255,255,255,0.25);}
+  .bp-resize{position:absolute;bottom:0;left:0;right:0;height:6px;cursor:ns-resize;border-radius:0 0 5px 5px;opacity:0;transition:opacity .15s;}
+  .bp:hover .bp-resize{opacity:1;background:rgba(0,0,0,0.12);}
   .mp{background:rgba(77,159,255,0.18);color:#6db5ff;}
   .fp{background:rgba(167,139,250,0.18);color:var(--purple);}
   .wp{background:rgba(255,179,71,0.18);color:var(--amber);}
@@ -2297,6 +2330,7 @@ Schema: {"sections":[{"heading":"string","bullets":["string"]}],"nextSteps":[{"o
         <div class="mb">
           <div class="mt" id="block-modal-title">Add block</div>
           <div class="fg"><div class="fl">Time</div><div class="tp-wrap"><button type="button" class="inp fi tp-btn" id="block-time-btn" onclick="toggleTP()"><span id="block-time-display">Select time</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></button><div class="tp-drop" id="tp-drop"></div></div><input type="hidden" id="block-time" /></div>
+          <div class="fg"><div class="fl">Duration</div><select class="inp" id="block-duration" style="width:auto"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hr</option><option value="90">1.5 hr</option><option value="120">2 hr</option><option value="180">3 hr</option><option value="240">4 hr</option></select></div>
           <div class="fg"><div class="fl">Title</div><input class="inp fi" id="block-title" onkeydown="if(event.key==='Enter') saveBlock()" placeholder="e.g. Harford onboarding call" /></div>
           <div class="fg"><div class="fl">Type</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
@@ -2723,7 +2757,7 @@ function RW(){
       if(b.color){p.className='bp';const tc=getTextColor(b.color);p.style.cssText=`background:${b.color};color:${tc};border:1px solid rgba(0,0,0,0.12);top:${top!==null?top:4}px;height:${(b.duration||60)/60*HOUR_H}px;`;}
       else{p.className='bp '+(TMAP[b.type]||'mp');p.style.top=(top!==null?top:4)+'px';p.style.height=(b.duration||60)/60*HOUR_H+'px';}
       const doneClass=b.done?' done-block':'';
-      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span>`;
+      p.innerHTML=`<div class="bp-header"><span class="bpt">${b.time}</span><span class="bp-actions"><button class="bp-btn" title="Edit" onclick="editBlock('${k}',${bi},event)">✎</button><button class="bp-btn" title="${b.done?'Unmark':'Mark done'}" onclick="toggleBlock('${k}',${bi},event)">${b.done?'↩':'✓'}</button><button class="bp-btn" title="Delete" onclick="DB2('${k}',${bi},event)">✕</button></span></div><span class="bptl${doneClass}">${b.title}</span><div class="bp-resize" onmousedown="startBlockResize(event,'${k}',${bi})"></div>`;
       col.appendChild(p);
     });
     gBody.appendChild(col);
@@ -2821,6 +2855,7 @@ function OBM(k,dt,prefillTime){
   pendDay=k; pendEditRealIdx=null; selBT='meeting';
   document.getElementById('block-modal-title').textContent='Add block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   setBlockTime(prefillTime||null); document.getElementById('block-title').value='';
+  const durElO=document.getElementById('block-duration');if(durElO)durElO.value=60;
   document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
   document.getElementById('btype-meeting').classList.add('sel');
   selBlockColor='default';
@@ -2841,11 +2876,12 @@ function SBC(el,color){
 function saveBlock(){
   const time=document.getElementById('block-time').value.trim(), title=document.getElementById('block-title').value.trim();
   if(!time||!title||!pendDay)return;
+  const dur=parseInt(document.getElementById('block-duration')?.value)||60;
   if(!wBlocks[pendDay])wBlocks[pendDay]=[];
   if(pendEditRealIdx!==null){
-    wBlocks[pendDay][pendEditRealIdx]={...wBlocks[pendDay][pendEditRealIdx],time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor};
+    wBlocks[pendDay][pendEditRealIdx]={...wBlocks[pendDay][pendEditRealIdx],time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor,duration:dur};
   } else {
-    wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor});
+    wBlocks[pendDay].push({time,title,type:selBT,color:selBlockColor==='default'?null:selBlockColor,duration:dur});
   }
   save(); closeBM(); RW(); renderHomeWidgets();
   showToast(pendEditRealIdx!==null ? 'Block updated' : 'Block added');
@@ -2872,6 +2908,7 @@ function editBlock(k,idx,e){
   const dt=new Date(k+'T12:00:00');
   document.getElementById('block-modal-title').textContent='Edit block — '+dt.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   setBlockTime(bl.time);
+  const durElE=document.getElementById('block-duration');if(durElE)durElE.value=bl.duration||60;
   document.getElementById('block-title').value=bl.title;
   selBT=bl.type||'meeting';
   document.querySelectorAll('[id^="btype-"]').forEach(el=>el.classList.remove('sel'));
@@ -2881,6 +2918,31 @@ function editBlock(k,idx,e){
   document.querySelector('#block-modal .btn-p').textContent='Save changes';
   document.getElementById('block-modal').classList.add('open');
   setTimeout(()=>document.getElementById('block-title').focus(),50);
+}
+var resizeDrag=null;
+function startBlockResize(e,k,bi){
+  e.stopPropagation();e.preventDefault();
+  const blocks=[...wBlocks[k]].sort((a,b)=>a.time.localeCompare(b.time)),bl=blocks[bi];
+  const ri=wBlocks[k].findIndex(b=>b.time===bl.time&&b.title===bl.title&&b.type===bl.type);
+  if(ri===-1)return;
+  const el=e.target.parentElement;
+  resizeDrag={k,ri,startY:e.clientY,origDur:bl.duration||60,el};
+  const onMove=ev=>{
+    const dy=ev.clientY-resizeDrag.startY;
+    const newDur=Math.max(30,Math.round((resizeDrag.origDur+dy/HOUR_H*60)/15)*15);
+    resizeDrag.el.style.height=(newDur/60*HOUR_H)+'px';
+  };
+  const onUp=ev=>{
+    const dy=ev.clientY-resizeDrag.startY;
+    const newDur=Math.max(30,Math.round((resizeDrag.origDur+dy/HOUR_H*60)/15)*15);
+    wBlocks[resizeDrag.k][resizeDrag.ri].duration=newDur;
+    save();RW();renderHomeWidgets();
+    resizeDrag=null;
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+  };
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
 }
 
 // ─── CLIENT REQUEST ───────────────────────────────────────────────────────────
